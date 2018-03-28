@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="ATE_Engine.js"></script>
+        <script src="ATE_Segment.js"></script>
+        <script src="ATE_Layer.js"></script>
+        <script src="ATE_Playback.js"></script>
+        <script src="utils/ATE_Button.js"></script>
+        <script src="utils/ATE_HtmlButton.js"></script>
+        <script src="utils/ATE_ScrollBar.js"></script>
+        <script src="Easing.js"></script>
+    </head>
+    <body>
+        
+        <div id="animation-timeline-editor"></div>
+        
+    </body>
+    
+    <script>
+        $(document).ready(function(){
+            var timeline = new ATE_Engine();
+            timeline.Initialize("#animation-timeline-editor");
+            
+            setInterval(function() {
+                timeline.Update(33);
+            }, 33);
+        });
+    </script>
+</html>
