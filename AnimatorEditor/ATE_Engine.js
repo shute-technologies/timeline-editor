@@ -451,8 +451,9 @@ function ATE_Engine() {
         // Draw
         mSelf.DrawGUI(dt);
         mSelf.DrawLayersGUI(dt);
-        mSelf.DrawLayers(dt);
+        
         mSelf.DrawSegments(dt);
+        mSelf.DrawLayers(dt);
         
         mButton_Record.Update(dt);
         mButton_PlayOrPause.Update(dt);

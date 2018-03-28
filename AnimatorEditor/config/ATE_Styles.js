@@ -3,7 +3,7 @@ ATE_Styles.Default_Seconds = 10;
 ATE_Styles.Default_SubSegments = 10;
 
 ATE_Styles.GUIHeight = 300;
-ATE_Styles.CanvasHeight = 280;
+ATE_Styles.CanvasHeight = 284;
 ATE_Styles.BackgroundColor = "#4e4e4e";
 
 // Controls: Styles
