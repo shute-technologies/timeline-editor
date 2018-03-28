@@ -406,8 +406,10 @@ function ATE_Layer(ate) {
         var ctx = mSelf.ctx;
         var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
         
-        var x = 0;
-        var y = mATE.GetScrollY() + ((index + 1) * layerHeight) + 
+        var scrollX = mATE.GetScrollX();
+        var scrollY = mATE.GetScrollY();
+        var x = scrollX;
+        var y = scrollY + ((index + 1) * layerHeight) + 
             ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY;
         var toX = (mATE.GetAnimationSeconds() * mATE.GetGUI_RealSegmentWidth() + 
             ATE_Styles.Timeline.OffsetX);
@@ -427,6 +429,7 @@ function ATE_Layer(ate) {
         mCurrentIndex = index;
         
         var ctx = mSelf.ctx;
+        var scrollX = mATE.GetScrollX();
         var scrollY = mATE.GetScrollY();
         var keyframeRD = mSelf.GetKeyFrameRenderData(keyframe);
         
@@ -435,7 +438,7 @@ function ATE_Layer(ate) {
                 case ATE_Layer.TweenType.Linear:
                     var nextKeyframeRD = mSelf.GetKeyFrameRenderData(nextKeyframe);
                     
-                    var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5);
+                    var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5) + scrollX;
                     var rectY = (keyframeRD.Y - mOffsetY_Img) + scrollY;
                     var rectW = nextKeyframeRD.X - keyframeRD.X;
                     var rectH = ATE_Styles.AC_TimelineLayerHeight;

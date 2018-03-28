@@ -28,15 +28,12 @@ function ATE_Segment(ate) {
         var subSegments = mATE.GetSubSegments() + 1;
         var subSegmentWidth = (tsWidth / subSegments);
         
-        // Compute the real width
-        //tsWidth = tsWidth + subSegmentWidth;
-        //subSegmentWidth += subSegmentWidth / subSegments;
-        
+        var scrollX = mATE.GetScrollX();
         var initX = (mActualSecond * tsWidth) - (mActualSecond !== 0 ? subSegmentWidth * mActualSecond : 0);
         var initY = ATE_Styles.AC_TimelineHeight;
         
         for (var i = 0; i < subSegments; i++) {
-            var x = Math.round(initX + (i * subSegmentWidth)) + ATE_Styles.Timeline.OffsetX;
+            var x = Math.round(initX + (i * subSegmentWidth)) + ATE_Styles.Timeline.OffsetX + scrollX;
             var y = Math.round(initY) + ATE_Styles.Timeline.OffsetY;
             var isLimit = i === 0 || (i === subSegments - 1);
             var subSegmentHeight = isLimit

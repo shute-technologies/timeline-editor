@@ -20,6 +20,7 @@ function ATE_Engine() {
     
     var mWidth = 0;
     var mHeight = 0;
+    var mScrollX = 0;
     var mScrollY = 0;
     
     this.ctx = undefined;
@@ -35,7 +36,7 @@ function ATE_Engine() {
     // internal variables for GUI
     var mGUI_RealSegmentWidth;
     var mGUI_RealSubSegmentWidth;
-    var mGUILayers_ScrollHeight;
+    //var mGUILayers_ScrollHeight;
     
     // buttons
     var mButton_PlayOrPause;
@@ -43,7 +44,8 @@ function ATE_Engine() {
     var mButton_Stop;
     
     // scrollBar
-    var mScrollBar_GeneralY;
+    var mScrollYSelector;
+    var mScrollYContentSelector;
     
     this.GetCanvasContext = function() { return mCanvasContext; }
     this.GetAnimationSeconds = function() { return mAnimationSeconds; }
@@ -56,11 +58,10 @@ function ATE_Engine() {
     
     // internal for GUI
     this.GetWidth = function() { return mWidth; }
-    this.GetHeight = function() { return mHeight; }
+    this.GetScrollX = function() { return mScrollX; }
     this.GetScrollY = function() { return mScrollY; }
     this.GetGUI_RealSegmentWidth = function() { return mGUI_RealSegmentWidth; }
     this.GetGUI_RealSubSegmentWidth = function() { return mGUI_RealSubSegmentWidth; }
-    this.GetGUILayers_ScrollHeight = function() { return mGUILayers_ScrollHeight; }
     
     this.GetLayers = function() { return mLayers; }
     this.GetSegments = function() { return mSegments; }
@@ -103,7 +104,6 @@ function ATE_Engine() {
         mParentCanvasSelector.on('mousemove', function(evt) {
             var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
             // on mouse move
-            mScrollBar_GeneralY.OnMouseMove(mousePos);
             mPlaybackController.OnMouseMove(mousePos);
         });
         
@@ -111,7 +111,6 @@ function ATE_Engine() {
         mParentCanvasSelector.on('mouseup', function(evt) {
             var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
             // on mouse move
-            mScrollBar_GeneralY.OnMouseUp(mousePos);
             mPlaybackController.OnMouseUp(mousePos);
         });
         
@@ -119,7 +118,6 @@ function ATE_Engine() {
         mParentCanvasSelector.on('mousedown', function(evt) {
             var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
             // on mouse move
-            mScrollBar_GeneralY.OnMouseDown(mousePos);
             mPlaybackController.OnMouseDown(mousePos);
         });
         
@@ -136,7 +134,7 @@ function ATE_Engine() {
         mParentCanvasSelector.on('mouseout', function(evt) {
             var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
             
-            mScrollBar_GeneralY.OnMouseOut(mousePos);
+            //mScrollBar_GeneralY.OnMouseOut(mousePos);
             mPlaybackController.OnMouseOut(mousePos);
         });
         
@@ -163,9 +161,14 @@ function ATE_Engine() {
         
         mParentCanvasSelectorName = "canvas-" + mParentSelectorName.substring(1);
         mParentCanvasSelector = $("<canvas id='" + mParentCanvasSelectorName + "' width='" + (mWidth - ATE_Styles.AC_Width) + "' height='" + mHeight + "'></canvas>");
-        mParentCanvasSelector.css("float", "right");
+        mParentCanvasSelector.css("float", "left");
         // add HTML canvas
         mParentSelector.append(mParentCanvasSelector);
+        
+        mScrollYSelector = $("<div style='height:" + ATE_Styles.CanvasHeight + "px;width: 16px;float: right;overflow-y: auto;'></div>");
+        mScrollYContentSelector = $("<div style='height:" + ATE_Styles.CanvasHeight +"px'></div>");
+        mScrollYSelector.append(mScrollYContentSelector);
+        mParentSelector.append(mScrollYSelector);
         
         // get Canvas Context as 2D
         mSelf.ctx = mParentCanvasSelector[0].getContext("2d");
@@ -225,10 +228,6 @@ function ATE_Engine() {
                 // change animation seconds
                 mSelf.ChangeAnimationSeconds(parseInt(val));
             });
-            
-            // scrollBar
-            mScrollBar_GeneralY = new ATE_ScrollBar(mSelf);
-            mScrollBar_GeneralY.Initialize();
             
             ATE_Engine.SetStylesInput_Time(mInputCurrentTimeSelector, true);
             ATE_Engine.SetStylesInput_Time(inputTimeLimitSelector);
@@ -412,18 +411,19 @@ function ATE_Engine() {
     this.ComputeVariables = function() {
         mGUI_RealSubSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth / (mSubSegments + 1);
         mGUI_RealSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth - mGUI_RealSubSegmentWidth;
-        mGUILayers_ScrollHeight = mLayersUI_Selector[0].scrollHeight;
+
+        // force value to the selector of LayersUI
+        var layersHeight = ((mLayers.length + 2) * ATE_Styles.AC_TimelineLayerHeight);
         
-        // get scrollbar Y
-        mScrollY = -mScrollBar_GeneralY.GetCurrentScrollY();
+        mScrollYContentSelector.css('height', layersHeight);
+        mScrollY = -mScrollYSelector[0].scrollTop;
         mLayersUI_Selector[0].scrollTop = -mScrollY;
     }
     
     this.Update = function (dt) {
         // Update size dynamically
         mWidth = mParentSelector.width();
-        mHeight = ATE_Styles.CanvasHeight;
-        mParentCanvasSelector.attr('width', mWidth - ATE_Styles.AC_Width);
+        mParentCanvasSelector.attr('width', mWidth - ATE_Styles.AC_Width - 20);
         mParentCanvasSelector.attr('height', mHeight);
         
         // Compute
@@ -438,7 +438,6 @@ function ATE_Engine() {
         mButton_Record.Update(dt);
         mButton_PlayOrPause.Update(dt);
         mButton_Stop.Update(dt);
-        mScrollBar_GeneralY.Update(dt);
         
         mPlaybackController.Update(dt);
     }
@@ -540,17 +539,3 @@ ATE_Engine.SetStylesInput_Time = function(selector, isDisabled) {
         selector.attr('disabled', isDisabled);
     }
 }
-
-function ATE_Resources() {}
-ATE_Resources.Diamond = {
-    Id: "ate-img-diamond",
-    Path: "res/spATE_diamond.png",
-    TimelineWidth: 10,
-    TimelineHeight: 10
-};
-ATE_Resources.DiamondSelected = {
-    Id: "ate-img-diamond-selected",
-    Path: "res/spATE_diamond_selected.png",
-    TimelineWidth: 10,
-    TimelineHeight: 10
-};
