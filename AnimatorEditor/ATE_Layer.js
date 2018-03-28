@@ -453,7 +453,7 @@ function ATE_Layer(ate) {
         }
         
         // finally draw keyframe
-        ctx.drawImage(keyframeRD.Img, keyframeRD.X, keyframeRD.Y + scrollY, 
+        ctx.drawImage(keyframeRD.Img, keyframeRD.X + scrollX, keyframeRD.Y + scrollY, 
             keyframeRD.Width, keyframeRD.Height);
     }
     

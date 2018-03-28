@@ -43,6 +43,7 @@ function ATE_Playback(ate) {
     
     this.OnMouseDown = function(mousePos) {
         if (!mIsPlaying) {
+            var scrollX = mATE.GetScrollX();
             var offsetX = ATE_Styles.Timeline.OffsetX;
             var animationSeconds = mATE.GetAnimationSeconds();
             var segmentWidth = mATE.GetGUI_RealSegmentWidth();
@@ -91,7 +92,8 @@ function ATE_Playback(ate) {
         }
         else {
             if (mIsMouseDown) {
-                var inSegment = ATE_Engine.GetSegment(mATE, mMousePos.x, mMousePos.y);
+                var scrollX = mATE.GetScrollX();
+                var inSegment = ATE_Engine.GetSegment(mATE, mMousePos.x - scrollX, mMousePos.y);
                 var newTime = inSegment / ATE_Styles.Default_SubSegments;
                 
                 if (mCurrentTime !== newTime) {
@@ -117,10 +119,11 @@ function ATE_Playback(ate) {
     this.Draw = function(dt) {
         var ctx = mSelf.ctx;
         
+        var scrollX = mATE.GetScrollX();
         var segmentWidth = mATE.GetGUI_RealSegmentWidth();
         var subSegmentWidth = mATE.GetGUI_RealSubSegmentWidth();
-        var x = (ATE_Styles.Timeline.OffsetX + (mCurrentTime * segmentWidth)) - 
-            subSegmentWidth - (ATE_Styles.Playback.GUI_Width / 4) + 1;
+        var x = ((ATE_Styles.Timeline.OffsetX + (mCurrentTime * segmentWidth)) - 
+            subSegmentWidth - (ATE_Styles.Playback.GUI_Width / 4) + 1) + scrollX;
         var y = ATE_Styles.Timeline.OffsetY;
         var xCenter = x + (ATE_Styles.Playback.GUI_Width * 0.5) + 1;
         

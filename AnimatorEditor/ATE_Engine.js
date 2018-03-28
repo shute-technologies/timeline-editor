@@ -43,7 +43,10 @@ function ATE_Engine() {
     var mButton_Record;
     var mButton_Stop;
     
-    // scrollBar
+    // scrollBar: X
+    var mScrollXSelector;
+    var mScrollXContentSelector;
+    // scrollBar: Y
     var mScrollYSelector;
     var mScrollYContentSelector;
     
@@ -72,7 +75,7 @@ function ATE_Engine() {
         mParentSelectorName = selectorName;
         mParentSelector = $(mParentSelectorName);
         mWidth = mParentSelector.width();
-        mHeight = ATE_Styles.CanvasHeight;
+        mHeight = ATE_Styles.GUIHeight;
         
         var imgSelector = $("<img id='" + ATE_Resources.Diamond.Id + "' src='" + 
             ATE_Resources.Diamond.Path + "' />");
@@ -160,15 +163,24 @@ function ATE_Engine() {
         mParentSelector.append(mParentGUISelector);
         
         mParentCanvasSelectorName = "canvas-" + mParentSelectorName.substring(1);
-        mParentCanvasSelector = $("<canvas id='" + mParentCanvasSelectorName + "' width='" + (mWidth - ATE_Styles.AC_Width) + "' height='" + mHeight + "'></canvas>");
+        mParentCanvasSelector = $("<canvas id='" + mParentCanvasSelectorName + 
+            "' width='" + (mWidth - ATE_Styles.AC_Width) + 
+            "' height='" + ATE_Styles.CanvasHeight + "'></canvas>");
         mParentCanvasSelector.css("float", "left");
         // add HTML canvas
         mParentSelector.append(mParentCanvasSelector);
         
+        // ScrollY HTML
         mScrollYSelector = $("<div style='height:" + ATE_Styles.CanvasHeight + "px;width: 16px;float: right;overflow-y: auto;'></div>");
         mScrollYContentSelector = $("<div style='height:" + ATE_Styles.CanvasHeight +"px'></div>");
         mScrollYSelector.append(mScrollYContentSelector);
         mParentSelector.append(mScrollYSelector);
+        
+        // ScrollX HTML
+        mScrollXSelector = $("<div style='height:" + (ATE_Styles.GUIHeight - ATE_Styles.CanvasHeight) + "px;width: 0px;float: left;overflow-X: auto;'></div>");
+        mScrollXContentSelector = $("<div style='width:0px;height:1px'></div>");
+        mScrollXSelector.append(mScrollXContentSelector);
+        mParentSelector.append(mScrollXSelector);
         
         // get Canvas Context as 2D
         mSelf.ctx = mParentCanvasSelector[0].getContext("2d");
@@ -411,11 +423,18 @@ function ATE_Engine() {
     this.ComputeVariables = function() {
         mGUI_RealSubSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth / (mSubSegments + 1);
         mGUI_RealSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth - mGUI_RealSubSegmentWidth;
-
-        // force value to the selector of LayersUI
-        var layersHeight = ((mLayers.length + 2) * ATE_Styles.AC_TimelineLayerHeight);
         
-        mScrollYContentSelector.css('height', layersHeight);
+        // ScrollX
+        var layerContentWidth = (mGUI_RealSegmentWidth * mAnimationSeconds) + ATE_Styles.AC_TimelineHeight;
+        mScrollXSelector.css('width', (mWidth - ATE_Styles.AC_Width));
+        mScrollXContentSelector.css('width', layerContentWidth);
+        // set scroll value
+        mScrollX = -mScrollXSelector[0].scrollLeft;
+        
+        // ScrollY
+        var layerContentHeight = ((mLayers.length + 2) * ATE_Styles.AC_TimelineLayerHeight);
+        mScrollYContentSelector.css('height', layerContentHeight);
+        // set scroll valiue
         mScrollY = -mScrollYSelector[0].scrollTop;
         mLayersUI_Selector[0].scrollTop = -mScrollY;
     }
@@ -424,7 +443,7 @@ function ATE_Engine() {
         // Update size dynamically
         mWidth = mParentSelector.width();
         mParentCanvasSelector.attr('width', mWidth - ATE_Styles.AC_Width - 20);
-        mParentCanvasSelector.attr('height', mHeight);
+        mParentCanvasSelector.attr('height', ATE_Styles.CanvasHeight);
         
         // Compute
         mSelf.ComputeVariables();
