@@ -61,6 +61,11 @@ function ATE_Layer(ate) {
     
     this.OnPlayOrPause = function(isPlaying) {
         if (isPlaying) {
+            // remove listeners
+            mLayerValueSelector.off();
+            mSelectOptionSelector.off();
+            mButtonKeyframeAddSelector.off();
+            
             mLayerValueSelector.css('display', "block");
             mLayerValueSelector.attr('disabled', true);
             mSelectOptionSelector.css("display", "none");
@@ -316,19 +321,23 @@ function ATE_Layer(ate) {
     }
     
     var OnValueChange = function(evt) {
-        var currentTime = mATE.GetPlaybackController().GetCurrentTime();
-        var keyframe = mSelf.GetKeyframeByTime(currentTime);
+        var isPlaying = mATE.GetPlaybackController().GetIsPlaying();
         
-        if (keyframe) {
-            var selectValue = parseInt($(this).val());
+        if (!isPlaying) {
+            var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+            var keyframe = mSelf.GetKeyframeByTime(currentTime);
             
-            switch (keyframe.DataType) {
-                case ATE_Layer.DataTypes.Numeric:
-                    keyframe.Value = parseFloat(selectValue);
-                    break;
-                default:
-                    // code
-                    break;
+            if (keyframe) {
+                var selectValue = $(this).val();
+                
+                switch (keyframe.DataType) {
+                    case ATE_Layer.DataTypes.Numeric:
+                        keyframe.Value = parseFloat(selectValue);
+                        break;
+                    default:
+                        // code
+                        break;
+                }
             }
         }
     }
@@ -383,12 +392,30 @@ function ATE_Layer(ate) {
                 // compute real time between frames for the tween
                 var diffTime = fkeTime - fkiTime;
                 var actualTime = 1.0 - ((fkeTime - time) / diffTime);
+                var functionObj = undefined;
                 
                 switch (keyframes.KFi.TweenType) {
-                    case ATE_Layer.TweenType.Linear:
-                        resultValue = Easing.Equations.linear(actualTime, kfiValue, kfeValue, 1);
-                        break;
+                    case ATE_Layer.TweenType.EaseLinear:    functionObj = Easing.Equations.easeLinear; break;
+                    case ATE_Layer.TweenType.EaseInQuad:    functionObj = Easing.Equations.easeInQuad; break;
+                    case ATE_Layer.TweenType.EaseOutQuad:   functionObj = Easing.Equations.easeOutQuad; break;
+                    case ATE_Layer.TweenType.EaseInOutQuad: functionObj = Easing.Equations.easeInOutQuad; break;
+                    case ATE_Layer.TweenType.EaseInCubic:    functionObj = Easing.Equations.easeInCubic; break;
+                    case ATE_Layer.TweenType.EaseOutCubic:   functionObj = Easing.Equations.easeOutCubic; break;
+                    case ATE_Layer.TweenType.EaseInOutCubic: functionObj = Easing.Equations.easeInOutCubic; break;
+                    case ATE_Layer.TweenType.EaseInSine:    functionObj = Easing.Equations.easeInSine; break;
+                    case ATE_Layer.TweenType.EaseOutSine:   functionObj = Easing.Equations.easeOutSine; break;
+                    case ATE_Layer.TweenType.EaseInOutSine: functionObj = Easing.Equations.easeInOutSine; break;
+                    case ATE_Layer.TweenType.EaseInExpo:    functionObj = Easing.Equations.easeInExpo; break;
+                    case ATE_Layer.TweenType.EaseOutExpo:   functionObj = Easing.Equations.easeOutExpo; break;
+                    case ATE_Layer.TweenType.EaseInOutExpo: functionObj = Easing.Equations.easeInOutExpo; break;
+                    case ATE_Layer.TweenType.EaseInElastic:    functionObj = Easing.Equations.easeInElastic; break;
+                    case ATE_Layer.TweenType.EaseOutElastic:   functionObj = Easing.Equations.easeOutElastic; break;
+                    case ATE_Layer.TweenType.EaseInOutElastic: functionObj = Easing.Equations.easeInOutElastic; break;
                 } 
+                
+                if (functionObj) {
+                    resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                }
             }
             
             // set value in label
@@ -435,7 +462,22 @@ function ATE_Layer(ate) {
         
         if (nextKeyframe) {
             switch (keyframe.TweenType) {
-                case ATE_Layer.TweenType.Linear:
+                case ATE_Layer.TweenType.EaseLinear:
+                case ATE_Layer.TweenType.EaseInQuad:
+                case ATE_Layer.TweenType.EaseOutQuad:
+                case ATE_Layer.TweenType.EaseInOutQuad:
+                case ATE_Layer.TweenType.EaseInCubic:
+                case ATE_Layer.TweenType.EaseOutCubic:
+                case ATE_Layer.TweenType.EaseInOutCubic:
+                case ATE_Layer.TweenType.EaseInSine:
+                case ATE_Layer.TweenType.EaseOutSine:
+                case ATE_Layer.TweenType.EaseInOutSine:
+                case ATE_Layer.TweenType.EaseInExpo:
+                case ATE_Layer.TweenType.EaseOutExpo:
+                case ATE_Layer.TweenType.EaseInOutExpo:
+                case ATE_Layer.TweenType.EaseInElastic:
+                case ATE_Layer.TweenType.EaseOutElastic:
+                case ATE_Layer.TweenType.EaseInOutElastic:
                     var nextKeyframeRD = mSelf.GetKeyFrameRenderData(nextKeyframe);
                     
                     var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5) + scrollX;
@@ -481,7 +523,22 @@ ATE_Layer.DataTypes = {
 
 ATE_Layer.TweenType = {
     None: 0,
-    Linear: 1
+    EaseLinear: 1,
+    EaseInQuad: 2,
+    EaseOutQuad: 3,
+    EaseInOutQuad: 4,
+    EaseInCubic: 5,
+    EaseOutCubic: 6,
+    EaseInOutCubic: 7,
+    EaseInSine: 8,
+    EaseOutSine: 9,
+    EaseInOutSine: 10,
+    EaseInExpo: 11,
+    EaseOutExpo: 12,
+    EaseInOutExpo: 13,
+    EaseInElastic: 14,
+    EaseOutElastic: 15,
+    EaseInOutElastic: 16
 }
 
 ATE_Layer.EditControls = {

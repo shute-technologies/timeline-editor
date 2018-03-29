@@ -34,8 +34,8 @@
 function Easing() {}
 Easing.Equations = {
 
-	linear: function (t, b, c, d) {
-		return b + (c - b) * (t/=d);
+	easeLinear: function (t, b, c, d) {
+		return c * t / d + b;
 	},
 	easeInQuad: function (t, b, c, d) {
 		return c*(t/=d)*t + b;
