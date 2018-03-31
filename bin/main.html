@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="ate.js"></script>
+    </head>
+    <body>
+        
+        <div id="animation-timeline-editor"></div>
+        
+    </body>
+    
+    <script>
+        $(document).ready(function(){
+            var timeline = new ATE_Engine();
+            timeline.Initialize("#animation-timeline-editor");
+            timeline.AddLayer("x", 0, 0);
+            timeline.AddLayer("x", 0.3, 65);
+            timeline.AddLayer("x", 0.5, 100);
+            timeline.AddLayer("x", 0.7, 180);
+            timeline.AddLayer("x", 0.8, 205);
+            timeline.AddLayer("x", 2, 230);
+            
+            timeline.AddLayer("y", 0.3, 240);
+            timeline.AddLayer("y", 1, 400);
+            timeline.AddLayer("y", 1.5, 700);
+            
+            timeline.AddLayer("a", 0, 0);
+            timeline.AddLayer("b", 0, 0);
+            timeline.AddLayer("c", 0, 0);
+            timeline.AddLayer("d", 0, 0);
+            timeline.AddLayer("e", 0, 0);
+            timeline.AddLayer("f", 0, 0);
+            timeline.AddLayer("g", 0, 0);
+            timeline.AddLayer("g1", 0, 0);
+            timeline.AddLayer("g2", 0, 0);
+            timeline.AddLayer("g3", 0, 0);
+            timeline.AddLayer("g4", 0, 0);
+            
+            // invalidate render
+            timeline.InvalidateLayers();
+            
+            setInterval(function() {
+                timeline.Update(33);
+            }, 33);
+        });
+    </script>
+</html>

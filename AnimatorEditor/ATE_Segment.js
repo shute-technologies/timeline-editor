@@ -53,7 +53,7 @@ function ATE_Segment(ate) {
             // Draw background line
             ctx.beginPath()
             ctx.moveTo(x, y);
-            ctx.lineTo(x, ATE_Styles.CanvasHeight);
+            ctx.lineTo(x, mATE.GetHeight() - ATE_Styles.ScrollbarHeight);
             ctx.lineWidth = 1;
             ctx.strokeStyle = isLimit ? ATE_Styles.AC_TimelineSubSegment_Color : ATE_Styles.CStroke_Color;
             ctx.stroke();

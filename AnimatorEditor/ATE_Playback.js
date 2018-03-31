@@ -51,7 +51,7 @@ function ATE_Playback(ate) {
             var x = offsetX;
             var y = 0;
             var width = (segmentWidth * animationSeconds);
-            var height = ATE_Styles.CanvasHeight + ATE_Styles.AC_TimelineHeight;
+            var height = mATE.GetHeight() + ATE_Styles.AC_TimelineHeight;
             
             var isHitted = ATE_Util.HitTestByPoint(x, y, width, height, 
                 mousePos.x, mousePos.y);
@@ -137,7 +137,7 @@ function ATE_Playback(ate) {
         // Draw line
         ctx.beginPath();
         ctx.moveTo(xCenter, y);
-        ctx.lineTo(xCenter, ATE_Styles.CanvasHeight);
+        ctx.lineTo(xCenter, mATE.GetHeight());
         ctx.lineWidth = 1;
         ctx.strokeStyle = ATE_Styles.Playback.GUI_LineColor;
         ctx.stroke();
