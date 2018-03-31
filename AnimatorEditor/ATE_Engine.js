@@ -73,6 +73,27 @@ function ATE_Engine() {
     this.GetPlaybackController = function() { return mPlaybackController; }
     this.GetCurrentFocusSegment = function() { return mCurrentFocusSegment; }
     
+    this.GetAnimationData = function() {
+        var resultData = {
+            AnimationSeconds: mAnimationSeconds,
+            FPS: mPlaybackController.GetFPS(),
+            Layers: [],
+            LayerCount: 0
+        };
+        
+        for (var i = 0; i < mLayers.length; i++) {
+            var layerName = mLayers[i].GetLayerName();
+            var layerData = mLayers[i].GetLayerData();
+            
+            resultData.Layers.push({
+                Data: layerData,
+                Name: layerName
+            });
+        }
+        
+        return resultData;
+    }
+    
     this.Initialize = function(selectorName) {
         mParentSelectorName = selectorName;
         mParentSelector = $(mParentSelectorName);
@@ -97,7 +118,7 @@ function ATE_Engine() {
         
         mPlaybackController = new ATE_Playback(mSelf);
         mPlaybackController.Initialize();
-        mPlaybackController.ConfigureFPS(60);
+        mPlaybackController.ConfigureFPS(ATE_Styles.Playback.DefaultTime);
     }
     
     this.InvalidateLayers = function() {
@@ -350,6 +371,17 @@ function ATE_Engine() {
                         seconds + ATE_PlaybackEngine.EPSILON,
                         Number.MAX_VALUE);
                 }
+            }
+            
+            // update segments
+            updateSegments();
+        }
+        
+        function updateSegments() {
+            for (var i = 0; i < mSegments.length; i++) {
+                var segment = mSegments[i];
+                segment.FirstSegment = i === 0;
+                segment.LastSegment = i === (seconds - 1);
             }
         }
         

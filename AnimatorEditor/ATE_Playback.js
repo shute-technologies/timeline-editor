@@ -5,6 +5,7 @@ function ATE_Playback(ate) {
     this.ctx = mATE.ctx;
     
     var mIsPlaying = false;
+    var mFPS = 0;
     var mCurrentTime = 0;
     var mPlayingSpeed = 1 / ATE_Styles.Playback.DefaultTime;
     var mInputCurrentTimeSelector = mATE.GetInputCurrentTimeSelector();
@@ -15,12 +16,15 @@ function ATE_Playback(ate) {
     
     this.GetIsPlaying = function() { return mIsPlaying; }
     this.GetCurrentTime = function() { return mCurrentTime; }
+    this.GetFPS = function() { return mFPS; }
     
     this.Initialize = function() {
         
     }
     
     this.ConfigureFPS = function(fps) {
+        mFPS = fps;
+        
         var deltaTime = 1000.0 / fps;
         mPlayingSpeed = (1 / ATE_Styles.Playback.DefaultTime) / deltaTime;
     }

@@ -22,6 +22,7 @@ function ATE_Layer(ate) {
     var mButtonKeyframeAddSelector;
     
     this.GetLayerName = function() { return mLayerName; } 
+    this.GetLayerData = function () { return mKeyframes; }
     
     this.Initialize = function(name) {
         mLayerName = name;
@@ -428,7 +429,6 @@ ATE_Layer.EditControls = {
     Keyframe: 2,
     Tween: 3
 }
-
 
 ATE_Layer.SetLabelCSS_LayerName = function(selector) {
     selector.css("height", ATE_Styles.AC_TimelineLayerHeight);
