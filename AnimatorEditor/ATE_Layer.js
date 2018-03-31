@@ -91,53 +91,6 @@ function ATE_Layer(ate) {
         }
     }
     
-    this.GetKeyframeByPosition = function(x, y) {
-        var resultKeyframe = undefined;
-        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
-        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
-        var offsetX_Image = 0;
-        var offsetY_Image = ((layerHeight * 0.5) + offsetX_Image) ;
-        
-         for (var i = 0; i < mKeyframes.length; i++) {
-            var keyframe = mKeyframes[i];
-            
-            if (keyframe) {
-                var keyframeX = (keyframe.Time * segmentWidth) + offsetX_Image + ATE_Styles.Timeline.OffsetX;
-                var keyframeY = (mCurrentIndex * layerHeight) + ATE_Styles.AC_TimelineHeight + 
-                    offsetY_Image + ATE_Styles.Timeline.OffsetY;
-                    
-                var wasHitted = ATE_Util.HitTestCenterByPoint(keyframeX, keyframeY, 
-                    mDiamondRealWidth, mDiamondRealHeight, x, y);
-                    
-                if (wasHitted) {
-                    resultKeyframe = keyframe;
-                    break;
-                }
-            }
-        }
-        
-        return resultKeyframe;
-    }
-    
-    this.GetKeyframeByTime = function(time) {
-        var resultKeyframe = undefined;
-        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
-        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
-        var offsetX_Image = 0;
-        var offsetY_Image = ((layerHeight * 0.5) + offsetX_Image) ;
-       
-        for (var i = 0; i < mKeyframes.length; i++) {
-            var keyframe = mKeyframes[i];
-            
-            if (keyframe && (keyframe.Time >= (time - ATE_Engine.EPSILON) && keyframe.Time <= (time + ATE_Engine.EPSILON))) {
-                resultKeyframe = keyframe;
-                break;
-            }
-        }
-        
-        return resultKeyframe;
-    }
-    
     this.SetKeyframe = function (time, value) {
         var keyframe = {
             Name: mLayerName,
@@ -185,46 +138,32 @@ function ATE_Layer(ate) {
         }
     }
     
-    this.GetKeyframesBetween = function(time) {
-        var result = {
-            KFi: undefined,
-            KFe: undefined,
-            NoData: true,
-            KFi_IsFirst: false,
-            KFe_IsLast: false
-        };
+    this.GetKeyframeByPosition = function(x, y) {
+        var resultKeyframe = undefined;
+        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
+        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
+        var offsetX_Image = 0;
+        var offsetY_Image = ((layerHeight * 0.5) + offsetX_Image) ;
         
-        var size = mKeyframes.length;
-        
-        if (size > 1) {
-            for (var i = 0; i < size; i++) {
-                var _kfI = mKeyframes[i];
-                var _kfE = mKeyframes[i + 1];
-                
-                if (_kfI.Time <= time) {
-                    if (_kfE && _kfE.Time >= time) {
-                        result.KFi = _kfI;
-                        result.KFe = _kfE;
-                        result.NoData = false;
-                        result.KFi_IsFirst = i === 0;
-                        result.KFe_IsLast = (i + 1) === (size - 1);
-                        break;
-                    }
-                    else if (_kfE === undefined) { // last
-                        result.KFe_IsLast = true;
-                        result.KFi = _kfI;
-                        result.NoData = false;
-                    }
+         for (var i = 0; i < mKeyframes.length; i++) {
+            var keyframe = mKeyframes[i];
+            
+            if (keyframe) {
+                var keyframeX = (keyframe.Time * segmentWidth) + offsetX_Image + ATE_Styles.Timeline.OffsetX;
+                var keyframeY = (mCurrentIndex * layerHeight) + ATE_Styles.AC_TimelineHeight + 
+                    offsetY_Image + ATE_Styles.Timeline.OffsetY;
+                    
+                var wasHitted = ATE_Util.HitTestCenterByPoint(keyframeX, keyframeY, 
+                    mDiamondRealWidth, mDiamondRealHeight, x, y);
+                    
+                if (wasHitted) {
+                    resultKeyframe = keyframe;
+                    break;
                 }
             }
         }
-        else if (size === 1) {
-            result.KFi = mKeyframes[0];
-            result.NoData = false;
-            result.KFi_IsFirst = true;
-        }
         
-        return result;
+        return resultKeyframe;
     }
     
     this.GetKeyFrameRenderData = function(keyframe) {
@@ -262,7 +201,7 @@ function ATE_Layer(ate) {
     this.ShowEditControls = function(editControlState) {
         if (!mATE.GetPlaybackController().GetIsPlaying()) {
             var currentTime = mATE.GetPlaybackController().GetCurrentTime();
-            var keyframe = mSelf.GetKeyframeByTime(currentTime);
+            var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
             
             switch (editControlState) {
                 case ATE_Layer.EditControls.Value_Editable:
@@ -273,8 +212,8 @@ function ATE_Layer(ate) {
                     mSelectOptionSelector.css("display", "none");
                     mSelectOptionSelector.off();
                     
-                    mButtonKeyframeAddSelector.css("display", "none");
-                    mButtonKeyframeAddSelector.off();
+                    mButtonKeyframeAddSelector.css("display", "block");
+                    mButtonKeyframeAddSelector.off().on('click', OnRemoveKeyframeButtonClick);
                     break;
                 case ATE_Layer.EditControls.Keyframe:
                     mLayerValueSelector.css('display', "none");
@@ -325,7 +264,7 @@ function ATE_Layer(ate) {
         
         if (!isPlaying) {
             var currentTime = mATE.GetPlaybackController().GetCurrentTime();
-            var keyframe = mSelf.GetKeyframeByTime(currentTime);
+            var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
             
             if (keyframe) {
                 var selectValue = $(this).val();
@@ -345,7 +284,7 @@ function ATE_Layer(ate) {
     var OnTweenChange = function(evt) {
         var selectValue = parseInt($(this).val());
         var currentTime = mATE.GetPlaybackController().GetCurrentTime();
-        var keyframe = mSelf.GetKeyframeByTime(currentTime);
+        var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
         
         if (keyframe) {
             keyframe.TweenType = selectValue;
@@ -355,8 +294,8 @@ function ATE_Layer(ate) {
     this.UpdateFromPlayback = function(time, dt, isEditable) {
         isEditable = isEditable !== undefined ? isEditable : false;
         
-        var keyframe = mSelf.GetKeyframeByTime(time);
-        var keyframes = mSelf.GetKeyframesBetween(time);
+        var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, time);
+        var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(mKeyframes, time);
         
         if (!keyframes.NoData) {
             // Editable logic
@@ -381,42 +320,8 @@ function ATE_Layer(ate) {
             }
             ////////////////
             
-            var kfiValue = keyframes.KFi.Value;
-            var resultValue = keyframe ? keyframe.Value : kfiValue;
-            
-            if (keyframes.KFe) {
-                var fkiTime = keyframes.KFi.Time;
-                var fkeTime = keyframes.KFe.Time;
-                var kfeValue = keyframes.KFe.Value;
-                
-                // compute real time between frames for the tween
-                var diffTime = fkeTime - fkiTime;
-                var actualTime = 1.0 - ((fkeTime - time) / diffTime);
-                var functionObj = undefined;
-                
-                switch (keyframes.KFi.TweenType) {
-                    case ATE_Layer.TweenType.EaseLinear:    functionObj = Easing.Equations.easeLinear; break;
-                    case ATE_Layer.TweenType.EaseInQuad:    functionObj = Easing.Equations.easeInQuad; break;
-                    case ATE_Layer.TweenType.EaseOutQuad:   functionObj = Easing.Equations.easeOutQuad; break;
-                    case ATE_Layer.TweenType.EaseInOutQuad: functionObj = Easing.Equations.easeInOutQuad; break;
-                    case ATE_Layer.TweenType.EaseInCubic:    functionObj = Easing.Equations.easeInCubic; break;
-                    case ATE_Layer.TweenType.EaseOutCubic:   functionObj = Easing.Equations.easeOutCubic; break;
-                    case ATE_Layer.TweenType.EaseInOutCubic: functionObj = Easing.Equations.easeInOutCubic; break;
-                    case ATE_Layer.TweenType.EaseInSine:    functionObj = Easing.Equations.easeInSine; break;
-                    case ATE_Layer.TweenType.EaseOutSine:   functionObj = Easing.Equations.easeOutSine; break;
-                    case ATE_Layer.TweenType.EaseInOutSine: functionObj = Easing.Equations.easeInOutSine; break;
-                    case ATE_Layer.TweenType.EaseInExpo:    functionObj = Easing.Equations.easeInExpo; break;
-                    case ATE_Layer.TweenType.EaseOutExpo:   functionObj = Easing.Equations.easeOutExpo; break;
-                    case ATE_Layer.TweenType.EaseInOutExpo: functionObj = Easing.Equations.easeInOutExpo; break;
-                    case ATE_Layer.TweenType.EaseInElastic:    functionObj = Easing.Equations.easeInElastic; break;
-                    case ATE_Layer.TweenType.EaseOutElastic:   functionObj = Easing.Equations.easeOutElastic; break;
-                    case ATE_Layer.TweenType.EaseInOutElastic: functionObj = Easing.Equations.easeInOutElastic; break;
-                } 
-                
-                if (functionObj) {
-                    resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
-                }
-            }
+            // Playback Engine
+            resultValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time);
             
             // set value in label
             mLayerValueSelector.val(resultValue.toFixed(3));
