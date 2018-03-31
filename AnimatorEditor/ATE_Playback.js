@@ -148,11 +148,11 @@ function ATE_Playback(ate) {
         ctx.fillStyle = ATE_Styles.Playback.GUI_TextColor;
         ctx.textAlign = "center";
         ctx.fillText(
-            ATE_Util.FormatTime((mCurrentTime + ATE_Engine.EPSILON) * 1000, 2, true), 
+            ATE_Util.FormatTime((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000, 2, true), 
             xCenter,
             y + ATE_Styles.Playback.GUI_Height + ATE_Styles.Playback.GUI_TextTimeOffset.Y);
             
         // set the GUI current time 
-        mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds((mCurrentTime + ATE_Engine.EPSILON) * 1000));
+        mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000));
     }
 }

@@ -38,7 +38,7 @@ function ATE_Layer(ate) {
         var parentControls = $("<div style='float:right;padding-top: 5px;'></div>");
         mLayerValueSelector = $("<input type='text'></input>");
         
-        mSelectOptionSelector = ATE_Layer.CreateTweenSelect(ATE_Layer.TweenType);
+        mSelectOptionSelector = ATE_Layer.CreateTweenSelect(ATE_PlaybackEngine.TweenType);
         mButtonKeyframeAddSelector = ATE_Layer.CreateKeyframeAddButton();
         
         // add controls to the parent controls div
@@ -95,9 +95,9 @@ function ATE_Layer(ate) {
         var keyframe = {
             Name: mLayerName,
             Time: time,
-            DataType: ATE_Layer.DataTypes.Numeric,
+            DataType: ATE_PlaybackEngine.DataTypes.Numeric,
             Value: value,
-            TweenType: ATE_Layer.TweenType.None,
+            TweenType: ATE_PlaybackEngine.TweenType.None,
             __Img: mDiamondImg,
             __ImgSelected: mDiamondSelectedImg,
             __Selected: false
@@ -270,7 +270,7 @@ function ATE_Layer(ate) {
                 var selectValue = $(this).val();
                 
                 switch (keyframe.DataType) {
-                    case ATE_Layer.DataTypes.Numeric:
+                    case ATE_PlaybackEngine.DataTypes.Numeric:
                         keyframe.Value = parseFloat(selectValue);
                         break;
                     default:
@@ -367,22 +367,22 @@ function ATE_Layer(ate) {
         
         if (nextKeyframe) {
             switch (keyframe.TweenType) {
-                case ATE_Layer.TweenType.EaseLinear:
-                case ATE_Layer.TweenType.EaseInQuad:
-                case ATE_Layer.TweenType.EaseOutQuad:
-                case ATE_Layer.TweenType.EaseInOutQuad:
-                case ATE_Layer.TweenType.EaseInCubic:
-                case ATE_Layer.TweenType.EaseOutCubic:
-                case ATE_Layer.TweenType.EaseInOutCubic:
-                case ATE_Layer.TweenType.EaseInSine:
-                case ATE_Layer.TweenType.EaseOutSine:
-                case ATE_Layer.TweenType.EaseInOutSine:
-                case ATE_Layer.TweenType.EaseInExpo:
-                case ATE_Layer.TweenType.EaseOutExpo:
-                case ATE_Layer.TweenType.EaseInOutExpo:
-                case ATE_Layer.TweenType.EaseInElastic:
-                case ATE_Layer.TweenType.EaseOutElastic:
-                case ATE_Layer.TweenType.EaseInOutElastic:
+                case ATE_PlaybackEngine.TweenType.EaseLinear:
+                case ATE_PlaybackEngine.TweenType.EaseInQuad:
+                case ATE_PlaybackEngine.TweenType.EaseOutQuad:
+                case ATE_PlaybackEngine.TweenType.EaseInOutQuad:
+                case ATE_PlaybackEngine.TweenType.EaseInCubic:
+                case ATE_PlaybackEngine.TweenType.EaseOutCubic:
+                case ATE_PlaybackEngine.TweenType.EaseInOutCubic:
+                case ATE_PlaybackEngine.TweenType.EaseInSine:
+                case ATE_PlaybackEngine.TweenType.EaseOutSine:
+                case ATE_PlaybackEngine.TweenType.EaseInOutSine:
+                case ATE_PlaybackEngine.TweenType.EaseInExpo:
+                case ATE_PlaybackEngine.TweenType.EaseOutExpo:
+                case ATE_PlaybackEngine.TweenType.EaseInOutExpo:
+                case ATE_PlaybackEngine.TweenType.EaseInElastic:
+                case ATE_PlaybackEngine.TweenType.EaseOutElastic:
+                case ATE_PlaybackEngine.TweenType.EaseInOutElastic:
                     var nextKeyframeRD = mSelf.GetKeyFrameRenderData(nextKeyframe);
                     
                     var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5) + scrollX;
@@ -420,30 +420,6 @@ function ATE_Layer(ate) {
         mDiamondImg = undefined;
         mDiamondSelectedImg = undefined;
     }
-}
-
-ATE_Layer.DataTypes = {
-  Numeric: 1  
-};
-
-ATE_Layer.TweenType = {
-    None: 0,
-    EaseLinear: 1,
-    EaseInQuad: 2,
-    EaseOutQuad: 3,
-    EaseInOutQuad: 4,
-    EaseInCubic: 5,
-    EaseOutCubic: 6,
-    EaseInOutCubic: 7,
-    EaseInSine: 8,
-    EaseOutSine: 9,
-    EaseInOutSine: 10,
-    EaseInExpo: 11,
-    EaseOutExpo: 12,
-    EaseInOutExpo: 13,
-    EaseInElastic: 14,
-    EaseOutElastic: 15,
-    EaseInOutElastic: 16
 }
 
 ATE_Layer.EditControls = {

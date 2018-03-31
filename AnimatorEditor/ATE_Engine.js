@@ -347,7 +347,7 @@ function ATE_Engine() {
                 // destroy unnecesary keyframe
                 for (var i = 0; i < mLayers.length; i++) {
                     mLayers[i].RemoveKeyframesBetween(
-                        seconds + ATE_Engine.EPSILON,
+                        seconds + ATE_PlaybackEngine.EPSILON,
                         Number.MAX_VALUE);
                 }
             }
@@ -476,8 +476,6 @@ function ATE_Engine() {
         mPlaybackController.Update(dt);
     }
 }
-
-ATE_Engine.EPSILON = 0.001;
 
 ATE_Engine.GetLayerByPosition = function(ate, x, y) {
     var layers = ate.GetLayers();

@@ -3,6 +3,10 @@ function ATE_PlaybackEngine() { }
 // Configurable
 ATE_PlaybackEngine.EasingEquations = Easing.Equations;
 
+ATE_PlaybackEngine.ByAnimation = function(time) {
+    
+}
+
 ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
     var resultValue = undefined;
     var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(keyframesData, time);
@@ -23,22 +27,22 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
             var functionObj = undefined;
             
             switch (keyframes.KFi.TweenType) {
-                case ATE_Layer.TweenType.EaseLinear:    functionObj = ATE_PlaybackEngine.EasingEquations.easeLinear; break;
-                case ATE_Layer.TweenType.EaseInQuad:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInQuad; break;
-                case ATE_Layer.TweenType.EaseOutQuad:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutQuad; break;
-                case ATE_Layer.TweenType.EaseInOutQuad: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutQuad; break;
-                case ATE_Layer.TweenType.EaseInCubic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInCubic; break;
-                case ATE_Layer.TweenType.EaseOutCubic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutCubic; break;
-                case ATE_Layer.TweenType.EaseInOutCubic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutCubic; break;
-                case ATE_Layer.TweenType.EaseInSine:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInSine; break;
-                case ATE_Layer.TweenType.EaseOutSine:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutSine; break;
-                case ATE_Layer.TweenType.EaseInOutSine: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutSine; break;
-                case ATE_Layer.TweenType.EaseInExpo:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInExpo; break;
-                case ATE_Layer.TweenType.EaseOutExpo:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutExpo; break;
-                case ATE_Layer.TweenType.EaseInOutExpo: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutExpo; break;
-                case ATE_Layer.TweenType.EaseInElastic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInElastic; break;
-                case ATE_Layer.TweenType.EaseOutElastic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutElastic; break;
-                case ATE_Layer.TweenType.EaseInOutElastic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutElastic; break;
+                case ATE_PlaybackEngine.TweenType.EaseLinear:    functionObj = ATE_PlaybackEngine.EasingEquations.easeLinear; break;
+                case ATE_PlaybackEngine.TweenType.EaseInQuad:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutQuad:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutQuad: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseInCubic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutCubic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutCubic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInSine:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutSine:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutSine: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseInExpo:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutExpo:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutExpo: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseInElastic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInElastic; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutElastic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutElastic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutElastic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutElastic; break;
             } 
             
             if (functionObj) {
@@ -56,7 +60,9 @@ ATE_PlaybackEngine.GetKeyframeByTime = function(keyframesData, time) {
     for (var i = 0; i < keyframesData.length; i++) {
         var keyframe = keyframesData[i];
         
-        if (keyframe && (keyframe.Time >= (time - ATE_Engine.EPSILON) && keyframe.Time <= (time + ATE_Engine.EPSILON))) {
+        if (keyframe && (keyframe.Time >= (time - ATE_PlaybackEngine.EPSILON) && 
+            keyframe.Time <= (time + ATE_PlaybackEngine.EPSILON))) {
+            
             resultKeyframe = keyframe;
             break;
         }
@@ -105,4 +111,30 @@ ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
     }
     
     return result;
+}
+
+ATE_PlaybackEngine.EPSILON = 0.001;
+
+ATE_PlaybackEngine.DataTypes = {
+  Numeric: 1  
+};
+
+ATE_PlaybackEngine.TweenType = {
+    None: 0,
+    EaseLinear: 1,
+    EaseInQuad: 2,
+    EaseOutQuad: 3,
+    EaseInOutQuad: 4,
+    EaseInCubic: 5,
+    EaseOutCubic: 6,
+    EaseInOutCubic: 7,
+    EaseInSine: 8,
+    EaseOutSine: 9,
+    EaseInOutSine: 10,
+    EaseInExpo: 11,
+    EaseOutExpo: 12,
+    EaseInOutExpo: 13,
+    EaseInElastic: 14,
+    EaseOutElastic: 15,
+    EaseInOutElastic: 16
 }
