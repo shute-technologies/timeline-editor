@@ -1,11 +1,82 @@
-function ATE_PlaybackEngine() { }
+function ATE_PlaybackEngine() {
+    var mSelf = this;
+    var mAnimationData = undefined;
+    
+    var mFPS;
+    var mAnimationSeconds;
+    
+    var mPlayingSpeed = 0;
+    var mCurrentTime = 0;
+    var mIsPlaying = false;
+    
+    this.Animations = {};
+    
+    this.GetIsPlaying = function() { return mIsPlaying; }
+    this.GetCurrentTime = function() { return mCurrentTime; }
+    this.GetAnimationSeconds = function() { return mAnimationSeconds; }
+    this.GetFPS = function() { return mFPS; }
+    
+    this.Initialize = function(animationData) {
+        mAnimationData = animationData;
+        mAnimationSeconds = animationData.AnimationSeconds;
+        
+        mSelf.ConfigureFPS(animationData.FPS);
+        
+        // Initialize Animations object reference
+        for (var i = 0; i < mAnimationData.LayerCount; i++) {
+            var layerObj = mAnimationData.Layers[i];
+            
+            var layerName = layerObj.Name;
+            var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+            
+            this.Animations[layerName] = resultValue;
+        }
+    }
+    
+    this.ConfigureFPS = function(fps) {
+        mFPS = fps;
+        
+        var deltaTime = 1000.0 / fps;
+        mPlayingSpeed = (1 / ATE_PlaybackEngine.DefaultTime) / deltaTime;
+    }
+    
+    this.Play = function() {
+        if (!mIsPlaying) {
+            mIsPlaying = true;
+        }
+    }
+    
+    this.Stop = function() {
+        if (mIsPlaying) {
+            mIsPlaying = false;
+            mCurrentTime = 0;
+        }
+    }
+    
+    this.Update = function(dt) {
+        if (mIsPlaying) {
+            if (mCurrentTime >= mAnimationSeconds) { mCurrentTime = 0; }
+            else {
+                mCurrentTime += mPlayingSpeed * dt;
+                mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
+                mCurrentTime = mCurrentTime > mAnimationSeconds ? mAnimationSeconds : mCurrentTime;
+            }
+            
+            for (var i = 0; i < mAnimationData.LayerCount; i++) {
+                var layerObj = mAnimationData.Layers[i];
+                
+                var layerName = layerObj.Name;
+                var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+                
+                this.Animations[layerName] = resultValue;
+            }
+        }
+    }
+}
 
 // Configurable
 ATE_PlaybackEngine.EasingEquations = Easing.Equations;
-
-ATE_PlaybackEngine.ByAnimation = function(time) {
-    
-}
+ATE_PlaybackEngine.DefaultTime = 60;
 
 ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
     var resultValue = undefined;

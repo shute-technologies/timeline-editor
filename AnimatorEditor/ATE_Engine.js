@@ -78,7 +78,7 @@ function ATE_Engine() {
             AnimationSeconds: mAnimationSeconds,
             FPS: mPlaybackController.GetFPS(),
             Layers: [],
-            LayerCount: 0
+            LayerCount: mLayers.length
         };
         
         for (var i = 0; i < mLayers.length; i++) {
