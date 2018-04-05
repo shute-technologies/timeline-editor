@@ -60,6 +60,10 @@ function ATE_Layer(ate) {
         
     }
     
+    this.ReconstructFrom = function(data) {
+        mKeyframes = data;
+    }
+    
     this.OnPlayOrPause = function(isPlaying) {
         if (isPlaying) {
             // remove listeners
@@ -93,24 +97,31 @@ function ATE_Layer(ate) {
     }
     
     this.SetKeyframe = function (time, value) {
-        var keyframe = {
-            Name: mLayerName,
-            Time: time,
-            DataType: ATE_PlaybackEngine.DataTypes.Numeric,
-            Value: value,
-            TweenType: ATE_PlaybackEngine.TweenType.None,
-            __Img: mDiamondImg,
-            __ImgSelected: mDiamondSelectedImg,
-            __Selected: false
-        };
+        var resultKeyframe = mSelf.GetKeyframeByTime(time);
         
-        mKeyframes.push(keyframe);
+        if (resultKeyframe) {
+            resultKeyframe.Value = value;
+        }
+        else {
+            resultKeyframe = {
+                Name: mLayerName,
+                Time: time,
+                DataType: ATE_PlaybackEngine.DataTypes.Numeric,
+                Value: value,
+                TweenType: ATE_PlaybackEngine.TweenType.None
+            };
+            
+            mKeyframes.push(resultKeyframe);
+            
+            mKeyframes.sort(function(a, b) {
+              return a.Time - b.Time;
+            });
+        }
         
-        mKeyframes.sort(function(a, b) {
-          return a.Time - b.Time;
-        });
+        // change
+        if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
         
-        return keyframe;
+        return resultKeyframe;
     }
     
     this.RemoveKeyframe = function(time) {
@@ -126,6 +137,9 @@ function ATE_Layer(ate) {
         mKeyframes.sort(function(a, b) {
           return a.Time - b.Time;
         });
+        
+        // change
+        if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
     }
     
     this.RemoveKeyframesBetween = function(from, to) {
@@ -137,6 +151,10 @@ function ATE_Layer(ate) {
                 i--;
             }
         }
+    }
+    
+    this.GetKeyframeByTime = function(time) {
+        return ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, time);
     }
     
     this.GetKeyframeByPosition = function(x, y) {
@@ -174,14 +192,13 @@ function ATE_Layer(ate) {
         var x = (keyframe.Time * segmentWidth) + mOffsetX_Img + ATE_Styles.Timeline.OffsetX;
         var y = (mCurrentIndex * layerHeight) + ATE_Styles.AC_TimelineHeight + 
             mOffsetY_Img + ATE_Styles.Timeline.OffsetY;
-        var img = keyframe.__Selected ? keyframe.__ImgSelected : keyframe.__Img;
         
         return {
             X: x,
             Y: y,
             Width: mDiamondRealWidth,
             Height: mDiamondRealHeight,
-            Img: img,
+            Img: mDiamondImg,
             Keyframe: keyframe
         };
     }
@@ -278,6 +295,9 @@ function ATE_Layer(ate) {
                         // code
                         break;
                 }
+                
+                // change
+                if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
             }
         }
     }
@@ -289,6 +309,9 @@ function ATE_Layer(ate) {
         
         if (keyframe) {
             keyframe.TweenType = selectValue;
+            
+            // change
+            if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
         }
     }
     
@@ -406,8 +429,7 @@ function ATE_Layer(ate) {
     }
     
     this.Destroy = function() {
-        var parentSelector = mATE.GetLayersUI_Selector();
-        parentSelector.remove(mLayerSelector);
+        mLayerSelector.remove();
         
         mKeyframes = undefined;
         mSelf.ctx = undefined;

@@ -22,11 +22,16 @@ function ATE_Playback(ate) {
         
     }
     
-    this.ConfigureFPS = function(fps) {
+    this.ConfigureFPS = function(fps, noChange) {
         mFPS = fps;
         
         var deltaTime = 1000.0 / fps;
         mPlayingSpeed = (1 / ATE_Styles.Playback.DefaultTime) / deltaTime;
+        
+        if (noChange === undefined) {
+            // change
+            if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+        }
     }
     
     this.OnMouseOut = function(mousePos) {
@@ -81,10 +86,13 @@ function ATE_Playback(ate) {
         // Layers: OnPlayOrPause
         var layers = mATE.GetLayers();
         for (var i = 0; i < layers.length; i++) { layers[i].OnStop(); }
+        //Update
+        mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds(mCurrentTime * 1000));
     }
     
     this.Update = function(dt) {
         var animationSeconds = mATE.GetAnimationSeconds();
+        var changedTime = false;
         
         if (mIsPlaying) {
             if (mCurrentTime >= animationSeconds) { mCurrentTime = 0; }
@@ -93,6 +101,8 @@ function ATE_Playback(ate) {
                 mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
                 mCurrentTime = mCurrentTime > animationSeconds ? animationSeconds : mCurrentTime;
             }
+            
+            changedTime = true;
         }
         else {
             if (mIsMouseDown) {
@@ -104,6 +114,8 @@ function ATE_Playback(ate) {
                     mCurrentTime = newTime;
                     mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
                     mCurrentTime = mCurrentTime > animationSeconds ? animationSeconds : mCurrentTime;
+                    
+                    changedTime = true;
                 }
             }
         }
@@ -117,10 +129,10 @@ function ATE_Playback(ate) {
             }
         }
         
-        mSelf.Draw(dt);
+        mSelf.Draw(dt, changedTime);
     }
     
-    this.Draw = function(dt) {
+    this.Draw = function(dt, changedTime) {
         var ctx = mSelf.ctx;
         
         var scrollX = mATE.GetScrollX();
@@ -156,7 +168,9 @@ function ATE_Playback(ate) {
             xCenter,
             y + ATE_Styles.Playback.GUI_Height + ATE_Styles.Playback.GUI_TextTimeOffset.Y);
             
-        // set the GUI current time 
-        mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000));
+        if (changedTime) {
+            // set the GUI current time 
+            mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000));
+        }
     }
 }

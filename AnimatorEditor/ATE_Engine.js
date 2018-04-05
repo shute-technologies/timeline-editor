@@ -11,6 +11,7 @@ function ATE_Engine() {
     var mParentGUISelectorName;
     
     var mInputCurrentTimeSelector;
+    var mInputTimeLimitSelector;
     
     // UI Controls
     var mControlsUI_Selector;
@@ -51,6 +52,10 @@ function ATE_Engine() {
     var mScrollYSelector;
     var mScrollYContentSelector;
     
+    // functions callback events
+    var mOnRecordCallback = undefined;
+    var mOnChangeCallback = undefined;
+    
     this.GetCanvasContext = function() { return mCanvasContext; }
     this.GetAnimationSeconds = function() { return mAnimationSeconds; }
     this.GetSubSegments = function() { return mSubSegments; }
@@ -73,13 +78,17 @@ function ATE_Engine() {
     this.GetPlaybackController = function() { return mPlaybackController; }
     this.GetCurrentFocusSegment = function() { return mCurrentFocusSegment; }
     
+    this.SetForceATEHeight = function(val) { mHeight = val; }
+    this.SetOnRecordCallback = function(callback) { mOnRecordCallback = callback; }
+    
+    this.SetOnChangeCallback = function(callback) { mOnChangeCallback = callback; }
+    this.GetOnChangeCallback = function(callback) { return mOnChangeCallback; }
+    
     this.GetAnimationData = function() {
-        var resultData = {
-            AnimationSeconds: mAnimationSeconds,
-            FPS: mPlaybackController.GetFPS(),
-            Layers: [],
-            LayerCount: mLayers.length
-        };
+        var resultData = ATE_Engine.DefaultAnimationData();
+        resultData.AnimationSeconds = mAnimationSeconds;
+        resultData.FPS = mPlaybackController.GetFPS();
+        resultData.LayerCount = mLayers.length;
         
         for (var i = 0; i < mLayers.length; i++) {
             var layerName = mLayers[i].GetLayerName();
@@ -119,6 +128,15 @@ function ATE_Engine() {
         mPlaybackController = new ATE_Playback(mSelf);
         mPlaybackController.Initialize();
         mPlaybackController.ConfigureFPS(ATE_Styles.Playback.DefaultTime);
+    }
+    
+    this.Reset = function() {
+        mButton_PlayOrPause.Reset();
+        mButton_Record.Reset();
+        mButton_Stop.Reset();
+        mPlaybackController.Stop();
+        
+        mSelf.InvalidateLayers();
     }
     
     this.InvalidateLayers = function() {
@@ -233,6 +251,10 @@ function ATE_Engine() {
             // buttons: Record
             mButton_Record = new ATE_HtmlButton(mSelf);
             mButton_Record.Initialize("res/spRecord.png", "res/spStopRecording.png");
+            mButton_Record.SetClickCallback(function() {
+                // on record
+                if (mOnRecordCallback) { mOnRecordCallback(); }
+            });
             
             // buttons: Play/Pause
             mButton_PlayOrPause = new ATE_HtmlButton(mSelf);
@@ -258,8 +280,8 @@ function ATE_Engine() {
             var inputTimeLimitLabelSelector = $("<label style='font-size:12px;color:white;margin-left:5px'>Time:<label/>");
             mInputCurrentTimeSelector = $("<input type='text' value='0.00' />");
             
-            var inputTimeLimitSelector = $("<input type='text' value='" + ATE_Util.GetDigitsByValue(ATE_Styles.Default_Seconds, 2) + ".00'/>");
-            inputTimeLimitSelector.on('change', function() {
+            mInputTimeLimitSelector = $("<input type='text' value='" + ATE_Util.GetDigitsByValue(ATE_Styles.Default_Seconds, 2) + ".00'/>");
+            mInputTimeLimitSelector.on('change', function() {
                 var val = Math.floor(parseFloat($(this).val()));
                 val = ATE_Util.GetDigitsByValue(val, 2);
                 $(this).val(val + ".00");
@@ -269,7 +291,7 @@ function ATE_Engine() {
             });
             
             ATE_Engine.SetStylesInput_Time(mInputCurrentTimeSelector, true);
-            ATE_Engine.SetStylesInput_Time(inputTimeLimitSelector);
+            ATE_Engine.SetStylesInput_Time(mInputTimeLimitSelector);
             
             // add buttons to the selector
             buttonsUI_selector.append(mButton_Record.GetButtonSelector());
@@ -279,7 +301,7 @@ function ATE_Engine() {
             buttonsUI_selector.append(inputTimeLimitLabelSelector);
             buttonsUI_selector.append(mInputCurrentTimeSelector);
             buttonsUI_selector.append($("<label style='color:white'>/<label/>"));
-            buttonsUI_selector.append(inputTimeLimitSelector);
+            buttonsUI_selector.append(mInputTimeLimitSelector);
             
             mParentGUISelector.append(mControlsUI_Selector);
             mParentGUISelector.append(hrSelector);
@@ -298,10 +320,47 @@ function ATE_Engine() {
         }
     }
     
-    this.ChangeAnimationSeconds = function(seconds) {
+    this.ChangeAnimationSeconds = function(seconds, noChange) {
         mAnimationSeconds = seconds;
-        
         mSelf.CreateSegments(mAnimationSeconds);
+        
+        // update UI control
+        var val = Math.floor(parseFloat(mAnimationSeconds));
+        val = ATE_Util.GetDigitsByValue(val, 2);
+        mInputTimeLimitSelector.val(val + ".00");
+        
+        // change
+        if (noChange === undefined) {
+            if (mOnChangeCallback) { mOnChangeCallback(); }
+        }
+    }
+    
+    this.ReconstructFrom = function(animationData) {
+        mSelf.RemoveAllLayers();
+        
+        if (animationData && Object.keys(animationData).length > 0) {
+            var animationSeconds = animationData.AnimationSeconds === undefined ?
+                ATE_Styles.Default_Seconds : animationData.AnimationSeconds;
+            var fps = animationData.FPS === undefined ? 
+                ATE_Styles.Playback.DefaultTime : animationData.FPS;
+            
+            mSelf.ChangeAnimationSeconds(animationSeconds, true);
+            mPlaybackController.ConfigureFPS(fps, true);
+            
+            for (var i = 0; i < animationData.LayerCount; i++) {
+                var layerData = animationData.Layers[i];
+                
+                mSelf.AddLayerFrom(layerData);
+            }
+        }
+    }
+    
+    this.RemoveAllLayers = function() {
+        for (var i = 0; i < mLayers.length; i++) {
+            mLayers[i].Destroy();
+        }
+        
+        mLayers = [];
     }
     
     this.GetLayer = function(name) {
@@ -336,13 +395,22 @@ function ATE_Engine() {
             var layer = new ATE_Layer(mSelf);
             layer.Initialize(name);
             
+            // now first add it to the array
+            mLayers.push(layer); 
+            
             result.Layer = layer;;
             result.Keyframe = layer.SetKeyframe(time, value);
-            
-            mLayers.push(layer); 
         }
         
         return result;
+    }
+    
+    this.AddLayerFrom = function(layerData) {
+        var layer = new ATE_Layer(mSelf);
+        layer.Initialize(layerData.Name);
+        layer.ReconstructFrom(layerData.Data);
+        
+        mLayers.push(layer);
     }
     
     this.CreateSegments = function(seconds) {
@@ -507,6 +575,21 @@ function ATE_Engine() {
         
         mPlaybackController.Update(dt);
     }
+    
+    this.Destroy = function() {
+        
+    }
+}
+
+ATE_Engine.DefaultAnimationData = function() {
+    var resultData = {
+        AnimationSeconds: ATE_Styles.Default_Seconds,
+        FPS: ATE_Styles.Playback.DefaultTime,
+        Layers: [],
+        LayerCount: 0
+    };
+    
+    return resultData;
 }
 
 ATE_Engine.GetLayerByPosition = function(ate, x, y) {

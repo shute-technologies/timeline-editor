@@ -1,1 +1,2025 @@
-function ATE_Resources(){}function ATE_Styles(){}function ATE_Button(e){var t=e;this.ctx=t.ctx,this.Initialize=function(){},this.Update=function(e){}}function ATE_HtmlButton(e){var t=this,n=e;this.ctx=n.ctx;var i,a,s,r,l=!1;this.GetButtonSelector=function(){return s},this.Initialize=function(e,n){i=e,a=n,(s=$("<img src='"+i+"' width='20' />")).on("click",t.OnClick)},this.Reset=function(){l=!1,s.attr("src",i)},this.SetClickCallback=function(e){r=e},this.AddMargin=function(){s.css("margin-left","4px")},this.OnClick=function(e){l=!l,a&&s.attr("src",l?a:i),r&&r(e)},this.Update=function(e){}}function ATE_Util(){}function ATE_PlaybackEngine(){var e,t,n=this,i=void 0,a=0,s=0,r=!1;this.Animations={},this.GetIsPlaying=function(){return r},this.GetCurrentTime=function(){return s},this.GetAnimationSeconds=function(){return t},this.GetFPS=function(){return e},this.Initialize=function(e){i=e,t=e.AnimationSeconds,n.ConfigureFPS(e.FPS);for(var a=0;a<i.LayerCount;a++){var r=i.Layers[a],l=r.Name,o=ATE_PlaybackEngine.ByLayer(r.Data,s);this.Animations[l]=o}},this.ConfigureFPS=function(t){e=t;var n=1e3/t;a=1/ATE_PlaybackEngine.DefaultTime/n},this.Play=function(){r||(r=!0)},this.Stop=function(){r&&(r=!1,s=0)},this.Update=function(e){if(r){s=s>=t?0:(s=(s+=a*e)<0?0:s)>t?t:s;for(var n=0;n<i.LayerCount;n++){var l=i.Layers[n],o=l.Name,c=ATE_PlaybackEngine.ByLayer(l.Data,s);this.Animations[o]=c}}}}function ATE_Engine(){var e,t,n,i,a,s,r,l,o=this,c=0,u=0,T=0,E=0,y=0;this.ctx=void 0;var f,_,h,d,g,m,S,A,p,b,v,P=ATE_Styles.Default_SubSegments,k=[],C=[];this.GetCanvasContext=function(){return mCanvasContext},this.GetAnimationSeconds=function(){return f},this.GetSubSegments=function(){return P},this.GetParentSelector=function(){return t},this.GetParentGUISelector=function(){return i},this.GetControlsUI_Selector=function(){return r},this.GetLayersUI_Selector=function(){return l},this.GetInputCurrentTimeSelector=function(){return s},this.GetWidth=function(){return c},this.GetHeight=function(){return u},this.GetScrollX=function(){return E},this.GetScrollY=function(){return y},this.GetGUI_RealSegmentWidth=function(){return h},this.GetGUI_RealSubSegmentWidth=function(){return d},this.GetLayers=function(){return C},this.GetSegments=function(){return k},this.GetPlaybackController=function(){return _},this.GetCurrentFocusSegment=function(){return-1},this.GetAnimationData=function(){for(var e={AnimationSeconds:f,FPS:_.GetFPS(),Layers:[],LayerCount:C.length},t=0;t<C.length;t++){var n=C[t].GetLayerName(),i=C[t].GetLayerData();e.Layers.push({Data:i,Name:n})}return e},this.Initialize=function(n){e=n,(t=$(e)).css("height","100%"),c=t.width(),u=ATE_Styles.GUIHeight,T=u-ATE_Styles.ScrollbarHeight;var i=$("<img id='"+ATE_Resources.Diamond.Id+"' src='"+ATE_Resources.Diamond.Path+"' />");i.css("display","none");var a=$("<img id='"+ATE_Resources.DiamondSelected.Id+"' src='"+ATE_Resources.DiamondSelected.Path+"' />");a.css("display","none"),t.append(i),t.append(a),o.CreateGUI(),o.CreateMouseEvents(),o.ChangeAnimationSeconds(ATE_Styles.Default_Seconds),(_=new ATE_Playback(o)).Initialize(),_.ConfigureFPS(ATE_Styles.Playback.DefaultTime)},this.InvalidateLayers=function(){for(var e=0;e<C.length;e++)C[e].Invalidate()},this.CreateMouseEvents=function(){function e(e,t){var n=e.getBoundingClientRect();return{x:t.clientX-n.left,y:t.clientY-n.top}}mParentCanvasSelector.on("mousemove",function(t){var n=e(mParentCanvasSelector[0],t);_.OnMouseMove(n)}),mParentCanvasSelector.on("mouseup",function(t){var n=e(mParentCanvasSelector[0],t);_.OnMouseUp(n)}),mParentCanvasSelector.on("mousedown",function(t){var n=e(mParentCanvasSelector[0],t);_.OnMouseDown(n)}),mParentCanvasSelector.on("click",function(e){}),mParentCanvasSelector.on("dblclick",function(e){}),mParentCanvasSelector.on("mouseout",function(t){var n=e(mParentCanvasSelector[0],t);_.OnMouseOut(n)})},this.CreateGUI=function(){a="gui-"+e.substring(1),(i=$("<div id='"+a+"'></div>")).css("width",ATE_Styles.AC_Width+"px"),i.css("height",u+"px"),i.css("float","left"),i.css("background-color",ATE_Styles.BackgroundColor),t.append(i),n="canvas-"+e.substring(1),mParentCanvasSelector=$("<canvas id='"+n+"' width='"+(c-ATE_Styles.AC_Width)+"' height='"+T+"'></canvas>"),mParentCanvasSelector.css("float","left"),t.append(mParentCanvasSelector),b=$("<div style='height:"+T+"px;width:"+ATE_Styles.ScrollbarHeight+"px;float: right;overflow-y: auto;'></div>"),v=$("<div style='height:"+T+"px'></div>"),b.append(v),t.append(b),A=$("<div style='height:"+(u-T)+"px;width: 0px;float: left;overflow-X: auto;'></div>"),p=$("<div style='width:0px;height:1px'></div>"),A.append(p),t.append(A),o.ctx=mParentCanvasSelector[0].getContext("2d"),function(){var e=$("<hr style='border-color:"+ATE_Styles.CStroke_Color+";border-width: 0.5px;margin: 0;padding: 0;-webkit-margin-before: 0;-webkit-margin-after: 0;-webkit-margin-start: 0;-webkit-margin-end: 0;transform: translateY(1px);' />");(r=$("<div><div>")).css("height",ATE_Styles.AC_TimelineHeight-1);var t=$("<div><div>");t.css("padding-top","4px"),t.css("padding-left","4px"),r.append(t),(m=new ATE_HtmlButton(o)).Initialize("res/spRecord.png","res/spStopRecording.png"),(g=new ATE_HtmlButton(o)).Initialize("res/spPlay.png","res/spPause.png"),g.AddMargin(),g.SetClickCallback(function(){_.PlayOrPause()}),(S=new ATE_HtmlButton(o)).Initialize("res/spStop.png"),S.AddMargin(),S.SetClickCallback(function(){g.Reset(),_.Stop()});var n=$("<label style='font-size:12px;color:white;margin-left:5px'>Time:<label/>");s=$("<input type='text' value='0.00' />");var a=$("<input type='text' value='"+ATE_Util.GetDigitsByValue(ATE_Styles.Default_Seconds,2)+".00'/>");a.on("change",function(){var e=Math.floor(parseFloat($(this).val()));e=ATE_Util.GetDigitsByValue(e,2),$(this).val(e+".00"),o.ChangeAnimationSeconds(parseInt(e))}),ATE_Engine.SetStylesInput_Time(s,!0),ATE_Engine.SetStylesInput_Time(a),t.append(m.GetButtonSelector()),t.append(g.GetButtonSelector()),t.append(S.GetButtonSelector()),t.append(n),t.append(s),t.append($("<label style='color:white'>/<label/>")),t.append(a),i.append(r),i.append(e)}(),(l=$("<div><div>")).css("height",T-ATE_Styles.AC_TimelineHeight-1+"px"),l.css("overflow-y","hidden"),i.append(l),l.append($("<div style='height:"+ATE_Styles.Timeline.OffsetY+"px'></div>"))},this.ChangeAnimationSeconds=function(e){f=e,o.CreateSegments(f)},this.GetLayer=function(e){for(var t={Exists:!1,Layer:void 0},n=0;n<C.length;n++)if(C[n].GetLayerName()===e){t.Exists=!0,t.Layer=C[n];break}return t},this.AddLayer=function(e,t,n){var i={Layer:void 0,Keyframe:void 0},a=o.GetLayer(e);if(a.Exists)i.Layer=a.Layer,i.Keyframe=a.Layer.SetKeyframe(t,n);else{var s=new ATE_Layer(o);s.Initialize(e),i.Layer=s,i.Keyframe=s.SetKeyframe(t,n),C.push(s)}return i},this.CreateSegments=function(e){function t(t,n){for(var i=t=void 0===t?0:t;i<n;i++){var a=new ATE_Segment(o);a.Initialize(i),a.FirstSegment=0===i,a.LastSegment=i===e-1,k.push(a)}}if(0===k.length)t(0,e);else{var n=e-k.length;if(n>0)t(k.length,e);else{for(var i=k.length,a=i-1;a>=i+n;a--)k[a].Destroy();k.splice(i+n,Math.abs(n));for(a=0;a<C.length;a++)C[a].RemoveKeyframesBetween(e+ATE_PlaybackEngine.EPSILON,Number.MAX_VALUE)}!function(){for(var t=0;t<k.length;t++){var n=k[t];n.FirstSegment=0===t,n.LastSegment=t===e-1}}()}},this.DrawGUI=function(e){var t=o.ctx;t.clearRect(0,0,c,u),t.fillStyle=ATE_Styles.BackgroundColor,t.fillRect(0,0,c,u),t.translate(.5,.5),t.beginPath(),t.moveTo(0,0),t.lineTo(0,T),t.lineWidth=1,t.strokeStyle=ATE_Styles.CStroke_Color,t.stroke(),t.closePath(),t.beginPath(),t.moveTo(0,ATE_Styles.AC_TimelineHeight+ATE_Styles.Timeline.OffsetY),t.lineTo(c,ATE_Styles.AC_TimelineHeight+ATE_Styles.Timeline.OffsetY),t.lineWidth=1,t.strokeStyle=ATE_Styles.CStroke_Color,t.stroke(),t.closePath()},this.DrawSegments=function(e){var t=o.ctx,n=o.GetGUI_RealSegmentWidth()*f+ATE_Styles.Timeline.OffsetX,i=ATE_Styles.AC_TimelineHeight;t.fillStyle=ATE_Styles.BackgroundColor,t.fillRect(0,0,n,i);for(var a=0;a<f;a++)k[a].Update(e)},this.DrawLayers=function(e){for(var t=0;t<C.length;t++)C[t].Update(t,e)},this.DrawLayersGUI=function(e){for(var t=0;t<C.length;t++)C[t].DrawGUI(t,e)},this.ComputeVariables=function(){d=ATE_Styles.AC_TimelineSegmentWidth/(P+1);var e=(h=ATE_Styles.AC_TimelineSegmentWidth-d)*f+ATE_Styles.AC_TimelineHeight;A.css("width",c-ATE_Styles.AC_Width),p.css("width",e),E=-A[0].scrollLeft;var t=(C.length+2)*ATE_Styles.AC_TimelineLayerHeight;v.css("height",t),y=-b[0].scrollTop,l[0].scrollTop=-y,mParentCanvasSelector.attr("width",c-ATE_Styles.AC_Width-20),mParentCanvasSelector.attr("height",T),i.css("height",u+"px"),b.css("height",T+"px"),A.css("height",u-T+"px"),l.css("height",T-ATE_Styles.AC_TimelineHeight-1+"px")},this.Update=function(e){c=t.width(),T=u-ATE_Styles.ScrollbarHeight,o.ComputeVariables(),o.DrawGUI(e),o.DrawLayersGUI(e),o.DrawLayers(e),o.DrawSegments(e),m.Update(e),g.Update(e),S.Update(e),_.Update(e)}}function ATE_Layer(e){var t=this,n=e,i=$("#"+ATE_Resources.Diamond.Id)[0],a=$("#"+ATE_Resources.DiamondSelected.Id)[0];this.ctx=n.ctx;var s,r,l,o,c,u,T,E=[],y=ATE_Resources.Diamond.TimelineWidth,f=ATE_Resources.Diamond.TimelineHeight,_=.5*-y,h=.5*ATE_Styles.AC_TimelineLayerHeight+.5*-y;this.GetLayerName=function(){return s},this.GetLayerData=function(){return E},this.Initialize=function(e){s=e;var t=n.GetLayersUI_Selector();(l=$("<div data-layer-name='"+e+"'></div>")).css("height",ATE_Styles.AC_TimelineLayerHeight);var i=$("<div></div>");i.css("height",ATE_Styles.AC_TimelineLayerHeight),o=$("<div style='float:left;'>"+s+"</div>");var a=$("<div style='float:right;padding-top: 5px;'></div>");c=$("<input type='text'></input>"),u=ATE_Layer.CreateTweenSelect(ATE_PlaybackEngine.TweenType),T=ATE_Layer.CreateKeyframeAddButton(),a.append(u),a.append(T),a.append(c),ATE_Layer.SetLabelCSS_LayerName(o),ATE_Layer.SetLabelCSS_LayerValue(c),i.append(o),i.append(a),l.append(i),l.append(ATE_Layer.CreateHR()),t.append(l)},this.OnPlayOrPause=function(e){e&&(c.off(),u.off(),T.off(),c.css("display","block"),c.attr("disabled",!0),u.css("display","none"),T.css("display","none"))},this.OnStop=function(){t.Invalidate()},this.Invalidate=function(){t.UpdateFromPlayback(n.GetPlaybackController().GetCurrentTime(),33,!0)},this.OnMouseClick_Keyframe=function(e){n.GetPlaybackController().GetIsPlaying()||c.val(e.Value.toFixed(3))},this.SetKeyframe=function(e,t){var n={Name:s,Time:e,DataType:ATE_PlaybackEngine.DataTypes.Numeric,Value:t,TweenType:ATE_PlaybackEngine.TweenType.None,__Img:i,__ImgSelected:a,__Selected:!1};return E.push(n),E.sort(function(e,t){return e.Time-t.Time}),n},this.RemoveKeyframe=function(e){for(var t=0;t<E.length;t++){var n=E[t];if(n&&n.Time===e){E.splice(t,1);break}}E.sort(function(e,t){return e.Time-t.Time})},this.RemoveKeyframesBetween=function(e,t){for(var n=0;n<E.length;n++){var i=E[n];i&&i.Time>=e&&i.Time<=t&&(E.splice(n,1),n--)}},this.GetKeyframeByPosition=function(e,t){for(var i=void 0,a=ATE_Styles.AC_TimelineLayerHeight,s=n.GetGUI_RealSegmentWidth(),l=.5*a+0,o=0;o<E.length;o++){var c=E[o];if(c){var u=c.Time*s+0+ATE_Styles.Timeline.OffsetX,T=r*a+ATE_Styles.AC_TimelineHeight+l+ATE_Styles.Timeline.OffsetY;if(ATE_Util.HitTestCenterByPoint(u,T,y,f,e,t)){i=c;break}}}return i},this.GetKeyFrameRenderData=function(e){var t=ATE_Styles.AC_TimelineLayerHeight,i=n.GetGUI_RealSegmentWidth(),a=e.Time*i+_+ATE_Styles.Timeline.OffsetX,s=r*t+ATE_Styles.AC_TimelineHeight+h+ATE_Styles.Timeline.OffsetY,l=e.__Selected?e.__ImgSelected:e.__Img;return{X:a,Y:s,Width:y,Height:f,Img:l,Keyframe:e}},this.Update=function(e,n){t.ctx;for(var i=0;i<E.length;i++){var a=E[i],s=E[i+1];a&&t.DrawKeyframe(a,s,e,n)}},this.ShowEditControls=function(e){if(!n.GetPlaybackController().GetIsPlaying()){var t=n.GetPlaybackController().GetCurrentTime(),i=ATE_PlaybackEngine.GetKeyframeByTime(E,t);switch(e){case ATE_Layer.EditControls.Value_Editable:c.css("display","block"),c.removeAttr("disabled"),c.off().on("change paste keyup",m),u.css("display","none"),u.off(),T.css("display","block"),T.off().on("click",g);break;case ATE_Layer.EditControls.Keyframe:c.css("display","none"),c.attr("disabled","true"),c.off(),u.css("display","none"),u.off(),T.css("display","block"),T.off().on("click",d);break;case ATE_Layer.EditControls.Tween:c.css("display","block"),c.removeAttr("disabled"),c.off().on("change paste keyup",m),u.val(i.TweenType),u.css("display","block"),u.off().on("change",S),T.css("display","block"),T.off().on("click",g)}}};var d=function(e){var i=n.GetPlaybackController().GetCurrentTime(),a=n.AddLayer(s,i,0);t.OnMouseClick_Keyframe(a.Keyframe),t.Invalidate()},g=function(e){var i=n.GetPlaybackController().GetCurrentTime();t.RemoveKeyframe(i),t.Invalidate()},m=function(e){if(!n.GetPlaybackController().GetIsPlaying()){var t=n.GetPlaybackController().GetCurrentTime(),i=ATE_PlaybackEngine.GetKeyframeByTime(E,t);if(i){var a=$(this).val();switch(i.DataType){case ATE_PlaybackEngine.DataTypes.Numeric:i.Value=parseFloat(a)}}}},S=function(e){var t=parseInt($(this).val()),i=n.GetPlaybackController().GetCurrentTime(),a=ATE_PlaybackEngine.GetKeyframeByTime(E,i);a&&(a.TweenType=t)};this.UpdateFromPlayback=function(e,n,i){i=void 0!==i&&i;var a=ATE_PlaybackEngine.GetKeyframeByTime(E,e),s=ATE_PlaybackEngine.GetKeyframesBetween(E,e);if(s.NoData)t.ShowEditControls(ATE_Layer.EditControls.Keyframe),T.attr("src",ATE_Resources.Diamond.Path);else{if(i){if(a){var r=s.KFi&&s.KFe,l=r&&s.KFe.Time===e&&s.KFe_IsLast;r=r&&!l,t.ShowEditControls(r?ATE_Layer.EditControls.Tween:ATE_Layer.EditControls.Value_Editable)}else t.ShowEditControls(ATE_Layer.EditControls.Keyframe);T.attr("src",a?ATE_Resources.DiamondSelected.Path:ATE_Resources.Diamond.Path)}resultValue=ATE_PlaybackEngine.ByLayer(E,e),c.val(resultValue.toFixed(3))}},this.DrawGUI=function(e,i){var a=t.ctx,s=ATE_Styles.AC_TimelineLayerHeight,r=n.GetScrollX(),l=n.GetScrollY()+(e+1)*s+ATE_Styles.AC_TimelineHeight+ATE_Styles.Timeline.OffsetY,o=n.GetAnimationSeconds()*n.GetGUI_RealSegmentWidth()+ATE_Styles.Timeline.OffsetX;a.beginPath(),a.moveTo(r,l),a.lineTo(o,l),a.lineWidth=1,a.lineHeight=1,a.strokeStyle=ATE_Styles.CStroke_Color,a.stroke(),a.closePath()},this.DrawKeyframe=function(e,i,a,s){r=a;var l=t.ctx,o=n.GetScrollX(),c=n.GetScrollY(),u=t.GetKeyFrameRenderData(e);if(i)switch(e.TweenType){case ATE_PlaybackEngine.TweenType.EaseLinear:case ATE_PlaybackEngine.TweenType.EaseInQuad:case ATE_PlaybackEngine.TweenType.EaseOutQuad:case ATE_PlaybackEngine.TweenType.EaseInOutQuad:case ATE_PlaybackEngine.TweenType.EaseInCubic:case ATE_PlaybackEngine.TweenType.EaseOutCubic:case ATE_PlaybackEngine.TweenType.EaseInOutCubic:case ATE_PlaybackEngine.TweenType.EaseInSine:case ATE_PlaybackEngine.TweenType.EaseOutSine:case ATE_PlaybackEngine.TweenType.EaseInOutSine:case ATE_PlaybackEngine.TweenType.EaseInExpo:case ATE_PlaybackEngine.TweenType.EaseOutExpo:case ATE_PlaybackEngine.TweenType.EaseInOutExpo:case ATE_PlaybackEngine.TweenType.EaseInElastic:case ATE_PlaybackEngine.TweenType.EaseOutElastic:case ATE_PlaybackEngine.TweenType.EaseInOutElastic:var T=t.GetKeyFrameRenderData(i),E=u.X+.5*ATE_Resources.Diamond.TimelineWidth+o,y=u.Y-h+c,f=T.X-u.X,_=ATE_Styles.AC_TimelineLayerHeight;l.beginPath(),l.fillStyle="#0000FF55",l.fillRect(E,y,f,_),l.closePath()}l.drawImage(u.Img,u.X+o,u.Y+c,u.Width,u.Height)},this.Destroy=function(){n.GetLayersUI_Selector().remove(l),E=void 0,t.ctx=void 0,n=void 0,t=void 0,l=void 0,o=void 0,c=void 0,u=void 0,T=void 0,i=void 0,a=void 0}}function ATE_Playback(e){var t=this,n=e;this.ctx=n.ctx;var i=!1,a=0,s=0,r=1/ATE_Styles.Playback.DefaultTime,l=n.GetInputCurrentTimeSelector(),o=!1,c=!1;this.GetIsPlaying=function(){return i},this.GetCurrentTime=function(){return s},this.GetFPS=function(){return a},this.Initialize=function(){},this.ConfigureFPS=function(e){a=e;var t=1e3/e;r=1/ATE_Styles.Playback.DefaultTime/t},this.OnMouseOut=function(e){i||(o=!1)},this.OnMouseMove=function(e){c=e},this.OnMouseUp=function(e){i||(o=!1)},this.OnMouseDown=function(e){if(!i){n.GetScrollX();var t=ATE_Styles.Timeline.OffsetX,a=n.GetAnimationSeconds(),s=t,r=n.GetGUI_RealSegmentWidth()*a,l=n.GetHeight()+ATE_Styles.AC_TimelineHeight;ATE_Util.HitTestByPoint(s,0,r,l,e.x,e.y)&&(o=!0)}},this.PlayOrPause=function(){i=!i;for(var e=n.GetLayers(),t=0;t<e.length;t++)e[t].OnPlayOrPause(i)},this.Stop=function(){i=!1,s=0;for(var e=n.GetLayers(),t=0;t<e.length;t++)e[t].OnStop()},this.Update=function(e){var a=n.GetAnimationSeconds();if(i)s=s>=a?0:(s=(s+=r*e)<0?0:s)>a?a:s;else if(o){var l=n.GetScrollX(),u=ATE_Engine.GetSegment(n,c.x-l,c.y)/ATE_Styles.Default_SubSegments;s!==u&&(s=(s=(s=u)<0?0:s)>a?a:s)}var T=n.GetLayers(),E=!i&&o;if(i||o)for(var y=0;y<T.length;y++)T[y].UpdateFromPlayback(s,e,E);t.Draw(e)},this.Draw=function(e){var i=t.ctx,a=n.GetScrollX(),r=n.GetGUI_RealSegmentWidth(),o=n.GetGUI_RealSubSegmentWidth(),c=ATE_Styles.Timeline.OffsetX+s*r-o-ATE_Styles.Playback.GUI_Width/4+1+a,u=ATE_Styles.Timeline.OffsetY,T=c+.5*ATE_Styles.Playback.GUI_Width+1;i.beginPath(),i.fillStyle=ATE_Styles.Playback.GUI_BackgroundColor,i.fillRect(c+ATE_Styles.Playback.GUI_TextTimeOffset.X,u,ATE_Styles.Playback.GUI_Width,ATE_Styles.Playback.GUI_Height),i.closePath(),i.beginPath(),i.moveTo(T,u),i.lineTo(T,n.GetHeight()),i.lineWidth=1,i.strokeStyle=ATE_Styles.Playback.GUI_LineColor,i.stroke(),i.closePath(),i.font=ATE_Styles.Playback.GUI_TextStyle,i.fillStyle=ATE_Styles.Playback.GUI_TextColor,i.textAlign="center",i.fillText(ATE_Util.FormatTime(1e3*(s+ATE_PlaybackEngine.EPSILON),2,!0),T,u+ATE_Styles.Playback.GUI_Height+ATE_Styles.Playback.GUI_TextTimeOffset.Y),l.val(ATE_Util.FormatTimeAsSeconds(1e3*(s+ATE_PlaybackEngine.EPSILON)))}}function ATE_Segment(e){var t=this,n=e;this.ctx=n.ctx,this.FirstSegment=!1,this.LastSegment=!1;var i=0,a="",s="";this.Initialize=function(e){i=e,a=ATE_Util.FormatTime(1e3*i,2),s=ATE_Util.FormatTime(1e3*(i+1),2)},this.Update=function(e){t.Draw(e)},this.Draw=function(e){for(var r=t.ctx,l=ATE_Styles.AC_TimelineSegmentWidth,o=n.GetSubSegments()+1,c=l/o,u=n.GetScrollX(),T=i*l-(0!==i?c*i:0),E=ATE_Styles.AC_TimelineHeight,y=0;y<o;y++){var f=Math.round(T+y*c)+ATE_Styles.Timeline.OffsetX+u,_=Math.round(E)+ATE_Styles.Timeline.OffsetY,h=0===y||y===o-1,d=h?ATE_Styles.AC_TimelineSubSegmentLimitsHeight:ATE_Styles.AC_TimelineSubSegmentHeight,g=0===y||y===o-1&&t.LastSegment;if(r.beginPath(),r.moveTo(f,_),r.lineTo(f,_-d),r.lineWidth=1,r.strokeStyle=ATE_Styles.AC_TimelineSubSegment_Color,r.stroke(),r.closePath(),r.beginPath(),r.moveTo(f,_),r.lineTo(f,n.GetHeight()-ATE_Styles.ScrollbarHeight),r.lineWidth=1,r.strokeStyle=h?ATE_Styles.AC_TimelineSubSegment_Color:ATE_Styles.CStroke_Color,r.stroke(),r.closePath(),g){var m=y===o-1&&t.LastSegment?s:a;r.font=ATE_Styles.AC_TimelineSubSegment_TextStyle,r.fillStyle=ATE_Styles.Font_Color,r.textAlign="center",r.fillText(m,f,_-ATE_Styles.AC_TimelineSubSegmentLimitsHeight-10)}}},this.Destroy=function(){t.ctx=void 0,t=void 0,n=void 0}}function Easing(){}ATE_Resources.Diamond={Id:"ate-img-diamond",Path:"res/spATE_diamond.png",TimelineWidth:10,TimelineHeight:10},ATE_Resources.DiamondSelected={Id:"ate-img-diamond-selected",Path:"res/spATE_diamond_selected.png",TimelineWidth:10,TimelineHeight:10},ATE_Styles.Default_Seconds=10,ATE_Styles.Default_SubSegments=10,ATE_Styles.ScrollbarHeight=16,ATE_Styles.GUIHeight=140,ATE_Styles.CanvasHeight=ATE_Styles.GUIHeight-ATE_Styles.ScrollbarHeight,ATE_Styles.BackgroundColor="#4e4e4e",ATE_Styles.CStroke_Color="#6e6e6e",ATE_Styles.Font_Color="#f9f9f9",ATE_Styles.AC_Width=200,ATE_Styles.AC_TimelineHeight=60,ATE_Styles.AC_TimelineSegmentWidth=160,ATE_Styles.AC_TimelineSubSegmentHeight=6,ATE_Styles.AC_TimelineSubSegmentLimitsHeight=20,ATE_Styles.AC_TimelineSubSegment_Color="#f9f9f9",ATE_Styles.AC_TimelineSubSegment_TextStyle="bold 9px Arial",ATE_Styles.AC_TimelineLayerHeight=30,ATE_Styles.Timeline={OffsetX:22,OffsetY:0},ATE_Styles.Playback={DefaultTime:60,GUI_Width:52,GUI_Height:15,GUI_TextStyle:"bold 12px Arial",GUI_TextColor:"white",GUI_BackgroundColor:"red",GUI_LineColor:"#FF000066",GUI_TextTimeOffset:{X:2,Y:-4}},ATE_Styles.Scrollbar={HorizontalSize:14,VerticalSize:30},ATE_Util.GetDigitsByValue=function(e,t){for(var n=String(e),i=t-n.length,a=0;a<i;a++)n="0"+n;return n},ATE_Util.FormatTime=function(e,t,n){t=t<=1?2:t;var i=e/1e3/60,a=Math.floor(i),s=i-a,r=0,l="",o=void 0!==n&&n;if(2!==t||o){var c=Math.pow(10,t-2);r=60*s,l=Math.floor(100*(r-Math.floor(r)*c)),r=Math.floor(60*s)}else r=Math.floor(60*s);return ATE_Util.GetDigitsByValue(a,a>9?1:2)+":"+ATE_Util.GetDigitsByValue(r,2)+(o?"."+ATE_Util.GetDigitsByValue(l,2):"")},ATE_Util.FormatTimeAsSeconds=function(e){var t=e/1e3,n="";return n=Math.floor(100*(t-Math.floor(t))),t=Math.floor(t),ATE_Util.GetDigitsByValue(t,2)+"."+ATE_Util.GetDigitsByValue(n,2)},ATE_Util.HitTestCenterByPoint=function(e,t,n,i,a,s){var r=.5*n,l=.5*i;return e-r<a&&e+r>a&&t-l<s&&t+l>s},ATE_Util.HitTestByPoint=function(e,t,n,i,a,s){return e<a&&e+n>a&&t<s&&t+i>s},ATE_PlaybackEngine.EasingEquations=Easing.Equations,ATE_PlaybackEngine.DefaultTime=60,ATE_PlaybackEngine.ByLayer=function(e,t){var n=void 0,i=ATE_PlaybackEngine.GetKeyframeByTime(e,t),a=ATE_PlaybackEngine.GetKeyframesBetween(e,t);if(!a.NoData){var s=a.KFi.Value;if(n=i?i.Value:s,a.KFe){var r=a.KFi.Time,l=a.KFe.Time,o=a.KFe.Value,c=1-(l-t)/(l-r),u=void 0;switch(a.KFi.TweenType){case ATE_PlaybackEngine.TweenType.EaseLinear:u=ATE_PlaybackEngine.EasingEquations.easeLinear;break;case ATE_PlaybackEngine.TweenType.EaseInQuad:u=ATE_PlaybackEngine.EasingEquations.easeInQuad;break;case ATE_PlaybackEngine.TweenType.EaseOutQuad:u=ATE_PlaybackEngine.EasingEquations.easeOutQuad;break;case ATE_PlaybackEngine.TweenType.EaseInOutQuad:u=ATE_PlaybackEngine.EasingEquations.easeInOutQuad;break;case ATE_PlaybackEngine.TweenType.EaseInCubic:u=ATE_PlaybackEngine.EasingEquations.easeInCubic;break;case ATE_PlaybackEngine.TweenType.EaseOutCubic:u=ATE_PlaybackEngine.EasingEquations.easeOutCubic;break;case ATE_PlaybackEngine.TweenType.EaseInOutCubic:u=ATE_PlaybackEngine.EasingEquations.easeInOutCubic;break;case ATE_PlaybackEngine.TweenType.EaseInSine:u=ATE_PlaybackEngine.EasingEquations.easeInSine;break;case ATE_PlaybackEngine.TweenType.EaseOutSine:u=ATE_PlaybackEngine.EasingEquations.easeOutSine;break;case ATE_PlaybackEngine.TweenType.EaseInOutSine:u=ATE_PlaybackEngine.EasingEquations.easeInOutSine;break;case ATE_PlaybackEngine.TweenType.EaseInExpo:u=ATE_PlaybackEngine.EasingEquations.easeInExpo;break;case ATE_PlaybackEngine.TweenType.EaseOutExpo:u=ATE_PlaybackEngine.EasingEquations.easeOutExpo;break;case ATE_PlaybackEngine.TweenType.EaseInOutExpo:u=ATE_PlaybackEngine.EasingEquations.easeInOutExpo;break;case ATE_PlaybackEngine.TweenType.EaseInElastic:u=ATE_PlaybackEngine.EasingEquations.easeInElastic;break;case ATE_PlaybackEngine.TweenType.EaseOutElastic:u=ATE_PlaybackEngine.EasingEquations.easeOutElastic;break;case ATE_PlaybackEngine.TweenType.EaseInOutElastic:u=ATE_PlaybackEngine.EasingEquations.easeInOutElastic}u&&(n=u(c,s,o-s,1))}}return n},ATE_PlaybackEngine.GetKeyframeByTime=function(e,t){for(var n=void 0,i=0;i<e.length;i++){var a=e[i];if(a&&a.Time>=t-ATE_PlaybackEngine.EPSILON&&a.Time<=t+ATE_PlaybackEngine.EPSILON){n=a;break}}return n},ATE_PlaybackEngine.GetKeyframesBetween=function(e,t){var n={KFi:void 0,KFe:void 0,NoData:!0,KFi_IsFirst:!1,KFe_IsLast:!1},i=e.length;if(i>1)for(var a=0;a<i;a++){var s=e[a],r=e[a+1];if(s.Time<=t){if(r&&r.Time>=t){n.KFi=s,n.KFe=r,n.NoData=!1,n.KFi_IsFirst=0===a,n.KFe_IsLast=a+1===i-1;break}void 0===r&&(n.KFe_IsLast=!0,n.KFi=s,n.NoData=!1)}}else 1===i&&(n.KFi=e[0],n.NoData=!1,n.KFi_IsFirst=!0);return n},ATE_PlaybackEngine.EPSILON=.001,ATE_PlaybackEngine.DataTypes={Numeric:1},ATE_PlaybackEngine.TweenType={None:0,EaseLinear:1,EaseInQuad:2,EaseOutQuad:3,EaseInOutQuad:4,EaseInCubic:5,EaseOutCubic:6,EaseInOutCubic:7,EaseInSine:8,EaseOutSine:9,EaseInOutSine:10,EaseInExpo:11,EaseOutExpo:12,EaseInOutExpo:13,EaseInElastic:14,EaseOutElastic:15,EaseInOutElastic:16},ATE_Engine.GetLayerByPosition=function(e,t,n){var i=e.GetLayers(),a={};a.LayerIndex=-1,a.LayerOnFocus=void 0;for(var s=ATE_Styles.Timeline.OffsetX,r=ATE_Styles.AC_TimelineHeight+ATE_Styles.Timeline.OffsetY,l=ATE_Styles.AC_TimelineLayerHeight,o=e.GetGUI_RealSegmentWidth()*e.GetAnimationSeconds(),c=l,u=0;u<i.length;u++){var T=s,E=u*l+r;if(ATE_Util.HitTestByPoint(T,E,o,c,t,n)){a.LayerIndex=u,a.LayerOnFocus=i[u];break}}return a},ATE_Engine.GetKeyframeByPosition=function(e,t,n){var i=e.GetLayers(),a={};a.LayerOnFocus=void 0,a.KeyframeOnFocus=void 0;for(var s=0;s<i.length;s++){var r=i[s].GetKeyframeByPosition(t,n);if(r){a.LayerOnFocus=i[s],a.KeyframeOnFocus=r;break}}return a},ATE_Engine.GetSegment=function(e,t,n){var i=e.GetAnimationSeconds(),a=e.GetGUI_RealSegmentWidth(),s=e.GetGUI_RealSubSegmentWidth(),r=ATE_Styles.Timeline.OffsetX+0*a-s-ATE_Styles.Playback.GUI_Width/4+1+.5*ATE_Styles.Playback.GUI_Width+1,l=t+(s=e.GetGUI_RealSubSegmentWidth())/2-r,o=(e.GetGUI_RealSegmentWidth(),i*ATE_Styles.Default_SubSegments),c=Math.floor(l/s);return c=c<0?0:c,c=c>o?o:c},ATE_Engine.SetStylesInput_Time=function(e,t){e.css("text-align","center"),e.css("font-size","12px"),e.css("padding","1px"),e.css("width","36px"),e.css("margin","5px 0px 0px"),e.css("outline","none"),e.css("border-width","0px 0px 1px"),e.css("border-top-style","initial"),e.css("border-right-style","initial"),e.css("border-bottom-style","dotted"),e.css("border-left-style","initial"),e.css("border-top-color","initial"),e.css("border-right-color","initial"),e.css("border-bottom-color","rgb(184, 184, 184)"),e.css("border-left-color","initial"),e.css("border-image","initial"),e.css("background","none"),e.css("color","rgb(184, 184, 184)"),void 0!==t&&e.attr("disabled",t)},ATE_Layer.EditControls={None:0,Value_Editable:1,Keyframe:2,Tween:3},ATE_Layer.SetLabelCSS_LayerName=function(e){e.css("height",ATE_Styles.AC_TimelineLayerHeight),e.css("font-size","13px"),e.css("color",ATE_Styles.AC_TimelineSubSegment_Color),e.css("font-family","arial"),e.css("margin-left","4px"),e.css("white-space","nowrap"),e.css("overflow","hidden"),e.css("text-overflow","ellipsis"),e.css("max-width","90px"),e.css("padding-top","8px"),e.css("max-height","20px")},ATE_Layer.SetLabelCSS_LayerValue=function(e){e.css("font-size","11px"),e.css("font-family","arial"),e.css("margin-right","2px"),e.css("width","40px"),e.css("float","right"),e.attr("disabled",!0)},ATE_Layer.CreateTweenSelect=function(e){var t="";t+="<select style='display:none;margin-right:2px;float:left;width:55px'>";for(var n in e)t+="   <option value='"+e[n]+"'>"+n+"</option>";return t+="</select>",$(t)},ATE_Layer.CreateKeyframeAddButton=function(){var e="";return e+="<img src='"+ATE_Resources.Diamond.Path+"' width='"+ATE_Resources.Diamond.TimelineWidth+"' height='"+ATE_Resources.Diamond.TimelineHeight+"' style='display:none;margin-right:2px;float:right;margin-top: 5px;'/>",$(e)},ATE_Layer.CreateHR=function(){var e=$("<hr />");return e.css("border-color",ATE_Styles.CStroke_Color),e.css("border-width","0.5px"),e.css("margin","0"),e.css("padding","0"),e.css("-webkit-margin-before","0"),e.css("-webkit-margin-before","0"),e.css("-webkit-margin-start","0"),e.css("-webkit-margin-end","0"),e},Easing.Equations={easeLinear:function(e,t,n,i){return n*e/i+t},easeInQuad:function(e,t,n,i){return n*(e/=i)*e+t},easeOutQuad:function(e,t,n,i){return-n*(e/=i)*(e-2)+t},easeInOutQuad:function(e,t,n,i){return(e/=i/2)<1?n/2*e*e+t:-n/2*(--e*(e-2)-1)+t},easeInCubic:function(e,t,n,i){return n*(e/=i)*e*e+t},easeOutCubic:function(e,t,n,i){return n*((e=e/i-1)*e*e+1)+t},easeInOutCubic:function(e,t,n,i){return(e/=i/2)<1?n/2*e*e*e+t:n/2*((e-=2)*e*e+2)+t},easeInQuart:function(e,t,n,i){return n*(e/=i)*e*e*e+t},easeOutQuart:function(e,t,n,i){return-n*((e=e/i-1)*e*e*e-1)+t},easeInOutQuart:function(e,t,n,i){return(e/=i/2)<1?n/2*e*e*e*e+t:-n/2*((e-=2)*e*e*e-2)+t},easeInQuint:function(e,t,n,i){return n*(e/=i)*e*e*e*e+t},easeOutQuint:function(e,t,n,i){return n*((e=e/i-1)*e*e*e*e+1)+t},easeInOutQuint:function(e,t,n,i){return(e/=i/2)<1?n/2*e*e*e*e*e+t:n/2*((e-=2)*e*e*e*e+2)+t},easeInSine:function(e,t,n,i){return-n*Math.cos(e/i*(Math.PI/2))+n+t},easeOutSine:function(e,t,n,i){return n*Math.sin(e/i*(Math.PI/2))+t},easeInOutSine:function(e,t,n,i){return-n/2*(Math.cos(Math.PI*e/i)-1)+t},easeInExpo:function(e,t,n,i){return 0==e?t:n*Math.pow(2,10*(e/i-1))+t},easeOutExpo:function(e,t,n,i){return e==i?t+n:n*(1-Math.pow(2,-10*e/i))+t},easeInOutExpo:function(e,t,n,i){return 0==e?t:e==i?t+n:(e/=i/2)<1?n/2*Math.pow(2,10*(e-1))+t:n/2*(2-Math.pow(2,-10*--e))+t},easeInCirc:function(e,t,n,i){return-n*(Math.sqrt(1-(e/=i)*e)-1)+t},easeOutCirc:function(e,t,n,i){return n*Math.sqrt(1-(e=e/i-1)*e)+t},easeInOutCirc:function(e,t,n,i){return(e/=i/2)<1?-n/2*(Math.sqrt(1-e*e)-1)+t:n/2*(Math.sqrt(1-(e-=2)*e)+1)+t},easeInElastic:function(e,t,n,i){var a=1.70158,s=0,r=n;if(0==e)return t;if(1==(e/=i))return t+n;if(s||(s=.3*i),r<Math.abs(n)){r=n;a=s/4}else a=s/(2*Math.PI)*Math.asin(n/r);return-r*Math.pow(2,10*(e-=1))*Math.sin((e*i-a)*(2*Math.PI)/s)+t},easeOutElastic:function(e,t,n,i){var a=1.70158,s=0,r=n;if(0==e)return t;if(1==(e/=i))return t+n;if(s||(s=.3*i),r<Math.abs(n)){r=n;a=s/4}else a=s/(2*Math.PI)*Math.asin(n/r);return r*Math.pow(2,-10*e)*Math.sin((e*i-a)*(2*Math.PI)/s)+n+t},easeInOutElastic:function(e,t,n,i){var a=1.70158,s=0,r=n;if(0==e)return t;if(2==(e/=i/2))return t+n;if(s||(s=i*(.3*1.5)),r<Math.abs(n)){r=n;a=s/4}else a=s/(2*Math.PI)*Math.asin(n/r);return e<1?r*Math.pow(2,10*(e-=1))*Math.sin((e*i-a)*(2*Math.PI)/s)*-.5+t:r*Math.pow(2,-10*(e-=1))*Math.sin((e*i-a)*(2*Math.PI)/s)*.5+n+t},easeOutBounce:function(e,t,n,i){return(e/=i)<1/2.75?n*(7.5625*e*e)+t:e<2/2.75?n*(7.5625*(e-=1.5/2.75)*e+.75)+t:e<2.5/2.75?n*(7.5625*(e-=2.25/2.75)*e+.9375)+t:n*(7.5625*(e-=2.625/2.75)*e+.984375)+t}};
+/*
+ *
+ * TERMS OF USE - EASING EQUATIONS
+ * 
+ * Open source under the BSD License. 
+ * 
+ * Copyright Â© 2001 Robert Penner
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice, this list of 
+ * conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list 
+ * of conditions and the following disclaimer in the documentation and/or other materials 
+ * provided with the distribution.
+ * 
+ * Neither the name of the author nor the names of contributors may be used to endorse 
+ * or promote products derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ *  GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED 
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ * OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ */
+
+function Easing() {}
+Easing.Equations = {
+
+	easeLinear: function (t, b, c, d) {
+		return c * t / d + b;
+	},
+	easeInQuad: function (t, b, c, d) {
+		return c*(t/=d)*t + b;
+	},
+	easeOutQuad: function (t, b, c, d) {
+		return -c *(t/=d)*(t-2) + b;
+	},
+	easeInOutQuad: function (t, b, c, d) {
+		if ((t/=d/2) < 1) return c/2*t*t + b;
+		return -c/2 * ((--t)*(t-2) - 1) + b;
+	},
+	easeInCubic: function (t, b, c, d) {
+		return c*(t/=d)*t*t + b;
+	},
+	easeOutCubic: function (t, b, c, d) {
+		return c*((t=t/d-1)*t*t + 1) + b;
+	},
+	easeInOutCubic: function (t, b, c, d) {
+		if ((t/=d/2) < 1) return c/2*t*t*t + b;
+		return c/2*((t-=2)*t*t + 2) + b;
+	},
+	easeInQuart: function (t, b, c, d) {
+		return c*(t/=d)*t*t*t + b;
+	},
+	easeOutQuart: function (t, b, c, d) {
+		return -c * ((t=t/d-1)*t*t*t - 1) + b;
+	},
+	easeInOutQuart: function (t, b, c, d) {
+		if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
+		return -c/2 * ((t-=2)*t*t*t - 2) + b;
+	},
+	easeInQuint: function (t, b, c, d) {
+		return c*(t/=d)*t*t*t*t + b;
+	},
+	easeOutQuint: function (t, b, c, d) {
+		return c*((t=t/d-1)*t*t*t*t + 1) + b;
+	},
+	easeInOutQuint: function (t, b, c, d) {
+		if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+		return c/2*((t-=2)*t*t*t*t + 2) + b;
+	},
+	easeInSine: function (t, b, c, d) {
+		return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+	},
+	easeOutSine: function (t, b, c, d) {
+		return c * Math.sin(t/d * (Math.PI/2)) + b;
+	},
+	easeInOutSine: function (t, b, c, d) {
+		return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+	},
+	easeInExpo: function (t, b, c, d) {
+		return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+	},
+	easeOutExpo: function (t, b, c, d) {
+		return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+	},
+	easeInOutExpo: function (t, b, c, d) {
+		if (t==0) return b;
+		if (t==d) return b+c;
+		if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
+		return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+	},
+	easeInCirc: function (t, b, c, d) {
+		return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
+	},
+	easeOutCirc: function (t, b, c, d) {
+		return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
+	},
+	easeInOutCirc: function (t, b, c, d) {
+		if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
+		return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
+	},
+	easeInElastic: function (t, b, c, d) {
+		var s=1.70158;var p=0;var a=c;
+		if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+		if (a < Math.abs(c)) { a=c; var s=p/4; }
+		else var s = p/(2*Math.PI) * Math.asin (c/a);
+		return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+	},
+	easeOutElastic: function (t, b, c, d) {
+		var s=1.70158;var p=0;var a=c;
+		if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+		if (a < Math.abs(c)) { a=c; var s=p/4; }
+		else var s = p/(2*Math.PI) * Math.asin (c/a);
+		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+	},
+	easeInOutElastic: function (t, b, c, d) {
+		var s=1.70158;var p=0;var a=c;
+		if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
+		if (a < Math.abs(c)) { a=c; var s=p/4; }
+		else var s = p/(2*Math.PI) * Math.asin (c/a);
+		if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+		return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+	},
+	//easeInBack: function (t, b, c, d, s) {
+	//	if (s == undefined) s = 1.70158;
+	//	return c*(t/=d)*t*((s+1)*t - s) + b;
+	//},
+	//easeOutBack: function (t, b, c, d, s) {
+	//	if (s == undefined) s = 1.70158;
+	//	return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+	//},
+	//easeInOutBack: function (t, b, c, d, s) {
+	//	if (s == undefined) s = 1.70158; 
+	//	if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+	//	return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+	//},
+	//easeInBounce: function (t, b, c, d) {
+	//	return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+	//},
+	easeOutBounce: function (t, b, c, d) {
+		if ((t/=d) < (1/2.75)) {
+			return c*(7.5625*t*t) + b;
+		} else if (t < (2/2.75)) {
+			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+		} else if (t < (2.5/2.75)) {
+			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+		} else {
+			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+		}
+	},
+	//easeInOutBounce: function (t, b, c, d) {
+	//	if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
+	//	return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+	//}
+};
+function ATE_Resources() {}
+ATE_Resources.Diamond = {
+    Id: "ate-img-diamond",
+    Path: "res/spATE_diamond.png",
+    TimelineWidth: 10,
+    TimelineHeight: 10
+};
+ATE_Resources.DiamondSelected = {
+    Id: "ate-img-diamond-selected",
+    Path: "res/spATE_diamond_selected.png",
+    TimelineWidth: 10,
+    TimelineHeight: 10
+};
+
+function ATE_Styles() {}
+ATE_Styles.Default_Seconds = 10;
+ATE_Styles.Default_SubSegments = 10;
+
+ATE_Styles.ScrollbarHeight = 16;
+ATE_Styles.GUIHeight = 140;
+ATE_Styles.CanvasHeight = ATE_Styles.GUIHeight - ATE_Styles.ScrollbarHeight;
+ATE_Styles.BackgroundColor = "#4e4e4e";
+
+// Controls: Styles
+ATE_Styles.CStroke_Color = "#6e6e6e";
+ATE_Styles.Font_Color = "#f9f9f9";
+ATE_Styles.AC_Width = 200;
+// Controls: Timeline GUI
+ATE_Styles.AC_TimelineHeight = 60;
+ATE_Styles.AC_TimelineSegmentWidth = 160;
+ATE_Styles.AC_TimelineSubSegmentHeight = 6;
+ATE_Styles.AC_TimelineSubSegmentLimitsHeight = 20;
+ATE_Styles.AC_TimelineSubSegment_Color = "#f9f9f9";
+ATE_Styles.AC_TimelineSubSegment_TextStyle = "bold 9px Arial";
+// Controls: Layer GUI
+ATE_Styles.AC_TimelineLayerHeight = 30;
+
+ATE_Styles.Timeline = {
+    OffsetX: 22,
+    OffsetY: 0
+};
+
+// Controls: Playback
+ATE_Styles.Playback = {
+    DefaultTime: 60,
+    GUI_Width: 52,
+    GUI_Height: 15,
+    GUI_TextStyle: "bold 12px Arial",
+    GUI_TextColor: "white",
+    GUI_BackgroundColor: "red",
+    GUI_LineColor: "#FF000066",
+    GUI_TextTimeOffset: {
+        X: 2,
+        Y: -4
+    }
+};
+
+ATE_Styles.Scrollbar = {
+  HorizontalSize: 14,
+  VerticalSize: 30
+};
+function ATE_Button(ate) {
+    
+    var mSelf = this;
+    var mATE = ate;
+    
+    this.ctx = mATE.ctx;
+    
+    this.Initialize = function() {
+        
+    }
+    
+    this.Update = function(dt) {
+        
+    }
+}
+function ATE_HtmlButton(ate) {
+    
+    var mSelf = this;
+    var mATE = ate;
+    
+    this.ctx = mATE.ctx;
+    
+    var mSrcState1;
+    var mSrcState2;
+    var mButton;
+    var mIsToggled = false;
+    var mCallback_click;
+    
+    this.GetButtonSelector = function() { return mButton; }
+    
+    this.Initialize = function(srcState1, srcState2) {
+        mSrcState1 = srcState1;
+        mSrcState2 = srcState2;
+        
+        mButton = $("<img src='" + mSrcState1 + "' width='20' />");
+        
+        // click: record
+        mButton.on('click', mSelf.OnClick);
+    }
+    
+    this.Reset = function() {
+        mIsToggled = false;
+        mButton.attr("src", mSrcState1);
+    }
+    
+    this.SetClickCallback = function(callback) {
+        mCallback_click = callback;
+    }
+    
+    this.AddMargin = function() {
+        mButton.css("margin-left", "4px");
+    }
+    
+    this.OnClick = function(evt) {
+        mIsToggled = !mIsToggled;
+        
+        if (mSrcState2) {
+            mButton.attr("src", mIsToggled ? mSrcState2 : mSrcState1);
+        }
+        
+        if (mCallback_click) {
+            mCallback_click(evt);
+        }
+    }
+    
+    this.Update = function(dt) {
+        
+    }
+}
+function ATE_Util() {}
+
+ATE_Util.GetDigitsByValue = function(value, num_digits) {
+	var s = String(value);
+	var offset = num_digits - s.length;
+	
+	for (var i = 0; i < offset; i++) { s = "0" + s; }
+	return s;
+}
+
+ATE_Util.FormatTime = function(milliseconds, secondDigits, showDecimals) {
+    secondDigits = secondDigits <= 1 ? 2 : secondDigits;
+
+    var minutes = (milliseconds / 1000.0) / 60.0;
+    var minutesFloor = Math.floor(minutes);
+    var secondsRaw = minutes - minutesFloor;
+    var seconds = 0.0;
+    var decimals = "";
+    var canShowDecimals = showDecimals === undefined ? false : showDecimals;
+
+    if (secondDigits === 2 && !canShowDecimals) { 
+        seconds = Math.floor(secondsRaw * 60); 
+    }
+    else {
+        var factor = Math.pow(10, (secondDigits - 2));
+
+        seconds = secondsRaw * 60.0;
+        decimals = Math.floor((seconds - Math.floor(seconds) * factor) * 100);
+        seconds = Math.floor(secondsRaw * 60); 
+    }
+    
+    return ATE_Util.GetDigitsByValue(minutesFloor, minutesFloor > 9 ? 1 : 2) +
+        ":" + ATE_Util.GetDigitsByValue(seconds, 2) + 
+        (canShowDecimals ? ("." + ATE_Util.GetDigitsByValue(decimals, 2)) : "");
+}
+
+ATE_Util.FormatTimeAsSeconds = function(milliseconds) {
+    var seconds = milliseconds / 1000;
+    var decimals = "";
+
+    decimals = Math.floor((seconds - Math.floor(seconds)) * 100);
+    seconds = Math.floor(seconds); 
+    
+    return ATE_Util.GetDigitsByValue(seconds, 2) + "." + ATE_Util.GetDigitsByValue(decimals, 2);
+}
+
+ATE_Util.HitTestCenterByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
+    var hSize = sizeX * 0.5;        
+    var vSize = sizeY * 0.5;        
+    
+    var result = (x - hSize) < pointX && (x + hSize) > pointX && 
+        (y - vSize) < pointY && (y + vSize) > pointY;
+    
+    return result;
+}
+
+ATE_Util.HitTestByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
+    var result = x < pointX && (x + sizeX) > pointX && 
+        y < pointY && (y + sizeY) > pointY;
+    
+    return result;
+}
+function ATE_PlaybackEngine() {
+    var mSelf = this;
+    var mAnimationData = undefined;
+    
+    var mFPS;
+    var mAnimationSeconds;
+    
+    var mPlayingSpeed = 0;
+    var mCurrentTime = 0;
+    var mIsPlaying = false;
+    
+    this.Animations = {};
+    
+    this.GetIsPlaying = function() { return mIsPlaying; }
+    this.GetCurrentTime = function() { return mCurrentTime; }
+    this.GetAnimationSeconds = function() { return mAnimationSeconds; }
+    this.GetFPS = function() { return mFPS; }
+    
+    this.Initialize = function(animationData) {
+        mAnimationData = animationData;
+        mAnimationSeconds = animationData.AnimationSeconds;
+        
+        mSelf.ConfigureFPS(animationData.FPS);
+        
+        // Initialize Animations object reference
+        for (var i = 0; i < mAnimationData.LayerCount; i++) {
+            var layerObj = mAnimationData.Layers[i];
+            
+            var layerName = layerObj.Name;
+            var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+            
+            this.Animations[layerName] = resultValue;
+        }
+    }
+    
+    this.ConfigureFPS = function(fps) {
+        mFPS = fps;
+        
+        var deltaTime = 1000.0 / fps;
+        mPlayingSpeed = (1 / ATE_PlaybackEngine.DefaultTime) / deltaTime;
+    }
+    
+    this.Play = function() {
+        if (!mIsPlaying) {
+            mIsPlaying = true;
+        }
+    }
+    
+    this.Stop = function() {
+        if (mIsPlaying) {
+            mIsPlaying = false;
+            mCurrentTime = 0;
+        }
+    }
+    
+    this.Update = function(dt) {
+        if (mIsPlaying) {
+            if (mCurrentTime >= mAnimationSeconds) { mCurrentTime = 0; }
+            else {
+                mCurrentTime += mPlayingSpeed * dt;
+                mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
+                mCurrentTime = mCurrentTime > mAnimationSeconds ? mAnimationSeconds : mCurrentTime;
+            }
+            
+            for (var i = 0; i < mAnimationData.LayerCount; i++) {
+                var layerObj = mAnimationData.Layers[i];
+                
+                var layerName = layerObj.Name;
+                var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+                
+                this.Animations[layerName] = resultValue;
+            }
+        }
+    }
+}
+
+// Configurable
+ATE_PlaybackEngine.EasingEquations = Easing.Equations;
+ATE_PlaybackEngine.DefaultTime = 60;
+
+ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
+    var resultValue = undefined;
+    var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(keyframesData, time);
+    var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(keyframesData, time);
+    
+    if (!keyframes.NoData) {
+        var kfiValue = keyframes.KFi.Value;
+        resultValue = keyframe ? keyframe.Value : kfiValue;
+        
+        if (keyframes.KFe) {
+            var fkiTime = keyframes.KFi.Time;
+            var fkeTime = keyframes.KFe.Time;
+            var kfeValue = keyframes.KFe.Value;
+            
+            // compute real time between frames for the tween
+            var diffTime = fkeTime - fkiTime;
+            var actualTime = 1.0 - ((fkeTime - time) / diffTime);
+            var functionObj = undefined;
+            
+            switch (keyframes.KFi.TweenType) {
+                case ATE_PlaybackEngine.TweenType.EaseLinear:    functionObj = ATE_PlaybackEngine.EasingEquations.easeLinear; break;
+                case ATE_PlaybackEngine.TweenType.EaseInQuad:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutQuad:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutQuad: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutQuad; break;
+                case ATE_PlaybackEngine.TweenType.EaseInCubic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutCubic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutCubic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutCubic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInSine:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutSine:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutSine: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutSine; break;
+                case ATE_PlaybackEngine.TweenType.EaseInExpo:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutExpo:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutExpo: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutExpo; break;
+                case ATE_PlaybackEngine.TweenType.EaseInElastic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInElastic; break;
+                case ATE_PlaybackEngine.TweenType.EaseOutElastic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutElastic; break;
+                case ATE_PlaybackEngine.TweenType.EaseInOutElastic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutElastic; break;
+            } 
+            
+            if (functionObj) {
+                resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+            }
+        }
+    }
+    
+    return resultValue;
+}
+
+ATE_PlaybackEngine.GetKeyframeByTime = function(keyframesData, time) {
+    var resultKeyframe = undefined;
+   
+    for (var i = 0; i < keyframesData.length; i++) {
+        var keyframe = keyframesData[i];
+        
+        if (keyframe && (keyframe.Time >= (time - ATE_PlaybackEngine.EPSILON) && 
+            keyframe.Time <= (time + ATE_PlaybackEngine.EPSILON))) {
+            
+            resultKeyframe = keyframe;
+            break;
+        }
+    }
+    
+    return resultKeyframe;
+}
+
+ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
+    var result = {
+        KFi: undefined,
+        KFe: undefined,
+        NoData: true,
+        KFi_IsFirst: false,
+        KFe_IsLast: false
+    };
+    
+    var size = keyframesData.length;
+    
+    if (size > 1) {
+        for (var i = 0; i < size; i++) {
+            var _kfI = keyframesData[i];
+            var _kfE = keyframesData[i + 1];
+            
+            if (_kfI.Time <= time) {
+                if (_kfE && _kfE.Time >= time) {
+                    result.KFi = _kfI;
+                    result.KFe = _kfE;
+                    result.NoData = false;
+                    result.KFi_IsFirst = i === 0;
+                    result.KFe_IsLast = (i + 1) === (size - 1);
+                    break;
+                }
+                else if (_kfE === undefined) { // last
+                    result.KFe_IsLast = true;
+                    result.KFi = _kfI;
+                    result.NoData = false;
+                }
+            }
+        }
+    }
+    else if (size === 1) {
+        result.KFi = keyframesData[0];
+        result.NoData = false;
+        result.KFi_IsFirst = true;
+    }
+    
+    return result;
+}
+
+ATE_PlaybackEngine.EPSILON = 0.001;
+
+ATE_PlaybackEngine.DataTypes = {
+  Numeric: 1  
+};
+
+ATE_PlaybackEngine.TweenType = {
+    None: 0,
+    EaseLinear: 1,
+    EaseInQuad: 2,
+    EaseOutQuad: 3,
+    EaseInOutQuad: 4,
+    EaseInCubic: 5,
+    EaseOutCubic: 6,
+    EaseInOutCubic: 7,
+    EaseInSine: 8,
+    EaseOutSine: 9,
+    EaseInOutSine: 10,
+    EaseInExpo: 11,
+    EaseOutExpo: 12,
+    EaseInOutExpo: 13,
+    EaseInElastic: 14,
+    EaseOutElastic: 15,
+    EaseInOutElastic: 16
+}
+function ATE_Engine() {
+    var mSelf = this;
+    
+    var mParentSelectorName;
+    var mParentSelector;
+    
+    var mParentGUISelectorNamemParentCanvasSelector;
+    var mParentCanvasSelectorName;
+    
+    var mParentGUISelector;
+    var mParentGUISelectorName;
+    
+    var mInputCurrentTimeSelector;
+    var mInputTimeLimitSelector;
+    
+    // UI Controls
+    var mControlsUI_Selector;
+    
+    // Layers Controls
+    var mLayersUI_Selector;
+    
+    var mWidth = 0;
+    var mHeight = 0;
+    var mContentHeight = 0;
+    var mScrollX = 0;
+    var mScrollY = 0;
+    
+    this.ctx = undefined;
+    
+    // variables
+    var mAnimationSeconds;
+    var mSubSegments = ATE_Styles.Default_SubSegments;
+    var mSegments = [];
+    var mLayers = [];
+    var mPlaybackController;
+    var mCurrentFocusSegment = -1;
+    
+    // internal variables for GUI
+    var mGUI_RealSegmentWidth;
+    var mGUI_RealSubSegmentWidth;
+    //var mGUILayers_ScrollHeight;
+    
+    // buttons
+    var mButton_PlayOrPause;
+    var mButton_Record;
+    var mButton_Stop;
+    
+    // scrollBar: X
+    var mScrollXSelector;
+    var mScrollXContentSelector;
+    // scrollBar: Y
+    var mScrollYSelector;
+    var mScrollYContentSelector;
+    
+    // functions callback events
+    var mOnRecordCallback = undefined;
+    var mOnChangeCallback = undefined;
+    
+    this.GetCanvasContext = function() { return mCanvasContext; }
+    this.GetAnimationSeconds = function() { return mAnimationSeconds; }
+    this.GetSubSegments = function() { return mSubSegments; }
+    this.GetParentSelector = function() { return mParentSelector; }
+    this.GetParentGUISelector = function() { return mParentGUISelector; }
+    this.GetControlsUI_Selector = function() { return mControlsUI_Selector; }
+    this.GetLayersUI_Selector = function() { return mLayersUI_Selector; }
+    this.GetInputCurrentTimeSelector = function() { return mInputCurrentTimeSelector; }
+    
+    // internal for GUI
+    this.GetWidth = function() { return mWidth; }
+    this.GetHeight = function() { return mHeight; }
+    this.GetScrollX = function() { return mScrollX; }
+    this.GetScrollY = function() { return mScrollY; }
+    this.GetGUI_RealSegmentWidth = function() { return mGUI_RealSegmentWidth; }
+    this.GetGUI_RealSubSegmentWidth = function() { return mGUI_RealSubSegmentWidth; }
+    
+    this.GetLayers = function() { return mLayers; }
+    this.GetSegments = function() { return mSegments; }
+    this.GetPlaybackController = function() { return mPlaybackController; }
+    this.GetCurrentFocusSegment = function() { return mCurrentFocusSegment; }
+    
+    this.SetForceATEHeight = function(val) { mHeight = val; }
+    this.SetOnRecordCallback = function(callback) { mOnRecordCallback = callback; }
+    
+    this.SetOnChangeCallback = function(callback) { mOnChangeCallback = callback; }
+    this.GetOnChangeCallback = function(callback) { return mOnChangeCallback; }
+    
+    this.GetAnimationData = function() {
+        var resultData = ATE_Engine.DefaultAnimationData();
+        resultData.AnimationSeconds = mAnimationSeconds;
+        resultData.FPS = mPlaybackController.GetFPS();
+        resultData.LayerCount = mLayers.length;
+        
+        for (var i = 0; i < mLayers.length; i++) {
+            var layerName = mLayers[i].GetLayerName();
+            var layerData = mLayers[i].GetLayerData();
+            
+            resultData.Layers.push({
+                Data: layerData,
+                Name: layerName
+            });
+        }
+        
+        return resultData;
+    }
+    
+    this.Initialize = function(selectorName) {
+        mParentSelectorName = selectorName;
+        mParentSelector = $(mParentSelectorName);
+        mParentSelector.css("height", "100%");
+        mWidth = mParentSelector.width();
+        mHeight = ATE_Styles.GUIHeight;
+        mContentHeight = mHeight - ATE_Styles.ScrollbarHeight;
+        
+        var imgSelector = $("<img id='" + ATE_Resources.Diamond.Id + "' src='" + 
+            ATE_Resources.Diamond.Path + "' />");
+        imgSelector.css("display", "none");
+        var imgSelector_selected = $("<img id='" + ATE_Resources.DiamondSelected.Id + "' src='" + 
+            ATE_Resources.DiamondSelected.Path + "' />");
+        imgSelector_selected.css("display", "none");
+        
+        mParentSelector.append(imgSelector);
+        mParentSelector.append(imgSelector_selected);
+        
+        mSelf.CreateGUI();
+        mSelf.CreateMouseEvents();
+        mSelf.ChangeAnimationSeconds(ATE_Styles.Default_Seconds);
+        
+        mPlaybackController = new ATE_Playback(mSelf);
+        mPlaybackController.Initialize();
+        mPlaybackController.ConfigureFPS(ATE_Styles.Playback.DefaultTime);
+    }
+    
+    this.Reset = function() {
+        mButton_PlayOrPause.Reset();
+        mButton_Record.Reset();
+        mButton_Stop.Reset();
+        mPlaybackController.Stop();
+        
+        mSelf.InvalidateLayers();
+    }
+    
+    this.InvalidateLayers = function() {
+        for (var i = 0; i < mLayers.length; i++) {
+            mLayers[i].Invalidate();
+        }
+    }
+    
+    this.CreateMouseEvents = function() {
+        // Mouse Move
+        mParentCanvasSelector.on('mousemove', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse move
+            mPlaybackController.OnMouseMove(mousePos);
+        });
+        
+        // Mouse Up
+        mParentCanvasSelector.on('mouseup', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse move
+            mPlaybackController.OnMouseUp(mousePos);
+        });
+        
+        // Move Down
+        mParentCanvasSelector.on('mousedown', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            // on mouse move
+            mPlaybackController.OnMouseDown(mousePos);
+        });
+        
+        // Mouse Click
+        mParentCanvasSelector.on('click', function(evt) { 
+            //var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+        });
+        
+        // Move DoubleClick
+        mParentCanvasSelector.on('dblclick', function(evt) {
+            //var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+        });
+        
+        mParentCanvasSelector.on('mouseout', function(evt) {
+            var mousePos = __getMousePos(mParentCanvasSelector[0], evt);
+            
+            //mScrollBar_GeneralY.OnMouseOut(mousePos);
+            mPlaybackController.OnMouseOut(mousePos);
+        });
+        
+        
+        function __getMousePos(canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+    }
+    
+    this.CreateGUI = function() {
+        mParentGUISelectorName = "gui-" + mParentSelectorName.substring(1);
+        mParentGUISelector = $("<div id='" + mParentGUISelectorName + "'></div>");
+        mParentGUISelector.css("width", ATE_Styles.AC_Width + "px");
+        mParentGUISelector.css("height", mHeight + "px");
+        mParentGUISelector.css("float", "left");
+        mParentGUISelector.css("background-color", ATE_Styles.BackgroundColor);
+        // add HTML canvas
+        mParentSelector.append(mParentGUISelector);
+        
+        mParentCanvasSelectorName = "canvas-" + mParentSelectorName.substring(1);
+        mParentCanvasSelector = $("<canvas id='" + mParentCanvasSelectorName + 
+            "' width='" + (mWidth - ATE_Styles.AC_Width) + 
+            "' height='" + mContentHeight + "'></canvas>");
+        mParentCanvasSelector.css("float", "left");
+        // add HTML canvas
+        mParentSelector.append(mParentCanvasSelector);
+        
+        // ScrollY HTML
+        mScrollYSelector = $("<div style='height:" + mContentHeight + "px;width:" + 
+            ATE_Styles.ScrollbarHeight + "px;float: right;overflow-y: auto;'></div>");
+        mScrollYContentSelector = $("<div style='height:" + mContentHeight +"px'></div>");
+        mScrollYSelector.append(mScrollYContentSelector);
+        mParentSelector.append(mScrollYSelector);
+        
+        // ScrollX HTML
+        mScrollXSelector = $("<div style='height:" + (mHeight - mContentHeight) + 
+            "px;width: 0px;float: left;overflow-X: auto;'></div>");
+        mScrollXContentSelector = $("<div style='width:0px;height:1px'></div>");
+        mScrollXSelector.append(mScrollXContentSelector);
+        mParentSelector.append(mScrollXSelector);
+        
+        // get Canvas Context as 2D
+        mSelf.ctx = mParentCanvasSelector[0].getContext("2d");
+        
+        CreateControls_GUI();
+        CreateLayers_GUI();
+        
+        function CreateControls_GUI() {
+            var hrSelector = $("<hr style='border-color:" + ATE_Styles.CStroke_Color + 
+                ";border-width: 0.5px;margin: 0;padding: 0;-webkit-margin-before: 0;" + 
+                "-webkit-margin-after: 0;-webkit-margin-start: 0;-webkit-margin-end: 0;" +
+                "transform: translateY(1px);' />");
+            
+            mControlsUI_Selector = $("<div><div>");
+            mControlsUI_Selector.css("height", ATE_Styles.AC_TimelineHeight - 1);
+            
+            // create container for buttons
+            var buttonsUI_selector = $("<div><div>");
+            buttonsUI_selector.css("padding-top", "4px");
+            buttonsUI_selector.css("padding-left", "4px");
+            mControlsUI_Selector.append(buttonsUI_selector);
+            
+            // buttons: Record
+            mButton_Record = new ATE_HtmlButton(mSelf);
+            mButton_Record.Initialize("res/spRecord.png", "res/spStopRecording.png");
+            mButton_Record.SetClickCallback(function() {
+                // on record
+                if (mOnRecordCallback) { mOnRecordCallback(); }
+            });
+            
+            // buttons: Play/Pause
+            mButton_PlayOrPause = new ATE_HtmlButton(mSelf);
+            mButton_PlayOrPause.Initialize("res/spPlay.png", "res/spPause.png");
+            mButton_PlayOrPause.AddMargin();
+            mButton_PlayOrPause.SetClickCallback(function() {
+                // play/pause playback
+                mPlaybackController.PlayOrPause();
+            });
+            
+            // buttons: Stop
+            mButton_Stop = new ATE_HtmlButton(mSelf);
+            mButton_Stop.Initialize("res/spStop.png");
+            mButton_Stop.AddMargin();
+            mButton_Stop.SetClickCallback(function() {
+                // reset button play/pause
+                mButton_PlayOrPause.Reset();
+                // stop playback
+                mPlaybackController.Stop();
+            });
+            
+            // time limit
+            var inputTimeLimitLabelSelector = $("<label style='font-size:12px;color:white;margin-left:5px'>Time:<label/>");
+            mInputCurrentTimeSelector = $("<input type='text' value='0.00' />");
+            
+            mInputTimeLimitSelector = $("<input type='text' value='" + ATE_Util.GetDigitsByValue(ATE_Styles.Default_Seconds, 2) + ".00'/>");
+            mInputTimeLimitSelector.on('change', function() {
+                var val = Math.floor(parseFloat($(this).val()));
+                val = ATE_Util.GetDigitsByValue(val, 2);
+                $(this).val(val + ".00");
+                
+                // change animation seconds
+                mSelf.ChangeAnimationSeconds(parseInt(val));
+            });
+            
+            ATE_Engine.SetStylesInput_Time(mInputCurrentTimeSelector, true);
+            ATE_Engine.SetStylesInput_Time(mInputTimeLimitSelector);
+            
+            // add buttons to the selector
+            buttonsUI_selector.append(mButton_Record.GetButtonSelector());
+            buttonsUI_selector.append(mButton_PlayOrPause.GetButtonSelector());
+            buttonsUI_selector.append(mButton_Stop.GetButtonSelector());
+            
+            buttonsUI_selector.append(inputTimeLimitLabelSelector);
+            buttonsUI_selector.append(mInputCurrentTimeSelector);
+            buttonsUI_selector.append($("<label style='color:white'>/<label/>"));
+            buttonsUI_selector.append(mInputTimeLimitSelector);
+            
+            mParentGUISelector.append(mControlsUI_Selector);
+            mParentGUISelector.append(hrSelector);
+        }
+        
+        function CreateLayers_GUI() {
+            mLayersUI_Selector = $("<div><div>");
+            mLayersUI_Selector.css("height", 
+                (mContentHeight - ATE_Styles.AC_TimelineHeight -1) + "px");
+            mLayersUI_Selector.css("overflow-y", "hidden");
+            
+            mParentGUISelector.append(mLayersUI_Selector);
+            
+            // add empty div for offset
+            mLayersUI_Selector.append($("<div style='height:" + ATE_Styles.Timeline.OffsetY + "px'></div>"));
+        }
+    }
+    
+    this.ChangeAnimationSeconds = function(seconds, noChange) {
+        mAnimationSeconds = seconds;
+        mSelf.CreateSegments(mAnimationSeconds);
+        
+        // update UI control
+        var val = Math.floor(parseFloat(mAnimationSeconds));
+        val = ATE_Util.GetDigitsByValue(val, 2);
+        mInputTimeLimitSelector.val(val + ".00");
+        
+        // change
+        if (noChange === undefined) {
+            if (mOnChangeCallback) { mOnChangeCallback(); }
+        }
+    }
+    
+    this.ReconstructFrom = function(animationData) {
+        mSelf.RemoveAllLayers();
+        
+        if (animationData && Object.keys(animationData).length > 0) {
+            var animationSeconds = animationData.AnimationSeconds === undefined ?
+                ATE_Styles.Default_Seconds : animationData.AnimationSeconds;
+            var fps = animationData.FPS === undefined ? 
+                ATE_Styles.Playback.DefaultTime : animationData.FPS;
+            
+            mSelf.ChangeAnimationSeconds(animationSeconds, true);
+            mPlaybackController.ConfigureFPS(fps, true);
+            
+            for (var i = 0; i < animationData.LayerCount; i++) {
+                var layerData = animationData.Layers[i];
+                
+                mSelf.AddLayerFrom(layerData);
+            }
+        }
+    }
+    
+    this.RemoveAllLayers = function() {
+        for (var i = 0; i < mLayers.length; i++) {
+            mLayers[i].Destroy();
+        }
+        
+        mLayers = [];
+    }
+    
+    this.GetLayer = function(name) {
+        var result = {
+            Exists: false,
+            Layer: undefined
+        };
+        
+        for (var i = 0; i < mLayers.length; i++) {
+            if (mLayers[i].GetLayerName() === name) {
+                result.Exists = true;
+                result.Layer = mLayers[i];
+                break;
+            }
+        }
+        
+        return result;
+    }
+    
+    this.AddLayer = function(name, time, value) {
+        var result = {
+            Layer: undefined,
+            Keyframe: undefined
+        };
+        var layerResult = mSelf.GetLayer(name);
+        
+        if (layerResult.Exists) {
+            result.Layer = layerResult.Layer;
+            result.Keyframe = layerResult.Layer.SetKeyframe(time, value);
+        }
+        else {
+            var layer = new ATE_Layer(mSelf);
+            layer.Initialize(name);
+            
+            // now first add it to the array
+            mLayers.push(layer); 
+            
+            result.Layer = layer;;
+            result.Keyframe = layer.SetKeyframe(time, value);
+        }
+        
+        return result;
+    }
+    
+    this.AddLayerFrom = function(layerData) {
+        var layer = new ATE_Layer(mSelf);
+        layer.Initialize(layerData.Name);
+        layer.ReconstructFrom(layerData.Data);
+        
+        mLayers.push(layer);
+    }
+    
+    this.CreateSegments = function(seconds) {
+        if (mSegments.length === 0) {
+            createSegmentsBy(0, seconds);
+        }
+        else {
+            var offset = seconds - mSegments.length;
+            
+            if (offset > 0) {
+                createSegmentsBy(mSegments.length, seconds);
+            }
+            else {
+                // destroy unneeded segments
+                var __size = mSegments.length;
+                
+                for (var i = __size - 1; i >= __size + offset; i--) { 
+                    mSegments[i].Destroy();
+                }
+                
+                mSegments.splice((__size + offset), Math.abs(offset));
+                
+                // destroy unnecesary keyframe
+                for (var i = 0; i < mLayers.length; i++) {
+                    mLayers[i].RemoveKeyframesBetween(
+                        seconds + ATE_PlaybackEngine.EPSILON,
+                        Number.MAX_VALUE);
+                }
+            }
+            
+            // update segments
+            updateSegments();
+        }
+        
+        function updateSegments() {
+            for (var i = 0; i < mSegments.length; i++) {
+                var segment = mSegments[i];
+                segment.FirstSegment = i === 0;
+                segment.LastSegment = i === (seconds - 1);
+            }
+        }
+        
+        function createSegmentsBy(startIndex, size) {
+            var startIndex = startIndex === undefined ? 0 : startIndex;
+            
+            for (var i = startIndex; i < size; i++) {
+                var segment = new ATE_Segment(mSelf);
+                segment.Initialize(i);
+                segment.FirstSegment = i === 0;
+                segment.LastSegment = i === (seconds - 1);
+                
+                mSegments.push(segment);
+            }
+        }
+    }
+    
+    this.DrawGUI = function(dt) {
+        var ctx = mSelf.ctx;
+        
+        // Clear
+        ctx.clearRect(0, 0, mWidth, mHeight);
+        
+        // Background
+        ctx.fillStyle = ATE_Styles.BackgroundColor;
+        ctx.fillRect(0, 0, mWidth, mHeight);
+        
+        // Change coordinate system by half
+        ctx.translate(0.5, 0.5)
+        
+        // Draw controls strokes background
+        ctx.beginPath()
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, mContentHeight);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = ATE_Styles.CStroke_Color;
+        ctx.stroke();
+        ctx.closePath()
+        
+        // Draw Timeline GUI
+        ctx.beginPath()
+        ctx.moveTo(0, ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY);
+        ctx.lineTo(mWidth, ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = ATE_Styles.CStroke_Color;
+        ctx.stroke();
+        ctx.closePath()
+    }
+    
+    this.DrawSegments = function(dt) {
+        var ctx = mSelf.ctx;
+        var sizeX = (mSelf.GetGUI_RealSegmentWidth() * mAnimationSeconds) + 
+            ATE_Styles.Timeline.OffsetX;
+        var sizeY = ATE_Styles.AC_TimelineHeight;
+        
+        // clear
+        ctx.fillStyle = ATE_Styles.BackgroundColor;
+        ctx.fillRect(0, 0, sizeX, sizeY);
+        
+        for (var i = 0; i < mAnimationSeconds; i++) {
+            mSegments[i].Update(dt);
+        }
+    }
+    
+    this.DrawLayers = function(dt) {
+        for (var i = 0; i < mLayers.length; i++) {
+            mLayers[i].Update(i, dt);
+        }
+    }
+    
+    this.DrawLayersGUI = function(dt) {
+        for (var i = 0; i < mLayers.length; i++) {
+            mLayers[i].DrawGUI(i, dt);
+        }
+    }
+    
+    this.ComputeVariables = function() {
+        mGUI_RealSubSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth / (mSubSegments + 1);
+        mGUI_RealSegmentWidth = ATE_Styles.AC_TimelineSegmentWidth - mGUI_RealSubSegmentWidth;
+        
+        // ScrollX
+        var layerContentWidth = (mGUI_RealSegmentWidth * mAnimationSeconds) + ATE_Styles.AC_TimelineHeight;
+        mScrollXSelector.css('width', (mWidth - ATE_Styles.AC_Width));
+        mScrollXContentSelector.css('width', layerContentWidth);
+        // set scroll value
+        mScrollX = -mScrollXSelector[0].scrollLeft;
+        
+        // ScrollY
+        var layerContentHeight = ((mLayers.length + 2) * ATE_Styles.AC_TimelineLayerHeight);
+        mScrollYContentSelector.css('height', layerContentHeight);
+        // set scroll valiue
+        mScrollY = -mScrollYSelector[0].scrollTop;
+        mLayersUI_Selector[0].scrollTop = -mScrollY;
+        
+        // responsive size
+        mParentCanvasSelector.attr('width', mWidth - ATE_Styles.AC_Width - 20);
+        mParentCanvasSelector.attr('height', mContentHeight);
+        mParentGUISelector.css("height", mHeight + "px");
+        mScrollYSelector.css('height', mContentHeight + "px");
+        //mScrollYContentSelector.css('height', mContentHeight + "px");
+        mScrollXSelector.css("height", (mHeight - mContentHeight) + "px");
+        mLayersUI_Selector.css("height", (mContentHeight - ATE_Styles.AC_TimelineHeight -1) + "px");
+    }
+    
+    this.Update = function (dt) {
+        // Update size dynamically
+        mWidth = mParentSelector.width();
+        //mHeight = mParentSelector.height();
+        mContentHeight = mHeight - ATE_Styles.ScrollbarHeight;
+        
+        // Compute
+        mSelf.ComputeVariables();
+        
+        // Draw
+        mSelf.DrawGUI(dt);
+        mSelf.DrawLayersGUI(dt);
+        mSelf.DrawLayers(dt);
+        mSelf.DrawSegments(dt);
+        
+        mButton_Record.Update(dt);
+        mButton_PlayOrPause.Update(dt);
+        mButton_Stop.Update(dt);
+        
+        mPlaybackController.Update(dt);
+    }
+    
+    this.Destroy = function() {
+        
+    }
+}
+
+ATE_Engine.DefaultAnimationData = function() {
+    var resultData = {
+        AnimationSeconds: ATE_Styles.Default_Seconds,
+        FPS: ATE_Styles.Playback.DefaultTime,
+        Layers: [],
+        LayerCount: 0
+    };
+    
+    return resultData;
+}
+
+ATE_Engine.GetLayerByPosition = function(ate, x, y) {
+    var layers = ate.GetLayers();
+    var result = {};
+    result.LayerIndex = -1;
+    result.LayerOnFocus = undefined;
+    
+    var offsetX = ATE_Styles.Timeline.OffsetX;
+    var offsetY = ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY;
+    var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
+    var layerSizeX = ate.GetGUI_RealSegmentWidth() * ate.GetAnimationSeconds();
+    var layerSizeY = layerHeight;
+    
+    for (var i = 0; i < layers.length; i++) {
+        var layerX = offsetX;
+        var layerY = (i * layerHeight) + offsetY;
+        
+        var wasHitted = ATE_Util.HitTestByPoint(layerX, layerY, 
+            layerSizeX, layerSizeY, x, y);
+        
+        if (wasHitted) {
+            result.LayerIndex = i;
+            result.LayerOnFocus = layers[i];
+            break;
+        }
+    }
+    
+    return result;
+}
+
+ATE_Engine.GetKeyframeByPosition = function(ate, x, y) {
+    var layers = ate.GetLayers();
+    var result = {};
+    result.LayerOnFocus = undefined;
+    result.KeyframeOnFocus = undefined;
+    
+    for (var i = 0; i < layers.length; i++) {
+        var keyframe = layers[i].GetKeyframeByPosition(x, y);
+        
+        if (keyframe) { 
+            result.LayerOnFocus = layers[i];
+            result.KeyframeOnFocus = keyframe;
+            break; 
+        }
+    }
+    
+    return result;
+}
+
+ATE_Engine.GetSegment = function(ate, mouseX, mouseY) {
+    var animationSeconds = ate.GetAnimationSeconds();
+    var segmentWidth = ate.GetGUI_RealSegmentWidth();
+    var subSegmentWidth = ate.GetGUI_RealSubSegmentWidth();
+    var x = (ATE_Styles.Timeline.OffsetX + (0 * segmentWidth)) - 
+        subSegmentWidth - (ATE_Styles.Playback.GUI_Width / 4) + 1;
+    var xCenter = x + (ATE_Styles.Playback.GUI_Width * 0.5) + 1;
+    var subSegmentWidth = ate.GetGUI_RealSubSegmentWidth();
+    
+    //////
+    var offset = subSegmentWidth / 2.0;
+    //////
+    var realPositionX = (mouseX + offset) - xCenter;
+    var realTimelineSize = (ate.GetGUI_RealSegmentWidth() * animationSeconds);
+    var segmentsBySeconds = animationSeconds * ATE_Styles.Default_SubSegments;
+    var inSegment = Math.floor((realPositionX) / subSegmentWidth);
+    inSegment = inSegment < 0 ? 0 : inSegment;
+    inSegment = inSegment > segmentsBySeconds ? segmentsBySeconds : inSegment;
+    
+    return inSegment;
+}
+
+ATE_Engine.SetStylesInput_Time = function(selector, isDisabled) {
+    selector.css("text-align", "center");
+    selector.css("font-size", "12px");
+    selector.css("padding", "1px");
+    selector.css("width", "36px");
+    selector.css("margin", "5px 0px 0px");
+    selector.css("outline", "none");
+    selector.css("border-width", "0px 0px 1px");
+    selector.css("border-top-style", "initial");
+    selector.css("border-right-style", "initial");
+    selector.css("border-bottom-style", "dotted");
+    selector.css("border-left-style", "initial");
+    selector.css("border-top-color", "initial");
+    selector.css("border-right-color", "initial");
+    selector.css("border-bottom-color", "rgb(184, 184, 184)");
+    selector.css("border-left-color", "initial");
+    selector.css("border-image", "initial");
+    selector.css("background", "none");
+    selector.css("color", "rgb(184, 184, 184)");
+    
+    if (isDisabled !== undefined){
+        selector.attr('disabled', isDisabled);
+    }
+}
+
+function ATE_Layer(ate) {
+    var mSelf = this;
+    var mATE = ate;
+    var mDiamondImg = $("#" + ATE_Resources.Diamond.Id)[0];
+    var mDiamondSelectedImg = $("#" + ATE_Resources.DiamondSelected.Id)[0];
+    
+    this.ctx = mATE.ctx;
+    
+    var mLayerName;
+    var mCurrentIndex;
+    var mKeyframes = [];
+    
+    // internal
+    var mDiamondRealWidth = ATE_Resources.Diamond.TimelineWidth;
+    var mDiamondRealHeight = ATE_Resources.Diamond.TimelineHeight;
+    var mOffsetX_Img = (-mDiamondRealWidth * 0.5);
+    var mOffsetY_Img = ((ATE_Styles.AC_TimelineLayerHeight * 0.5) + (-mDiamondRealWidth * 0.5));
+    var mLayerSelector;
+    var mLayerNameSelector;
+    var mLayerValueSelector;
+    var mSelectOptionSelector;
+    var mButtonKeyframeAddSelector;
+    
+    this.GetLayerName = function() { return mLayerName; } 
+    this.GetLayerData = function () { return mKeyframes; }
+    
+    this.Initialize = function(name) {
+        mLayerName = name;
+        
+        var parentSelector = mATE.GetLayersUI_Selector();
+        mLayerSelector = $("<div data-layer-name='" + name + "'></div>");
+        mLayerSelector.css("height", ATE_Styles.AC_TimelineLayerHeight);
+        
+        var dataParentSelector = $("<div></div>");
+        dataParentSelector.css("height", ATE_Styles.AC_TimelineLayerHeight);
+        
+        mLayerNameSelector = $("<div style='float:left;'>" + mLayerName + "</div>");
+        
+        var parentControls = $("<div style='float:right;padding-top: 5px;'></div>");
+        mLayerValueSelector = $("<input type='text'></input>");
+        
+        mSelectOptionSelector = ATE_Layer.CreateTweenSelect(ATE_PlaybackEngine.TweenType);
+        mButtonKeyframeAddSelector = ATE_Layer.CreateKeyframeAddButton();
+        
+        // add controls to the parent controls div
+        parentControls.append(mSelectOptionSelector);
+        parentControls.append(mButtonKeyframeAddSelector);
+        parentControls.append(mLayerValueSelector);
+        
+        // set CSS for Labels
+        ATE_Layer.SetLabelCSS_LayerName(mLayerNameSelector);
+        ATE_Layer.SetLabelCSS_LayerValue(mLayerValueSelector);
+        
+        dataParentSelector.append(mLayerNameSelector);
+        dataParentSelector.append(parentControls);
+        
+        mLayerSelector.append(dataParentSelector);
+        mLayerSelector.append(ATE_Layer.CreateHR());
+        parentSelector.append(mLayerSelector);
+        
+    }
+    
+    this.ReconstructFrom = function(data) {
+        mKeyframes = data;
+    }
+    
+    this.OnPlayOrPause = function(isPlaying) {
+        if (isPlaying) {
+            // remove listeners
+            mLayerValueSelector.off();
+            mSelectOptionSelector.off();
+            mButtonKeyframeAddSelector.off();
+            
+            mLayerValueSelector.css('display', "block");
+            mLayerValueSelector.attr('disabled', true);
+            mSelectOptionSelector.css("display", "none");
+            mButtonKeyframeAddSelector.css("display", "none");
+        }
+    }
+    
+    this.OnStop = function() {
+        // force to set GUI
+        mSelf.Invalidate();
+    }
+    
+    this.Invalidate = function() {
+        mSelf.UpdateFromPlayback(mATE.GetPlaybackController().GetCurrentTime(), 33, true);
+    }
+    
+    this.OnMouseClick_Keyframe = function(keyframe) {
+        var isPlaying = mATE.GetPlaybackController().GetIsPlaying();
+        
+        if (!isPlaying) {
+            // Set the value of the keyframe to the HTML
+            mLayerValueSelector.val(keyframe.Value.toFixed(3));
+        }
+    }
+    
+    this.SetKeyframe = function (time, value) {
+        var resultKeyframe = mSelf.GetKeyframeByTime(time);
+        
+        if (resultKeyframe) {
+            resultKeyframe.Value = value;
+        }
+        else {
+            resultKeyframe = {
+                Name: mLayerName,
+                Time: time,
+                DataType: ATE_PlaybackEngine.DataTypes.Numeric,
+                Value: value,
+                TweenType: ATE_PlaybackEngine.TweenType.None
+            };
+            
+            mKeyframes.push(resultKeyframe);
+            
+            mKeyframes.sort(function(a, b) {
+              return a.Time - b.Time;
+            });
+        }
+        
+        // change
+        if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+        
+        return resultKeyframe;
+    }
+    
+    this.RemoveKeyframe = function(time) {
+        for (var i = 0; i < mKeyframes.length; i++) {
+            var keyframe = mKeyframes[i];
+            
+            if (keyframe && keyframe.Time === time) {
+                mKeyframes.splice(i, 1);
+                break;
+            }
+        }
+        
+        mKeyframes.sort(function(a, b) {
+          return a.Time - b.Time;
+        });
+        
+        // change
+        if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+    }
+    
+    this.RemoveKeyframesBetween = function(from, to) {
+        for (var i = 0; i < mKeyframes.length; i++) {
+            var keyframe = mKeyframes[i];
+            
+            if (keyframe && (keyframe.Time >= from && keyframe.Time <= to)) {
+                mKeyframes.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    
+    this.GetKeyframeByTime = function(time) {
+        return ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, time);
+    }
+    
+    this.GetKeyframeByPosition = function(x, y) {
+        var resultKeyframe = undefined;
+        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
+        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
+        var offsetX_Image = 0;
+        var offsetY_Image = ((layerHeight * 0.5) + offsetX_Image) ;
+        
+         for (var i = 0; i < mKeyframes.length; i++) {
+            var keyframe = mKeyframes[i];
+            
+            if (keyframe) {
+                var keyframeX = (keyframe.Time * segmentWidth) + offsetX_Image + ATE_Styles.Timeline.OffsetX;
+                var keyframeY = (mCurrentIndex * layerHeight) + ATE_Styles.AC_TimelineHeight + 
+                    offsetY_Image + ATE_Styles.Timeline.OffsetY;
+                    
+                var wasHitted = ATE_Util.HitTestCenterByPoint(keyframeX, keyframeY, 
+                    mDiamondRealWidth, mDiamondRealHeight, x, y);
+                    
+                if (wasHitted) {
+                    resultKeyframe = keyframe;
+                    break;
+                }
+            }
+        }
+        
+        return resultKeyframe;
+    }
+    
+    this.GetKeyFrameRenderData = function(keyframe) {
+        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
+        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
+        
+        var x = (keyframe.Time * segmentWidth) + mOffsetX_Img + ATE_Styles.Timeline.OffsetX;
+        var y = (mCurrentIndex * layerHeight) + ATE_Styles.AC_TimelineHeight + 
+            mOffsetY_Img + ATE_Styles.Timeline.OffsetY;
+        
+        return {
+            X: x,
+            Y: y,
+            Width: mDiamondRealWidth,
+            Height: mDiamondRealHeight,
+            Img: mDiamondImg,
+            Keyframe: keyframe
+        };
+    }
+    
+    this.Update = function(index, dt) {
+        var ctx = mSelf.ctx;
+        
+        for (var i = 0; i < mKeyframes.length; i++) {
+            var keyframe = mKeyframes[i];
+            var nextKeyframe = mKeyframes[i + 1];
+            
+            if (keyframe) {
+                mSelf.DrawKeyframe(keyframe, nextKeyframe, index, dt);
+            }
+        }
+    }
+    
+    this.ShowEditControls = function(editControlState) {
+        if (!mATE.GetPlaybackController().GetIsPlaying()) {
+            var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+            var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
+            
+            switch (editControlState) {
+                case ATE_Layer.EditControls.Value_Editable:
+                    mLayerValueSelector.css('display', "block");
+                    mLayerValueSelector.removeAttr('disabled');
+                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    
+                    mSelectOptionSelector.css("display", "none");
+                    mSelectOptionSelector.off();
+                    
+                    mButtonKeyframeAddSelector.css("display", "block");
+                    mButtonKeyframeAddSelector.off().on('click', OnRemoveKeyframeButtonClick);
+                    break;
+                case ATE_Layer.EditControls.Keyframe:
+                    mLayerValueSelector.css('display', "none");
+                    mLayerValueSelector.attr('disabled', "true");
+                    mLayerValueSelector.off();
+                    
+                    mSelectOptionSelector.css("display", "none");
+                    mSelectOptionSelector.off();
+                    
+                    mButtonKeyframeAddSelector.css("display", "block");
+                    mButtonKeyframeAddSelector.off().on('click', OnAddKeyframeButtonClick);
+                    break;
+                case ATE_Layer.EditControls.Tween:
+                    mLayerValueSelector.css('display', "block");
+                    mLayerValueSelector.removeAttr('disabled');
+                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    
+                    mSelectOptionSelector.val(keyframe.TweenType);
+                    mSelectOptionSelector.css("display", "block");
+                    mSelectOptionSelector.off().on('change', OnTweenChange);
+                    
+                    mButtonKeyframeAddSelector.css("display", "block");
+                    mButtonKeyframeAddSelector.off().on('click', OnRemoveKeyframeButtonClick);
+                    break;
+            }
+        }
+    }
+    
+    var OnAddKeyframeButtonClick = function(evt) {
+        var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+        var result = mATE.AddLayer(mLayerName, currentTime, 0);
+        
+        // Force set in ATE current Keyframe and Layer
+        mSelf.OnMouseClick_Keyframe(result.Keyframe);
+        // Invalidate GUI
+        mSelf.Invalidate();
+    }
+    
+    var OnRemoveKeyframeButtonClick = function(evt) {
+        var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+        mSelf.RemoveKeyframe(currentTime);
+        // Invalidate GUI
+        mSelf.Invalidate();
+    }
+    
+    var OnValueChange = function(evt) {
+        var isPlaying = mATE.GetPlaybackController().GetIsPlaying();
+        
+        if (!isPlaying) {
+            var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+            var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
+            
+            if (keyframe) {
+                var selectValue = $(this).val();
+                
+                switch (keyframe.DataType) {
+                    case ATE_PlaybackEngine.DataTypes.Numeric:
+                        keyframe.Value = parseFloat(selectValue);
+                        break;
+                    default:
+                        // code
+                        break;
+                }
+                
+                // change
+                if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+            }
+        }
+    }
+    
+    var OnTweenChange = function(evt) {
+        var selectValue = parseInt($(this).val());
+        var currentTime = mATE.GetPlaybackController().GetCurrentTime();
+        var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
+        
+        if (keyframe) {
+            keyframe.TweenType = selectValue;
+            
+            // change
+            if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+        }
+    }
+    
+    this.UpdateFromPlayback = function(time, dt, isEditable) {
+        isEditable = isEditable !== undefined ? isEditable : false;
+        
+        var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, time);
+        var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(mKeyframes, time);
+        
+        if (!keyframes.NoData) {
+            // Editable logic
+            if (isEditable) {
+                if (keyframe) {
+                    var canHaveTween = keyframes.KFi && keyframes.KFe;
+                    var isLastSelected = canHaveTween && keyframes.KFe.Time === time && keyframes.KFe_IsLast;  
+                    canHaveTween = canHaveTween && !isLastSelected;
+                                  
+                    mSelf.ShowEditControls(canHaveTween 
+                        ? ATE_Layer.EditControls.Tween 
+                        : ATE_Layer.EditControls.Value_Editable);
+                }
+                else {
+                    mSelf.ShowEditControls(ATE_Layer.EditControls.Keyframe);
+                }
+                
+                // change keyframe image button if has keyframe
+                mButtonKeyframeAddSelector.attr("src", keyframe 
+                    ? ATE_Resources.DiamondSelected.Path 
+                    : ATE_Resources.Diamond.Path);
+            }
+            ////////////////
+            
+            // Playback Engine
+            resultValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time);
+            
+            // set value in label
+            mLayerValueSelector.val(resultValue.toFixed(3));
+        }
+        else {
+            mSelf.ShowEditControls(ATE_Layer.EditControls.Keyframe);
+            
+            // change keyframe image button if has keyframe
+            mButtonKeyframeAddSelector.attr("src", ATE_Resources.Diamond.Path);
+        }
+    }
+    
+    this.DrawGUI = function(index, dt) {
+        var ctx = mSelf.ctx;
+        var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
+        
+        var scrollX = mATE.GetScrollX();
+        var scrollY = mATE.GetScrollY();
+        var x = scrollX;
+        var y = scrollY + ((index + 1) * layerHeight) + 
+            ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY;
+        var toX = (mATE.GetAnimationSeconds() * mATE.GetGUI_RealSegmentWidth() + 
+            ATE_Styles.Timeline.OffsetX);
+        
+        // Draw layer line
+        ctx.beginPath()
+        ctx.moveTo(x, y);
+        ctx.lineTo(toX, y);
+        ctx.lineWidth = 1;
+        ctx.lineHeight = 1;
+        ctx.strokeStyle = ATE_Styles.CStroke_Color;
+        ctx.stroke();
+        ctx.closePath()
+    }
+    
+    this.DrawKeyframe = function(keyframe, nextKeyframe, index, dt) {
+        mCurrentIndex = index;
+        
+        var ctx = mSelf.ctx;
+        var scrollX = mATE.GetScrollX();
+        var scrollY = mATE.GetScrollY();
+        var keyframeRD = mSelf.GetKeyFrameRenderData(keyframe);
+        
+        if (nextKeyframe) {
+            switch (keyframe.TweenType) {
+                case ATE_PlaybackEngine.TweenType.EaseLinear:
+                case ATE_PlaybackEngine.TweenType.EaseInQuad:
+                case ATE_PlaybackEngine.TweenType.EaseOutQuad:
+                case ATE_PlaybackEngine.TweenType.EaseInOutQuad:
+                case ATE_PlaybackEngine.TweenType.EaseInCubic:
+                case ATE_PlaybackEngine.TweenType.EaseOutCubic:
+                case ATE_PlaybackEngine.TweenType.EaseInOutCubic:
+                case ATE_PlaybackEngine.TweenType.EaseInSine:
+                case ATE_PlaybackEngine.TweenType.EaseOutSine:
+                case ATE_PlaybackEngine.TweenType.EaseInOutSine:
+                case ATE_PlaybackEngine.TweenType.EaseInExpo:
+                case ATE_PlaybackEngine.TweenType.EaseOutExpo:
+                case ATE_PlaybackEngine.TweenType.EaseInOutExpo:
+                case ATE_PlaybackEngine.TweenType.EaseInElastic:
+                case ATE_PlaybackEngine.TweenType.EaseOutElastic:
+                case ATE_PlaybackEngine.TweenType.EaseInOutElastic:
+                    var nextKeyframeRD = mSelf.GetKeyFrameRenderData(nextKeyframe);
+                    
+                    var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5) + scrollX;
+                    var rectY = (keyframeRD.Y - mOffsetY_Img) + scrollY;
+                    var rectW = nextKeyframeRD.X - keyframeRD.X;
+                    var rectH = ATE_Styles.AC_TimelineLayerHeight;
+                    
+                    // Draw box
+                    ctx.beginPath();
+                    ctx.fillStyle = "#0000FF55";
+                    ctx.fillRect(rectX, rectY, rectW, rectH);
+                    ctx.closePath();
+                    break;
+            }
+        }
+        
+        // finally draw keyframe
+        ctx.drawImage(keyframeRD.Img, keyframeRD.X + scrollX, keyframeRD.Y + scrollY, 
+            keyframeRD.Width, keyframeRD.Height);
+    }
+    
+    this.Destroy = function() {
+        mLayerSelector.remove();
+        
+        mKeyframes = undefined;
+        mSelf.ctx = undefined;
+        mATE = undefined;
+        mSelf = undefined;
+        mLayerSelector = undefined;
+        mLayerNameSelector = undefined;
+        mLayerValueSelector = undefined;
+        mSelectOptionSelector = undefined;
+        mButtonKeyframeAddSelector = undefined;
+        mDiamondImg = undefined;
+        mDiamondSelectedImg = undefined;
+    }
+}
+
+ATE_Layer.EditControls = {
+    None: 0,
+    Value_Editable: 1,
+    Keyframe: 2,
+    Tween: 3
+}
+
+ATE_Layer.SetLabelCSS_LayerName = function(selector) {
+    selector.css("height", ATE_Styles.AC_TimelineLayerHeight);
+    selector.css("font-size", "13px");
+    selector.css("color", ATE_Styles.AC_TimelineSubSegment_Color);
+    selector.css("font-family", "arial");
+    selector.css("margin-left", "4px");
+    selector.css("white-space", "nowrap");
+    selector.css("overflow", "hidden");
+    selector.css("text-overflow", "ellipsis");
+    selector.css("max-width", "90px");
+    selector.css("padding-top", "8px");
+    selector.css("max-height", "20px");
+} 
+
+ATE_Layer.SetLabelCSS_LayerValue = function(selector) {
+    selector.css("font-size", "11px");
+    selector.css("font-family", "arial");
+    selector.css("margin-right", "2px");
+    selector.css("width", "40px");
+    selector.css("float", "right");
+    selector.attr("disabled", true);
+}
+
+ATE_Layer.CreateTweenSelect = function(tweens) {
+    var html = "";
+    html += "<select style='display:none;margin-right:2px;float:left;width:55px'>";
+    
+    for (var name in tweens) {
+        html += "   <option value='" + tweens[name] + "'>" + name + "</option>";
+    }
+    
+    html += "</select>";
+    
+    return $(html);
+}
+
+ATE_Layer.CreateKeyframeAddButton = function() {
+    var html = "";
+    html += "<img src='" + ATE_Resources.Diamond.Path + "' width='" + ATE_Resources.Diamond.TimelineWidth + 
+        "' height='" + ATE_Resources.Diamond.TimelineHeight + "' style='display:none;margin-right:2px;float:right;margin-top: 5px;'/>";
+    
+    return $(html);
+}
+
+ATE_Layer.CreateHR = function() {
+    var hrSelector = $("<hr />");
+    hrSelector.css("border-color", ATE_Styles.CStroke_Color);
+    hrSelector.css("border-width", "0.5px");
+    hrSelector.css("margin", "0");
+    hrSelector.css("padding", "0");
+    hrSelector.css("-webkit-margin-before", "0");
+    hrSelector.css("-webkit-margin-before", "0");
+    hrSelector.css("-webkit-margin-start", "0");
+    hrSelector.css("-webkit-margin-end", "0");
+    
+    return hrSelector;
+}
+function ATE_Playback(ate) {
+    var mSelf = this;
+    var mATE = ate;
+    
+    this.ctx = mATE.ctx;
+    
+    var mIsPlaying = false;
+    var mFPS = 0;
+    var mCurrentTime = 0;
+    var mPlayingSpeed = 1 / ATE_Styles.Playback.DefaultTime;
+    var mInputCurrentTimeSelector = mATE.GetInputCurrentTimeSelector();
+    
+    // variables: not playing
+    var mIsMouseDown = false;
+    var mMousePos = false;
+    
+    this.GetIsPlaying = function() { return mIsPlaying; }
+    this.GetCurrentTime = function() { return mCurrentTime; }
+    this.GetFPS = function() { return mFPS; }
+    
+    this.Initialize = function() {
+        
+    }
+    
+    this.ConfigureFPS = function(fps, noChange) {
+        mFPS = fps;
+        
+        var deltaTime = 1000.0 / fps;
+        mPlayingSpeed = (1 / ATE_Styles.Playback.DefaultTime) / deltaTime;
+        
+        if (noChange === undefined) {
+            // change
+            if (mATE.GetOnChangeCallback()) { mATE.GetOnChangeCallback()(); }
+        }
+    }
+    
+    this.OnMouseOut = function(mousePos) {
+        if (!mIsPlaying) {
+            mIsMouseDown = false;
+        }
+    }
+    
+    this.OnMouseMove = function(mousePos) {
+        mMousePos = mousePos;
+    }
+    
+    this.OnMouseUp = function(mousePos) {
+        if (!mIsPlaying) {
+            mIsMouseDown = false;
+        }
+    }
+    
+    this.OnMouseDown = function(mousePos) {
+        if (!mIsPlaying) {
+            var scrollX = mATE.GetScrollX();
+            var offsetX = ATE_Styles.Timeline.OffsetX;
+            var animationSeconds = mATE.GetAnimationSeconds();
+            var segmentWidth = mATE.GetGUI_RealSegmentWidth();
+            
+            var x = offsetX;
+            var y = 0;
+            var width = (segmentWidth * animationSeconds);
+            var height = mATE.GetHeight() + ATE_Styles.AC_TimelineHeight;
+            
+            var isHitted = ATE_Util.HitTestByPoint(x, y, width, height, 
+                mousePos.x, mousePos.y);
+        
+            if (isHitted) {
+                mIsMouseDown = true;
+            }
+        }
+    }
+    
+    this.PlayOrPause = function() {
+        mIsPlaying = !mIsPlaying;
+        
+        // Layers: OnPlayOrPause
+        var layers = mATE.GetLayers();
+        for (var i = 0; i < layers.length; i++) { layers[i].OnPlayOrPause(mIsPlaying); }
+    }
+    
+    this.Stop = function() {
+        mIsPlaying = false;
+        mCurrentTime = 0;
+        
+        // Layers: OnPlayOrPause
+        var layers = mATE.GetLayers();
+        for (var i = 0; i < layers.length; i++) { layers[i].OnStop(); }
+        //Update
+        mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds(mCurrentTime * 1000));
+    }
+    
+    this.Update = function(dt) {
+        var animationSeconds = mATE.GetAnimationSeconds();
+        var changedTime = false;
+        
+        if (mIsPlaying) {
+            if (mCurrentTime >= animationSeconds) { mCurrentTime = 0; }
+            else {
+                mCurrentTime += mPlayingSpeed * dt;
+                mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
+                mCurrentTime = mCurrentTime > animationSeconds ? animationSeconds : mCurrentTime;
+            }
+            
+            changedTime = true;
+        }
+        else {
+            if (mIsMouseDown) {
+                var scrollX = mATE.GetScrollX();
+                var inSegment = ATE_Engine.GetSegment(mATE, mMousePos.x - scrollX, mMousePos.y);
+                var newTime = inSegment / ATE_Styles.Default_SubSegments;
+                
+                if (mCurrentTime !== newTime) {
+                    mCurrentTime = newTime;
+                    mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
+                    mCurrentTime = mCurrentTime > animationSeconds ? animationSeconds : mCurrentTime;
+                    
+                    changedTime = true;
+                }
+            }
+        }
+        
+        var layers = mATE.GetLayers();
+        var isEditable = !mIsPlaying && mIsMouseDown;
+            
+        if (mIsPlaying || mIsMouseDown) {
+            for (var i = 0; i < layers.length; i++) {
+                layers[i].UpdateFromPlayback(mCurrentTime, dt, isEditable);
+            }
+        }
+        
+        mSelf.Draw(dt, changedTime);
+    }
+    
+    this.Draw = function(dt, changedTime) {
+        var ctx = mSelf.ctx;
+        
+        var scrollX = mATE.GetScrollX();
+        var segmentWidth = mATE.GetGUI_RealSegmentWidth();
+        var subSegmentWidth = mATE.GetGUI_RealSubSegmentWidth();
+        var x = ((ATE_Styles.Timeline.OffsetX + (mCurrentTime * segmentWidth)) - 
+            subSegmentWidth - (ATE_Styles.Playback.GUI_Width / 4) + 1) + scrollX;
+        var y = ATE_Styles.Timeline.OffsetY;
+        var xCenter = x + (ATE_Styles.Playback.GUI_Width * 0.5) + 1;
+        
+        // Draw box
+        ctx.beginPath();
+        ctx.fillStyle = ATE_Styles.Playback.GUI_BackgroundColor;
+        ctx.fillRect(x + ATE_Styles.Playback.GUI_TextTimeOffset.X, y, 
+            ATE_Styles.Playback.GUI_Width, ATE_Styles.Playback.GUI_Height);
+        ctx.closePath();
+        
+        // Draw line
+        ctx.beginPath();
+        ctx.moveTo(xCenter, y);
+        ctx.lineTo(xCenter, mATE.GetHeight());
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = ATE_Styles.Playback.GUI_LineColor;
+        ctx.stroke();
+        ctx.closePath();
+        
+        // Draw time
+        ctx.font = ATE_Styles.Playback.GUI_TextStyle;
+        ctx.fillStyle = ATE_Styles.Playback.GUI_TextColor;
+        ctx.textAlign = "center";
+        ctx.fillText(
+            ATE_Util.FormatTime((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000, 2, true), 
+            xCenter,
+            y + ATE_Styles.Playback.GUI_Height + ATE_Styles.Playback.GUI_TextTimeOffset.Y);
+            
+        if (changedTime) {
+            // set the GUI current time 
+            mInputCurrentTimeSelector.val(ATE_Util.FormatTimeAsSeconds((mCurrentTime + ATE_PlaybackEngine.EPSILON) * 1000));
+        }
+    }
+}
+function ATE_Segment(ate) {
+    
+    var mSelf = this;
+    var mATE = ate;
+    
+    this.ctx = mATE.ctx;
+    this.FirstSegment = false;
+    this.LastSegment = false;
+    
+    var mActualSecond = 0;
+    var mActualSecondString = "";
+    var mLastSecondString = "";
+    
+    this.Initialize = function(second) {
+        mActualSecond = second;
+        mActualSecondString = ATE_Util.FormatTime(mActualSecond * 1000, 2);
+        mLastSecondString = ATE_Util.FormatTime((mActualSecond + 1) * 1000, 2);
+    }
+    
+    this.Update = function(dt) {
+        mSelf.Draw(dt);
+    }
+    
+    this.Draw = function(dt) {
+        var ctx = mSelf.ctx;
+        
+        var tsWidth = ATE_Styles.AC_TimelineSegmentWidth;
+        var subSegments = mATE.GetSubSegments() + 1;
+        var subSegmentWidth = (tsWidth / subSegments);
+        
+        var scrollX = mATE.GetScrollX();
+        var initX = (mActualSecond * tsWidth) - (mActualSecond !== 0 ? subSegmentWidth * mActualSecond : 0);
+        var initY = ATE_Styles.AC_TimelineHeight;
+        
+        for (var i = 0; i < subSegments; i++) {
+            var x = Math.round(initX + (i * subSegmentWidth)) + ATE_Styles.Timeline.OffsetX + scrollX;
+            var y = Math.round(initY) + ATE_Styles.Timeline.OffsetY;
+            var isLimit = i === 0 || (i === subSegments - 1);
+            var subSegmentHeight = isLimit
+                ? ATE_Styles.AC_TimelineSubSegmentLimitsHeight
+                : ATE_Styles.AC_TimelineSubSegmentHeight;
+            var canRenderTime = i === 0 || (i === subSegments - 1) && mSelf.LastSegment;
+            
+            // Draw second and milliseconds lines
+            ctx.beginPath()
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y - subSegmentHeight);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = ATE_Styles.AC_TimelineSubSegment_Color;
+            ctx.stroke();
+            ctx.closePath()
+            
+            // Draw background line
+            ctx.beginPath()
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, mATE.GetHeight() - ATE_Styles.ScrollbarHeight);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = isLimit ? ATE_Styles.AC_TimelineSubSegment_Color : ATE_Styles.CStroke_Color;
+            ctx.stroke();
+            ctx.closePath()
+            
+            if (canRenderTime) {
+                var offsetTextY = 10;
+                var text = ((i === subSegments - 1) && mSelf.LastSegment) ? mLastSecondString : mActualSecondString;
+                
+                ctx.font = ATE_Styles.AC_TimelineSubSegment_TextStyle;
+                ctx.fillStyle = ATE_Styles.Font_Color;
+                ctx.textAlign = /*mActualSecond === 0 ? "left" : */"center";
+                ctx.fillText(
+                    text, 
+                    x,
+                    y - ATE_Styles.AC_TimelineSubSegmentLimitsHeight - offsetTextY);
+            }
+        }
+    }
+    
+    this.Destroy = function() {
+        mSelf.ctx = undefined;
+        mSelf = undefined;
+        mATE = undefined;
+    }
+}
