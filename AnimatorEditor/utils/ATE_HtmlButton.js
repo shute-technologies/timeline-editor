@@ -10,8 +10,11 @@ function ATE_HtmlButton(ate) {
     var mButton;
     var mIsToggled = false;
     var mCallback_click;
+    var mCallback_canClick;
     
     this.GetButtonSelector = function() { return mButton; }
+    this.SetClickCallback = function(callback) { mCallback_click = callback; }
+    this.SetCanClickCallback = function(callback) { mCallback_canClick = callback; }
     
     this.Initialize = function(srcState1, srcState2) {
         mSrcState1 = srcState1;
@@ -28,23 +31,27 @@ function ATE_HtmlButton(ate) {
         mButton.attr("src", mSrcState1);
     }
     
-    this.SetClickCallback = function(callback) {
-        mCallback_click = callback;
-    }
-    
     this.AddMargin = function() {
         mButton.css("margin-left", "4px");
     }
     
     this.OnClick = function(evt) {
-        mIsToggled = !mIsToggled;
+        var canClick = true;
         
-        if (mSrcState2) {
-            mButton.attr("src", mIsToggled ? mSrcState2 : mSrcState1);
+        if (mCallback_canClick) {
+            canClick = mCallback_canClick();
         }
         
-        if (mCallback_click) {
-            mCallback_click(evt);
+        if (canClick) {
+            mIsToggled = !mIsToggled;
+            
+            if (mSrcState2) {
+                mButton.attr("src", mIsToggled ? mSrcState2 : mSrcState1);
+            }
+            
+            if (mCallback_click) {
+                mCallback_click(evt);
+            }
         }
     }
     

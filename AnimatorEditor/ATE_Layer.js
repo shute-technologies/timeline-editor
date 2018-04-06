@@ -7,6 +7,7 @@ function ATE_Layer(ate) {
     this.ctx = mATE.ctx;
     
     var mLayerName;
+    var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
     
@@ -23,6 +24,16 @@ function ATE_Layer(ate) {
     
     this.GetLayerName = function() { return mLayerName; } 
     this.GetLayerData = function () { return mKeyframes; }
+    
+    this.SetExtraLayerParams = function(extraParams) {
+        if (extraParams) {
+            if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                mExtraLayerParams = extraParams;
+            }
+        }
+        else { mExtraLayerParams = extraParams; }
+    }
+    this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
     this.Initialize = function(name) {
         mLayerName = name;
@@ -96,19 +107,35 @@ function ATE_Layer(ate) {
         }
     }
     
-    this.SetKeyframe = function (time, value) {
+    this.SetKeyframe = function (time, value, extraParams) {
         var resultKeyframe = mSelf.GetKeyframeByTime(time);
         
         if (resultKeyframe) {
             resultKeyframe.Value = value;
+            
+            if (extraParams) {
+                if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                    resultKeyframe.ExtraParams = extraParams;
+                }
+            }
+            else { resultKeyframe.ExtraParams = extraParams; }
         }
         else {
+            var extraParamsValue = undefined;
+            
+            if (extraParams) {
+                if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                    extraParamsValue = extraParams;
+                }
+            }
+            
             resultKeyframe = {
                 Name: mLayerName,
                 Time: time,
                 DataType: ATE_PlaybackEngine.DataTypes.Numeric,
                 Value: value,
-                TweenType: ATE_PlaybackEngine.TweenType.None
+                TweenType: ATE_PlaybackEngine.TweenType.None,
+                ExtraParams: extraParamsValue
             };
             
             mKeyframes.push(resultKeyframe);
@@ -225,7 +252,7 @@ function ATE_Layer(ate) {
                 case ATE_Layer.EditControls.Value_Editable:
                     mLayerValueSelector.css('display', "block");
                     mLayerValueSelector.removeAttr('disabled');
-                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    mLayerValueSelector.off().on('change paste', OnValueChange);
                     
                     mSelectOptionSelector.css("display", "none");
                     mSelectOptionSelector.off();
@@ -247,7 +274,7 @@ function ATE_Layer(ate) {
                 case ATE_Layer.EditControls.Tween:
                     mLayerValueSelector.css('display', "block");
                     mLayerValueSelector.removeAttr('disabled');
-                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    mLayerValueSelector.off().on('change paste', OnValueChange);
                     
                     mSelectOptionSelector.val(keyframe.TweenType);
                     mSelectOptionSelector.css("display", "block");

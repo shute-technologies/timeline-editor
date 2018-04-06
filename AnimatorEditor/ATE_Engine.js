@@ -56,6 +56,10 @@ function ATE_Engine() {
     var mOnRecordCallback = undefined;
     var mOnChangeCallback = undefined;
     
+    this.GetButton_PlayOrPause = function() { return mButton_PlayOrPause; }
+    this.GetButton_Record = function() { return mButton_Record; }
+    this.GetButton_Stop = function() { return mButton_Stop; }
+    
     this.GetCanvasContext = function() { return mCanvasContext; }
     this.GetAnimationSeconds = function() { return mAnimationSeconds; }
     this.GetSubSegments = function() { return mSubSegments; }
@@ -91,12 +95,12 @@ function ATE_Engine() {
         resultData.LayerCount = mLayers.length;
         
         for (var i = 0; i < mLayers.length; i++) {
-            var layerName = mLayers[i].GetLayerName();
-            var layerData = mLayers[i].GetLayerData();
-            
+            var layerObj = mLayers[i];
+
             resultData.Layers.push({
-                Data: layerData,
-                Name: layerName
+                Data: layerObj.GetLayerData(),
+                Name: layerObj.GetLayerName(),
+                ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
         
@@ -380,7 +384,7 @@ function ATE_Engine() {
         return result;
     }
     
-    this.AddLayer = function(name, time, value) {
+    this.AddLayer = function(name, time, value, extraLayerParams, extraKeyframeParams) {
         var result = {
             Layer: undefined,
             Keyframe: undefined
@@ -389,17 +393,19 @@ function ATE_Engine() {
         
         if (layerResult.Exists) {
             result.Layer = layerResult.Layer;
-            result.Keyframe = layerResult.Layer.SetKeyframe(time, value);
+            result.Layer.SetExtraLayerParams(extraLayerParams);
+            result.Keyframe = layerResult.Layer.SetKeyframe(time, value, extraKeyframeParams);
         }
         else {
             var layer = new ATE_Layer(mSelf);
             layer.Initialize(name);
+            layer.SetExtraLayerParams(extraLayerParams);
             
             // now first add it to the array
             mLayers.push(layer); 
             
             result.Layer = layer;;
-            result.Keyframe = layer.SetKeyframe(time, value);
+            result.Keyframe = layer.SetKeyframe(time, value, extraKeyframeParams);
         }
         
         return result;
@@ -580,6 +586,9 @@ function ATE_Engine() {
         
     }
 }
+
+ATE_Engine.IgnoreExtraParams = 999999019.091;
+ATE_Engine.RemoveExtraParams = 999999019.092;
 
 ATE_Engine.DefaultAnimationData = function() {
     var resultData = {

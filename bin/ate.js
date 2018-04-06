@@ -250,8 +250,11 @@ function ATE_HtmlButton(ate) {
     var mButton;
     var mIsToggled = false;
     var mCallback_click;
+    var mCallback_canClick;
     
     this.GetButtonSelector = function() { return mButton; }
+    this.SetClickCallback = function(callback) { mCallback_click = callback; }
+    this.SetCanClickCallback = function(callback) { mCallback_canClick = callback; }
     
     this.Initialize = function(srcState1, srcState2) {
         mSrcState1 = srcState1;
@@ -268,23 +271,27 @@ function ATE_HtmlButton(ate) {
         mButton.attr("src", mSrcState1);
     }
     
-    this.SetClickCallback = function(callback) {
-        mCallback_click = callback;
-    }
-    
     this.AddMargin = function() {
         mButton.css("margin-left", "4px");
     }
     
     this.OnClick = function(evt) {
-        mIsToggled = !mIsToggled;
+        var canClick = true;
         
-        if (mSrcState2) {
-            mButton.attr("src", mIsToggled ? mSrcState2 : mSrcState1);
+        if (mCallback_canClick) {
+            canClick = mCallback_canClick();
         }
         
-        if (mCallback_click) {
-            mCallback_click(evt);
+        if (canClick) {
+            mIsToggled = !mIsToggled;
+            
+            if (mSrcState2) {
+                mButton.attr("src", mIsToggled ? mSrcState2 : mSrcState1);
+            }
+            
+            if (mCallback_click) {
+                mCallback_click(evt);
+            }
         }
     }
     
@@ -623,6 +630,10 @@ function ATE_Engine() {
     var mOnRecordCallback = undefined;
     var mOnChangeCallback = undefined;
     
+    this.GetButton_PlayOrPause = function() { return mButton_PlayOrPause; }
+    this.GetButton_Record = function() { return mButton_Record; }
+    this.GetButton_Stop = function() { return mButton_Stop; }
+    
     this.GetCanvasContext = function() { return mCanvasContext; }
     this.GetAnimationSeconds = function() { return mAnimationSeconds; }
     this.GetSubSegments = function() { return mSubSegments; }
@@ -658,12 +669,12 @@ function ATE_Engine() {
         resultData.LayerCount = mLayers.length;
         
         for (var i = 0; i < mLayers.length; i++) {
-            var layerName = mLayers[i].GetLayerName();
-            var layerData = mLayers[i].GetLayerData();
-            
+            var layerObj = mLayers[i];
+
             resultData.Layers.push({
-                Data: layerData,
-                Name: layerName
+                Data: layerObj.GetLayerData(),
+                Name: layerObj.GetLayerName(),
+                ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
         
@@ -947,7 +958,7 @@ function ATE_Engine() {
         return result;
     }
     
-    this.AddLayer = function(name, time, value) {
+    this.AddLayer = function(name, time, value, extraLayerParams, extraKeyframeParams) {
         var result = {
             Layer: undefined,
             Keyframe: undefined
@@ -956,17 +967,19 @@ function ATE_Engine() {
         
         if (layerResult.Exists) {
             result.Layer = layerResult.Layer;
-            result.Keyframe = layerResult.Layer.SetKeyframe(time, value);
+            result.Layer.SetExtraLayerParams(extraLayerParams);
+            result.Keyframe = layerResult.Layer.SetKeyframe(time, value, extraKeyframeParams);
         }
         else {
             var layer = new ATE_Layer(mSelf);
             layer.Initialize(name);
+            layer.SetExtraLayerParams(extraLayerParams);
             
             // now first add it to the array
             mLayers.push(layer); 
             
             result.Layer = layer;;
-            result.Keyframe = layer.SetKeyframe(time, value);
+            result.Keyframe = layer.SetKeyframe(time, value, extraKeyframeParams);
         }
         
         return result;
@@ -1148,6 +1161,9 @@ function ATE_Engine() {
     }
 }
 
+ATE_Engine.IgnoreExtraParams = 999999019.091;
+ATE_Engine.RemoveExtraParams = 999999019.092;
+
 ATE_Engine.DefaultAnimationData = function() {
     var resultData = {
         AnimationSeconds: ATE_Styles.Default_Seconds,
@@ -1263,6 +1279,7 @@ function ATE_Layer(ate) {
     this.ctx = mATE.ctx;
     
     var mLayerName;
+    var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
     
@@ -1279,6 +1296,16 @@ function ATE_Layer(ate) {
     
     this.GetLayerName = function() { return mLayerName; } 
     this.GetLayerData = function () { return mKeyframes; }
+    
+    this.SetExtraLayerParams = function(extraParams) {
+        if (extraParams) {
+            if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                mExtraLayerParams = extraParams;
+            }
+        }
+        else { mExtraLayerParams = extraParams; }
+    }
+    this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
     this.Initialize = function(name) {
         mLayerName = name;
@@ -1352,19 +1379,35 @@ function ATE_Layer(ate) {
         }
     }
     
-    this.SetKeyframe = function (time, value) {
+    this.SetKeyframe = function (time, value, extraParams) {
         var resultKeyframe = mSelf.GetKeyframeByTime(time);
         
         if (resultKeyframe) {
             resultKeyframe.Value = value;
+            
+            if (extraParams) {
+                if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                    resultKeyframe.ExtraParams = extraParams;
+                }
+            }
+            else { resultKeyframe.ExtraParams = extraParams; }
         }
         else {
+            var extraParamsValue = undefined;
+            
+            if (extraParams) {
+                if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+                    extraParamsValue = extraParams;
+                }
+            }
+            
             resultKeyframe = {
                 Name: mLayerName,
                 Time: time,
                 DataType: ATE_PlaybackEngine.DataTypes.Numeric,
                 Value: value,
-                TweenType: ATE_PlaybackEngine.TweenType.None
+                TweenType: ATE_PlaybackEngine.TweenType.None,
+                ExtraParams: extraParamsValue
             };
             
             mKeyframes.push(resultKeyframe);
@@ -1481,7 +1524,7 @@ function ATE_Layer(ate) {
                 case ATE_Layer.EditControls.Value_Editable:
                     mLayerValueSelector.css('display', "block");
                     mLayerValueSelector.removeAttr('disabled');
-                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    mLayerValueSelector.off().on('change paste', OnValueChange);
                     
                     mSelectOptionSelector.css("display", "none");
                     mSelectOptionSelector.off();
@@ -1503,7 +1546,7 @@ function ATE_Layer(ate) {
                 case ATE_Layer.EditControls.Tween:
                     mLayerValueSelector.css('display', "block");
                     mLayerValueSelector.removeAttr('disabled');
-                    mLayerValueSelector.off().on('change paste keyup', OnValueChange);
+                    mLayerValueSelector.off().on('change paste', OnValueChange);
                     
                     mSelectOptionSelector.val(keyframe.TweenType);
                     mSelectOptionSelector.css("display", "block");
