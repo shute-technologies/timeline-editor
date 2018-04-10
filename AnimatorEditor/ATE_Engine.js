@@ -105,6 +105,7 @@ function ATE_Engine() {
                 Data: layerObj.GetLayerData(),
                 Name: layerObj.GetLayerName(),
                 DataType: layerObj.GetLayerDataType(),
+                IsInterpolable: layerObj.GetLayerIsInterpolable(),
                 ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
@@ -422,7 +423,7 @@ function ATE_Engine() {
     
     this.AddLayerFrom = function(layerData) {
         var layer = new ATE_Layer(mSelf);
-        layer.Initialize(layerData.Name, layerData.DataType);
+        layer.Initialize(layerData.Name, layerData.DataType, layerData.IsInterpolable);
         layer.SetExtraLayerParams(layerData.ExtraParams);
         layer.ReconstructFrom(layerData.Data);
         

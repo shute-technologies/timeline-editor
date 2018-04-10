@@ -390,7 +390,8 @@ function ATE_PlaybackEngine() {
             var layerObj = mAnimationData.Layers[i];
             
             var layerName = layerObj.Name;
-            var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+            var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, 
+                mCurrentTime, layerObj.IsInterpolable);
             
             this.Animations[layerName] = resultValue;
         }
@@ -429,7 +430,8 @@ function ATE_PlaybackEngine() {
                 var layerObj = mAnimationData.Layers[i];
                 
                 var layerName = layerObj.Name;
-                var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, mCurrentTime);
+                var resultValue = ATE_PlaybackEngine.ByLayer(layerObj.Data, 
+                    mCurrentTime, layerObj.IsInterpolable);
                 
                 this.Animations[layerName] = resultValue;
             }
@@ -441,7 +443,7 @@ function ATE_PlaybackEngine() {
 ATE_PlaybackEngine.EasingEquations = Easing.Equations;
 ATE_PlaybackEngine.DefaultTime = 60;
 
-ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType) {
+ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType, isInterpolable) {
     var resultValue = undefined;
     var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(keyframesData, time);
     var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(keyframesData, time);
@@ -458,40 +460,50 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType) {
             // compute real time between frames for the tween
             var diffTime = fkeTime - fkiTime;
             var actualTime = 1.0 - ((fkeTime - time) / diffTime);
-            var functionObj = undefined;
             
-            switch (keyframes.KFi.TweenType) {
-                case ATE_PlaybackEngine.TweenType.EaseLinear:    functionObj = ATE_PlaybackEngine.EasingEquations.easeLinear; break;
-                case ATE_PlaybackEngine.TweenType.EaseInQuad:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInQuad; break;
-                case ATE_PlaybackEngine.TweenType.EaseOutQuad:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutQuad; break;
-                case ATE_PlaybackEngine.TweenType.EaseInOutQuad: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutQuad; break;
-                case ATE_PlaybackEngine.TweenType.EaseInCubic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInCubic; break;
-                case ATE_PlaybackEngine.TweenType.EaseOutCubic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutCubic; break;
-                case ATE_PlaybackEngine.TweenType.EaseInOutCubic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutCubic; break;
-                case ATE_PlaybackEngine.TweenType.EaseInSine:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInSine; break;
-                case ATE_PlaybackEngine.TweenType.EaseOutSine:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutSine; break;
-                case ATE_PlaybackEngine.TweenType.EaseInOutSine: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutSine; break;
-                case ATE_PlaybackEngine.TweenType.EaseInExpo:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInExpo; break;
-                case ATE_PlaybackEngine.TweenType.EaseOutExpo:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutExpo; break;
-                case ATE_PlaybackEngine.TweenType.EaseInOutExpo: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutExpo; break;
-                case ATE_PlaybackEngine.TweenType.EaseInElastic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInElastic; break;
-                case ATE_PlaybackEngine.TweenType.EaseOutElastic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutElastic; break;
-                case ATE_PlaybackEngine.TweenType.EaseInOutElastic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutElastic; break;
-            } 
-            
-            if (functionObj) {
-                switch (dataType) {
-                    case ATE_PlaybackEngine.DataTypes.Numeric:
-                        resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
-                        break;
-                    case ATE_PlaybackEngine.DataTypes.Color:
-                        resultValue = NSharedUtil.DeepClone(resultValue);
-                        resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
-                        resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
-                        resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);
-                        resultValue.a = functionObj(actualTime, kfiValue.a, kfeValue.a - kfiValue.a, 1);
-                        break;
+            if (isInterpolable) {
+                var functionObj = undefined;
+                
+                switch (keyframes.KFi.TweenType) {
+                    case ATE_PlaybackEngine.TweenType.EaseLinear:    functionObj = ATE_PlaybackEngine.EasingEquations.easeLinear; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInQuad:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInQuad; break;
+                    case ATE_PlaybackEngine.TweenType.EaseOutQuad:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutQuad; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInOutQuad: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutQuad; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInCubic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInCubic; break;
+                    case ATE_PlaybackEngine.TweenType.EaseOutCubic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutCubic; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInOutCubic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutCubic; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInSine:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInSine; break;
+                    case ATE_PlaybackEngine.TweenType.EaseOutSine:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutSine; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInOutSine: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutSine; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInExpo:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInExpo; break;
+                    case ATE_PlaybackEngine.TweenType.EaseOutExpo:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutExpo; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInOutExpo: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutExpo; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInElastic:    functionObj = ATE_PlaybackEngine.EasingEquations.easeInElastic; break;
+                    case ATE_PlaybackEngine.TweenType.EaseOutElastic:   functionObj = ATE_PlaybackEngine.EasingEquations.easeOutElastic; break;
+                    case ATE_PlaybackEngine.TweenType.EaseInOutElastic: functionObj = ATE_PlaybackEngine.EasingEquations.easeInOutElastic; break;
+                } 
+                
+                if (functionObj) {
+                    switch (dataType) {
+                        case ATE_PlaybackEngine.DataTypes.Numeric:
+                            resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                            break;
+                        case ATE_PlaybackEngine.DataTypes.Color:
+                            resultValue = NSharedUtil.DeepClone(resultValue);
+                            resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
+                            resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
+                            resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);
+                            resultValue.a = functionObj(actualTime, kfiValue.a, kfeValue.a - kfiValue.a, 1);
+                            break;
+                    }
                 }
+            }
+            else {
+               switch (dataType) {
+                    case ATE_PlaybackEngine.DataTypes.Boolean:
+                        resultValue = Math.floor(actualTime) >= 1 ? kfeValue : kfiValue;
+                        break;
+                } 
             }
         }
     }
@@ -696,6 +708,7 @@ function ATE_Engine() {
                 Data: layerObj.GetLayerData(),
                 Name: layerObj.GetLayerName(),
                 DataType: layerObj.GetLayerDataType(),
+                IsInterpolable: layerObj.GetLayerIsInterpolable(),
                 ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
@@ -1013,7 +1026,7 @@ function ATE_Engine() {
     
     this.AddLayerFrom = function(layerData) {
         var layer = new ATE_Layer(mSelf);
-        layer.Initialize(layerData.Name, layerData.DataType);
+        layer.Initialize(layerData.Name, layerData.DataType, layerData.IsInterpolable);
         layer.SetExtraLayerParams(layerData.ExtraParams);
         layer.ReconstructFrom(layerData.Data);
         
@@ -1308,6 +1321,7 @@ function ATE_Layer(ate) {
     var mLayerName;
     var mLayerValue;
     var mLayerDataType;
+    var mLayerIsInterpolable;
     var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
@@ -1331,6 +1345,7 @@ function ATE_Layer(ate) {
     this.GetLayerName = function() { return mLayerName; } 
     this.GetLayerValue = function() { return mLayerValue; } 
     this.GetLayerDataType = function() { return mLayerDataType; } 
+    this.GetLayerIsInterpolable = function() { return mLayerIsInterpolable; } 
     this.GetLayerData = function () { return mKeyframes; }
     
     this.SetExtraLayerParams = function(extraParams) {
@@ -1344,10 +1359,23 @@ function ATE_Layer(ate) {
     }
     this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
-    this.Initialize = function(name, dataType) {
+    this.Initialize = function(name, dataType, isInterpolable) {
         mLayerName = name;
         mLayerDataType = dataType !== undefined ? dataType : ATE_PlaybackEngine.DataTypes.Numeric;
         mSelf.__LayerName = name;
+        
+        if (isInterpolable === undefined) {
+            switch (mLayerDataType) {
+                case ATE_PlaybackEngine.DataTypes.Numeric:
+                case ATE_PlaybackEngine.DataTypes.Color:
+                    mLayerIsInterpolable = true;
+                    break;
+                default:
+                    mLayerIsInterpolable = false;
+                    break;
+            }
+        }
+        else { mLayerIsInterpolable = isInterpolable; }
         
         var parentSelector = mATE.GetLayersUI_Selector();
         mLayerSelector = $("<div data-layer-name='" + name + "'></div>");
@@ -1682,7 +1710,8 @@ function ATE_Layer(ate) {
             ////////////////
             
             // Playback Engine
-            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, mLayerDataType);
+            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, 
+                mLayerDataType, mLayerIsInterpolable);
             mSelf.__LayerValue = mLayerValue;
             
             // set value in label
@@ -1698,7 +1727,11 @@ function ATE_Layer(ate) {
                     
                     var resultColor = 'rgba(' + cR + ',' + cG + ',' + cB + ',' + cA + ')';
                     
+                    mLayerValueSelector.attr('disabled', true);
                     mLayerValueSelector.css("background-color", resultColor);
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Boolean:
+                    mLayerValueSelector.val(mLayerValue.toString());
                     break;
             }
         }

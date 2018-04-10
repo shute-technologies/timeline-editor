@@ -9,6 +9,7 @@ function ATE_Layer(ate) {
     var mLayerName;
     var mLayerValue;
     var mLayerDataType;
+    var mLayerIsInterpolable;
     var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
@@ -32,6 +33,7 @@ function ATE_Layer(ate) {
     this.GetLayerName = function() { return mLayerName; } 
     this.GetLayerValue = function() { return mLayerValue; } 
     this.GetLayerDataType = function() { return mLayerDataType; } 
+    this.GetLayerIsInterpolable = function() { return mLayerIsInterpolable; } 
     this.GetLayerData = function () { return mKeyframes; }
     
     this.SetExtraLayerParams = function(extraParams) {
@@ -45,10 +47,23 @@ function ATE_Layer(ate) {
     }
     this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
-    this.Initialize = function(name, dataType) {
+    this.Initialize = function(name, dataType, isInterpolable) {
         mLayerName = name;
         mLayerDataType = dataType !== undefined ? dataType : ATE_PlaybackEngine.DataTypes.Numeric;
         mSelf.__LayerName = name;
+        
+        if (isInterpolable === undefined) {
+            switch (mLayerDataType) {
+                case ATE_PlaybackEngine.DataTypes.Numeric:
+                case ATE_PlaybackEngine.DataTypes.Color:
+                    mLayerIsInterpolable = true;
+                    break;
+                default:
+                    mLayerIsInterpolable = false;
+                    break;
+            }
+        }
+        else { mLayerIsInterpolable = isInterpolable; }
         
         var parentSelector = mATE.GetLayersUI_Selector();
         mLayerSelector = $("<div data-layer-name='" + name + "'></div>");
@@ -383,7 +398,8 @@ function ATE_Layer(ate) {
             ////////////////
             
             // Playback Engine
-            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, mLayerDataType);
+            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, 
+                mLayerDataType, mLayerIsInterpolable);
             mSelf.__LayerValue = mLayerValue;
             
             // set value in label
@@ -399,7 +415,11 @@ function ATE_Layer(ate) {
                     
                     var resultColor = 'rgba(' + cR + ',' + cG + ',' + cB + ',' + cA + ')';
                     
+                    mLayerValueSelector.attr('disabled', true);
                     mLayerValueSelector.css("background-color", resultColor);
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Boolean:
+                    mLayerValueSelector.val(mLayerValue.toString());
                     break;
             }
         }
