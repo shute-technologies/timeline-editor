@@ -54,6 +54,8 @@ function ATE_Engine() {
     
     // functions callback events
     var mOnRecordCallback = undefined;
+    var mOnPlayOrPauseCallback = undefined;
+    var mOnStopCallback = undefined;
     var mOnChangeCallback = undefined;
     
     this.GetButton_PlayOrPause = function() { return mButton_PlayOrPause; }
@@ -84,6 +86,8 @@ function ATE_Engine() {
     
     this.SetForceATEHeight = function(val) { mHeight = val; }
     this.SetOnRecordCallback = function(callback) { mOnRecordCallback = callback; }
+    this.SetOnPlayOrPauseCallback = function(callback) { mOnPlayOrPauseCallback = callback; }
+    this.SetOnStopCallback = function(callback) { mOnStopCallback = callback; }
     
     this.SetOnChangeCallback = function(callback) { mOnChangeCallback = callback; }
     this.GetOnChangeCallback = function(callback) { return mOnChangeCallback; }
@@ -100,6 +104,7 @@ function ATE_Engine() {
             resultData.Layers.push({
                 Data: layerObj.GetLayerData(),
                 Name: layerObj.GetLayerName(),
+                DataType: layerObj.GetLayerDataType(),
                 ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
@@ -267,6 +272,8 @@ function ATE_Engine() {
             mButton_PlayOrPause.SetClickCallback(function() {
                 // play/pause playback
                 mPlaybackController.PlayOrPause();
+                
+                if (mOnPlayOrPauseCallback) { mOnPlayOrPauseCallback(mPlaybackController.GetIsPlaying()); }
             });
             
             // buttons: Stop
@@ -278,6 +285,8 @@ function ATE_Engine() {
                 mButton_PlayOrPause.Reset();
                 // stop playback
                 mPlaybackController.Stop();
+                
+                if (mOnStopCallback) { mOnStopCallback(); }
             });
             
             // time limit
@@ -384,7 +393,7 @@ function ATE_Engine() {
         return result;
     }
     
-    this.AddLayer = function(name, time, value, extraLayerParams, extraKeyframeParams) {
+    this.AddLayer = function(name, time, value, dataType, extraLayerParams, extraKeyframeParams) {
         var result = {
             Layer: undefined,
             Keyframe: undefined
@@ -398,7 +407,7 @@ function ATE_Engine() {
         }
         else {
             var layer = new ATE_Layer(mSelf);
-            layer.Initialize(name);
+            layer.Initialize(name, dataType);
             layer.SetExtraLayerParams(extraLayerParams);
             
             // now first add it to the array
@@ -413,7 +422,8 @@ function ATE_Engine() {
     
     this.AddLayerFrom = function(layerData) {
         var layer = new ATE_Layer(mSelf);
-        layer.Initialize(layerData.Name);
+        layer.Initialize(layerData.Name, layerData.DataType);
+        layer.SetExtraLayerParams(layerData.ExtraParams);
         layer.ReconstructFrom(layerData.Data);
         
         mLayers.push(layer);

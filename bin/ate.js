@@ -441,7 +441,7 @@ function ATE_PlaybackEngine() {
 ATE_PlaybackEngine.EasingEquations = Easing.Equations;
 ATE_PlaybackEngine.DefaultTime = 60;
 
-ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
+ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType) {
     var resultValue = undefined;
     var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(keyframesData, time);
     var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(keyframesData, time);
@@ -480,7 +480,18 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
             } 
             
             if (functionObj) {
-                resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                switch (dataType) {
+                    case ATE_PlaybackEngine.DataTypes.Numeric:
+                        resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                        break;
+                    case ATE_PlaybackEngine.DataTypes.Color:
+                        resultValue = NSharedUtil.DeepClone(resultValue);
+                        resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
+                        resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
+                        resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);
+                        resultValue.a = functionObj(actualTime, kfiValue.a, kfeValue.a - kfiValue.a, 1);
+                        break;
+                }
             }
         }
     }
@@ -550,7 +561,13 @@ ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
 ATE_PlaybackEngine.EPSILON = 0.001;
 
 ATE_PlaybackEngine.DataTypes = {
-  Numeric: 1  
+  Numeric: 1,
+  Boolean: 2,
+  Image: 3,
+  Sound: 4,
+  Material: 5,
+  Font: 5,
+  Color: 6
 };
 
 ATE_PlaybackEngine.TweenType = {
@@ -628,6 +645,8 @@ function ATE_Engine() {
     
     // functions callback events
     var mOnRecordCallback = undefined;
+    var mOnPlayOrPauseCallback = undefined;
+    var mOnStopCallback = undefined;
     var mOnChangeCallback = undefined;
     
     this.GetButton_PlayOrPause = function() { return mButton_PlayOrPause; }
@@ -658,6 +677,8 @@ function ATE_Engine() {
     
     this.SetForceATEHeight = function(val) { mHeight = val; }
     this.SetOnRecordCallback = function(callback) { mOnRecordCallback = callback; }
+    this.SetOnPlayOrPauseCallback = function(callback) { mOnPlayOrPauseCallback = callback; }
+    this.SetOnStopCallback = function(callback) { mOnStopCallback = callback; }
     
     this.SetOnChangeCallback = function(callback) { mOnChangeCallback = callback; }
     this.GetOnChangeCallback = function(callback) { return mOnChangeCallback; }
@@ -674,6 +695,7 @@ function ATE_Engine() {
             resultData.Layers.push({
                 Data: layerObj.GetLayerData(),
                 Name: layerObj.GetLayerName(),
+                DataType: layerObj.GetLayerDataType(),
                 ExtraParams: layerObj.GetExtraLayerParams()
             });
         }
@@ -841,6 +863,8 @@ function ATE_Engine() {
             mButton_PlayOrPause.SetClickCallback(function() {
                 // play/pause playback
                 mPlaybackController.PlayOrPause();
+                
+                if (mOnPlayOrPauseCallback) { mOnPlayOrPauseCallback(mPlaybackController.GetIsPlaying()); }
             });
             
             // buttons: Stop
@@ -852,6 +876,8 @@ function ATE_Engine() {
                 mButton_PlayOrPause.Reset();
                 // stop playback
                 mPlaybackController.Stop();
+                
+                if (mOnStopCallback) { mOnStopCallback(); }
             });
             
             // time limit
@@ -958,7 +984,7 @@ function ATE_Engine() {
         return result;
     }
     
-    this.AddLayer = function(name, time, value, extraLayerParams, extraKeyframeParams) {
+    this.AddLayer = function(name, time, value, dataType, extraLayerParams, extraKeyframeParams) {
         var result = {
             Layer: undefined,
             Keyframe: undefined
@@ -972,7 +998,7 @@ function ATE_Engine() {
         }
         else {
             var layer = new ATE_Layer(mSelf);
-            layer.Initialize(name);
+            layer.Initialize(name, dataType);
             layer.SetExtraLayerParams(extraLayerParams);
             
             // now first add it to the array
@@ -987,7 +1013,8 @@ function ATE_Engine() {
     
     this.AddLayerFrom = function(layerData) {
         var layer = new ATE_Layer(mSelf);
-        layer.Initialize(layerData.Name);
+        layer.Initialize(layerData.Name, layerData.DataType);
+        layer.SetExtraLayerParams(layerData.ExtraParams);
         layer.ReconstructFrom(layerData.Data);
         
         mLayers.push(layer);
@@ -1279,6 +1306,8 @@ function ATE_Layer(ate) {
     this.ctx = mATE.ctx;
     
     var mLayerName;
+    var mLayerValue;
+    var mLayerDataType;
     var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
@@ -1294,21 +1323,31 @@ function ATE_Layer(ate) {
     var mSelectOptionSelector;
     var mButtonKeyframeAddSelector;
     
+    // [Only-Internal]
+    this.__LayerName = "";
+    this.__LayerValue;
+    this.__ExtraLayerParams;
+    
     this.GetLayerName = function() { return mLayerName; } 
+    this.GetLayerValue = function() { return mLayerValue; } 
+    this.GetLayerDataType = function() { return mLayerDataType; } 
     this.GetLayerData = function () { return mKeyframes; }
     
     this.SetExtraLayerParams = function(extraParams) {
         if (extraParams) {
             if (extraParams !== ATE_Engine.IgnoreExtraParams) {
                 mExtraLayerParams = extraParams;
+                mSelf.__ExtraLayerParams = extraParams;
             }
         }
         else { mExtraLayerParams = extraParams; }
     }
     this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
-    this.Initialize = function(name) {
+    this.Initialize = function(name, dataType) {
         mLayerName = name;
+        mLayerDataType = dataType !== undefined ? dataType : ATE_PlaybackEngine.DataTypes.Numeric;
+        mSelf.__LayerName = name;
         
         var parentSelector = mATE.GetLayersUI_Selector();
         mLayerSelector = $("<div data-layer-name='" + name + "'></div>");
@@ -1404,7 +1443,6 @@ function ATE_Layer(ate) {
             resultKeyframe = {
                 Name: mLayerName,
                 Time: time,
-                DataType: ATE_PlaybackEngine.DataTypes.Numeric,
                 Value: value,
                 TweenType: ATE_PlaybackEngine.TweenType.None,
                 ExtraParams: extraParamsValue
@@ -1644,10 +1682,25 @@ function ATE_Layer(ate) {
             ////////////////
             
             // Playback Engine
-            resultValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time);
+            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, mLayerDataType);
+            mSelf.__LayerValue = mLayerValue;
             
             // set value in label
-            mLayerValueSelector.val(resultValue.toFixed(3));
+            switch (mLayerDataType) {
+                case ATE_PlaybackEngine.DataTypes.Numeric:
+                    mLayerValueSelector.val(mLayerValue.toFixed(3));
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Color:
+                    var cR = parseInt(mLayerValue.r * 255.0);            
+                    var cG = parseInt(mLayerValue.g * 255.0);
+                    var cB = parseInt(mLayerValue.b * 255.0);        
+                    var cA = mLayerValue.a;
+                    
+                    var resultColor = 'rgba(' + cR + ',' + cG + ',' + cB + ',' + cA + ')';
+                    
+                    mLayerValueSelector.css("background-color", resultColor);
+                    break;
+            }
         }
         else {
             mSelf.ShowEditControls(ATE_Layer.EditControls.Keyframe);
@@ -1753,7 +1806,7 @@ ATE_Layer.EditControls = {
 
 ATE_Layer.SetLabelCSS_LayerName = function(selector) {
     selector.css("height", ATE_Styles.AC_TimelineLayerHeight);
-    selector.css("font-size", "13px");
+    selector.css("font-size", "11px");
     selector.css("color", ATE_Styles.AC_TimelineSubSegment_Color);
     selector.css("font-family", "arial");
     selector.css("margin-left", "4px");
@@ -1815,6 +1868,7 @@ function ATE_Playback(ate) {
     this.ctx = mATE.ctx;
     
     var mIsPlaying = false;
+    var mWasStopped = false;
     var mFPS = 0;
     var mCurrentTime = 0;
     var mPlayingSpeed = 1 / ATE_Styles.Playback.DefaultTime;
@@ -1825,6 +1879,7 @@ function ATE_Playback(ate) {
     var mMousePos = false;
     
     this.GetIsPlaying = function() { return mIsPlaying; }
+    this.GetWasStopped = function() { return mWasStopped; }
     this.GetCurrentTime = function() { return mCurrentTime; }
     this.GetFPS = function() { return mFPS; }
     
@@ -1883,6 +1938,7 @@ function ATE_Playback(ate) {
     
     this.PlayOrPause = function() {
         mIsPlaying = !mIsPlaying;
+        mWasStopped = false;
         
         // Layers: OnPlayOrPause
         var layers = mATE.GetLayers();
@@ -1891,6 +1947,7 @@ function ATE_Playback(ate) {
     
     this.Stop = function() {
         mIsPlaying = false;
+        mWasStopped = true;
         mCurrentTime = 0;
         
         // Layers: OnPlayOrPause

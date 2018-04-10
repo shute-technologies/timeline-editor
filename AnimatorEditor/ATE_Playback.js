@@ -5,6 +5,7 @@ function ATE_Playback(ate) {
     this.ctx = mATE.ctx;
     
     var mIsPlaying = false;
+    var mWasStopped = false;
     var mFPS = 0;
     var mCurrentTime = 0;
     var mPlayingSpeed = 1 / ATE_Styles.Playback.DefaultTime;
@@ -15,6 +16,7 @@ function ATE_Playback(ate) {
     var mMousePos = false;
     
     this.GetIsPlaying = function() { return mIsPlaying; }
+    this.GetWasStopped = function() { return mWasStopped; }
     this.GetCurrentTime = function() { return mCurrentTime; }
     this.GetFPS = function() { return mFPS; }
     
@@ -73,6 +75,7 @@ function ATE_Playback(ate) {
     
     this.PlayOrPause = function() {
         mIsPlaying = !mIsPlaying;
+        mWasStopped = false;
         
         // Layers: OnPlayOrPause
         var layers = mATE.GetLayers();
@@ -81,6 +84,7 @@ function ATE_Playback(ate) {
     
     this.Stop = function() {
         mIsPlaying = false;
+        mWasStopped = true;
         mCurrentTime = 0;
         
         // Layers: OnPlayOrPause

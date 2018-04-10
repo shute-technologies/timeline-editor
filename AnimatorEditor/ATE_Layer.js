@@ -7,6 +7,8 @@ function ATE_Layer(ate) {
     this.ctx = mATE.ctx;
     
     var mLayerName;
+    var mLayerValue;
+    var mLayerDataType;
     var mExtraLayerParams;
     var mCurrentIndex;
     var mKeyframes = [];
@@ -22,21 +24,31 @@ function ATE_Layer(ate) {
     var mSelectOptionSelector;
     var mButtonKeyframeAddSelector;
     
+    // [Only-Internal]
+    this.__LayerName = "";
+    this.__LayerValue;
+    this.__ExtraLayerParams;
+    
     this.GetLayerName = function() { return mLayerName; } 
+    this.GetLayerValue = function() { return mLayerValue; } 
+    this.GetLayerDataType = function() { return mLayerDataType; } 
     this.GetLayerData = function () { return mKeyframes; }
     
     this.SetExtraLayerParams = function(extraParams) {
         if (extraParams) {
             if (extraParams !== ATE_Engine.IgnoreExtraParams) {
                 mExtraLayerParams = extraParams;
+                mSelf.__ExtraLayerParams = extraParams;
             }
         }
         else { mExtraLayerParams = extraParams; }
     }
     this.GetExtraLayerParams = function() { return mExtraLayerParams; }
     
-    this.Initialize = function(name) {
+    this.Initialize = function(name, dataType) {
         mLayerName = name;
+        mLayerDataType = dataType !== undefined ? dataType : ATE_PlaybackEngine.DataTypes.Numeric;
+        mSelf.__LayerName = name;
         
         var parentSelector = mATE.GetLayersUI_Selector();
         mLayerSelector = $("<div data-layer-name='" + name + "'></div>");
@@ -132,7 +144,6 @@ function ATE_Layer(ate) {
             resultKeyframe = {
                 Name: mLayerName,
                 Time: time,
-                DataType: ATE_PlaybackEngine.DataTypes.Numeric,
                 Value: value,
                 TweenType: ATE_PlaybackEngine.TweenType.None,
                 ExtraParams: extraParamsValue
@@ -372,10 +383,25 @@ function ATE_Layer(ate) {
             ////////////////
             
             // Playback Engine
-            resultValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time);
+            mLayerValue = ATE_PlaybackEngine.ByLayer(mKeyframes, time, mLayerDataType);
+            mSelf.__LayerValue = mLayerValue;
             
             // set value in label
-            mLayerValueSelector.val(resultValue.toFixed(3));
+            switch (mLayerDataType) {
+                case ATE_PlaybackEngine.DataTypes.Numeric:
+                    mLayerValueSelector.val(mLayerValue.toFixed(3));
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Color:
+                    var cR = parseInt(mLayerValue.r * 255.0);            
+                    var cG = parseInt(mLayerValue.g * 255.0);
+                    var cB = parseInt(mLayerValue.b * 255.0);        
+                    var cA = mLayerValue.a;
+                    
+                    var resultColor = 'rgba(' + cR + ',' + cG + ',' + cB + ',' + cA + ')';
+                    
+                    mLayerValueSelector.css("background-color", resultColor);
+                    break;
+            }
         }
         else {
             mSelf.ShowEditControls(ATE_Layer.EditControls.Keyframe);
@@ -481,7 +507,7 @@ ATE_Layer.EditControls = {
 
 ATE_Layer.SetLabelCSS_LayerName = function(selector) {
     selector.css("height", ATE_Styles.AC_TimelineLayerHeight);
-    selector.css("font-size", "13px");
+    selector.css("font-size", "11px");
     selector.css("color", ATE_Styles.AC_TimelineSubSegment_Color);
     selector.css("font-family", "arial");
     selector.css("margin-left", "4px");

@@ -78,7 +78,7 @@ function ATE_PlaybackEngine() {
 ATE_PlaybackEngine.EasingEquations = Easing.Equations;
 ATE_PlaybackEngine.DefaultTime = 60;
 
-ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
+ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType) {
     var resultValue = undefined;
     var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(keyframesData, time);
     var keyframes = ATE_PlaybackEngine.GetKeyframesBetween(keyframesData, time);
@@ -117,7 +117,18 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time) {
             } 
             
             if (functionObj) {
-                resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                switch (dataType) {
+                    case ATE_PlaybackEngine.DataTypes.Numeric:
+                        resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
+                        break;
+                    case ATE_PlaybackEngine.DataTypes.Color:
+                        resultValue = NSharedUtil.DeepClone(resultValue);
+                        resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
+                        resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
+                        resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);
+                        resultValue.a = functionObj(actualTime, kfiValue.a, kfeValue.a - kfiValue.a, 1);
+                        break;
+                }
             }
         }
     }
@@ -187,7 +198,13 @@ ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
 ATE_PlaybackEngine.EPSILON = 0.001;
 
 ATE_PlaybackEngine.DataTypes = {
-  Numeric: 1  
+  Numeric: 1,
+  Boolean: 2,
+  Image: 3,
+  Sound: 4,
+  Material: 5,
+  Font: 5,
+  Color: 6
 };
 
 ATE_PlaybackEngine.TweenType = {
