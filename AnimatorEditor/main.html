@@ -39,18 +39,14 @@
             timeline.AddLayer("y", 1, 400);
             timeline.AddLayer("y", 1.5, 700);
             
-            timeline.AddLayer("aa", 0, true, ATE_PlaybackEngine.DataTypes.Boolean);
-            timeline.AddLayer("aa", 1, false, ATE_PlaybackEngine.DataTypes.Boolean);
-            timeline.AddLayer("b", 0, 0);
-            timeline.AddLayer("c", 0, 0);
-            timeline.AddLayer("d", 0, 0);
-            timeline.AddLayer("e", 0, 0);
-            timeline.AddLayer("f", 0, 0);
-            timeline.AddLayer("g", 0, 0);
-            timeline.AddLayer("g1", 0, 0);
-            timeline.AddLayer("g2", 0, 0);
-            timeline.AddLayer("g3", 0, 0);
-            timeline.AddLayer("g4", 0, 0);
+            timeline.AddLayer("FlipX", 0, true, ATE_PlaybackEngine.DataTypes.Boolean);
+            timeline.AddLayer("FlipX", 1, false, ATE_PlaybackEngine.DataTypes.Boolean);
+
+            
+            timeline.AddLayer("Color", 0, { r: 1, g: 0, b: 0, a: 1}, ATE_PlaybackEngine.DataTypes.Color);
+            timeline.AddLayer("Color", 1, { r: 0, g: 0.5, b: 0, a: 1}, ATE_PlaybackEngine.DataTypes.Color);
+            timeline.AddLayer("Color", 2, { r: 0.2, g: 0, b: 0.6, a: 1}, ATE_PlaybackEngine.DataTypes.Color);
+            
             
             // invalidate render
             timeline.InvalidateLayers();

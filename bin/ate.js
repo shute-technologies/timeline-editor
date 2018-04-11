@@ -361,6 +361,11 @@ ATE_Util.HitTestByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
     
     return result;
 }
+
+ATE_Util.DeepClone = function(item) {
+    return JSON.parse(JSON.stringify(item));
+}
+
 function ATE_PlaybackEngine() {
     var mSelf = this;
     var mAnimationData = undefined;
@@ -493,7 +498,7 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType, isInterpola
                             resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
                             break;
                         case ATE_PlaybackEngine.DataTypes.Color:
-                            resultValue = NSharedUtil.DeepClone(resultValue);
+                            resultValue = ATE_Util.DeepClone(resultValue);
                             resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
                             resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
                             resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);
@@ -1937,6 +1942,7 @@ ATE_Layer.SetLabelCSS_LayerValue = function(selector, dataType) {
     
     switch (dataType) {
         case ATE_PlaybackEngine.DataTypes.Numeric:
+        case ATE_PlaybackEngine.DataTypes.Color:
             selector.css("width", "40px");
             break;
     }

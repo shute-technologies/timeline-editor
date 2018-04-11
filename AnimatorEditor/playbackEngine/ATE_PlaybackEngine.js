@@ -130,7 +130,7 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType, isInterpola
                             resultValue = functionObj(actualTime, kfiValue, kfeValue - kfiValue, 1);
                             break;
                         case ATE_PlaybackEngine.DataTypes.Color:
-                            resultValue = NSharedUtil.DeepClone(resultValue);
+                            resultValue = ATE_Util.DeepClone(resultValue);
                             resultValue.r = functionObj(actualTime, kfiValue.r, kfeValue.r - kfiValue.r, 1);
                             resultValue.g = functionObj(actualTime, kfiValue.g, kfeValue.g - kfiValue.g, 1);
                             resultValue.b = functionObj(actualTime, kfiValue.b, kfeValue.b - kfiValue.b, 1);

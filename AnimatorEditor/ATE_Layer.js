@@ -597,6 +597,7 @@ ATE_Layer.SetLabelCSS_LayerValue = function(selector, dataType) {
     
     switch (dataType) {
         case ATE_PlaybackEngine.DataTypes.Numeric:
+        case ATE_PlaybackEngine.DataTypes.Color:
             selector.css("width", "40px");
             break;
     }

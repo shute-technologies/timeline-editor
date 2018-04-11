@@ -60,3 +60,7 @@ ATE_Util.HitTestByPoint = function (x, y, sizeX, sizeY, pointX, pointY) {
     
     return result;
 }
+
+ATE_Util.DeepClone = function(item) {
+    return JSON.parse(JSON.stringify(item));
+}
