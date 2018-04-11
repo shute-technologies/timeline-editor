@@ -243,7 +243,8 @@ ATE_PlaybackEngine.DataTypes = {
   Sound: 4,
   Material: 5,
   Font: 5,
-  Color: 6
+  Color: 6,
+  String: 7
 };
 
 ATE_PlaybackEngine.TweenType = {

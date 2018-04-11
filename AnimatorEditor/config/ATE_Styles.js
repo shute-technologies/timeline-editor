@@ -3,7 +3,7 @@ ATE_Styles.Default_Seconds = 10;
 ATE_Styles.Default_SubSegments = 10;
 
 ATE_Styles.ScrollbarHeight = 16;
-ATE_Styles.GUIHeight = 140;
+ATE_Styles.GUIHeight = 240;
 ATE_Styles.CanvasHeight = ATE_Styles.GUIHeight - ATE_Styles.ScrollbarHeight;
 ATE_Styles.BackgroundColor = "#4e4e4e";
 

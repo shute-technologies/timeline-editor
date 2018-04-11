@@ -75,7 +75,19 @@ function ATE_Layer(ate) {
         mLayerNameSelector = $("<div style='float:left;'>" + mLayerName + "</div>");
         
         var parentControls = $("<div style='float:right;padding-top: 5px;'></div>");
-        mLayerValueSelector = $("<input type='text'></input>");
+        
+        switch (mLayerDataType) {
+            case ATE_PlaybackEngine.DataTypes.Numeric:
+            case ATE_PlaybackEngine.DataTypes.String:
+                mLayerValueSelector = $("<input type='text'></input>");
+                break;
+            case ATE_PlaybackEngine.DataTypes.Color:
+                mLayerValueSelector = $("<input type='button'></input>");
+                break;
+            case ATE_PlaybackEngine.DataTypes.Boolean:
+                mLayerValueSelector = $("<input type='checkbox'></input>");
+                break;
+        }
         
         mSelectOptionSelector = ATE_Layer.CreateTweenSelect(ATE_PlaybackEngine.TweenType);
         mButtonKeyframeAddSelector = ATE_Layer.CreateKeyframeAddButton();
@@ -87,7 +99,7 @@ function ATE_Layer(ate) {
         
         // set CSS for Labels
         ATE_Layer.SetLabelCSS_LayerName(mLayerNameSelector);
-        ATE_Layer.SetLabelCSS_LayerValue(mLayerValueSelector);
+        ATE_Layer.SetLabelCSS_LayerValue(mLayerValueSelector, mLayerDataType);
         
         dataParentSelector.append(mLayerNameSelector);
         dataParentSelector.append(parentControls);
@@ -129,8 +141,26 @@ function ATE_Layer(ate) {
         var isPlaying = mATE.GetPlaybackController().GetIsPlaying();
         
         if (!isPlaying) {
-            // Set the value of the keyframe to the HTML
-            mLayerValueSelector.val(keyframe.Value.toFixed(3));
+             // Set the value of the keyframe to the HTML
+            switch (mLayerDataType) {
+                case ATE_PlaybackEngine.DataTypes.Numeric:
+                    mLayerValueSelector.val(keyframe.Value.toFixed(3));
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Color:
+                    var cR = parseInt(keyframe.Value.r * 255.0);            
+                    var cG = parseInt(keyframe.Value.g * 255.0);
+                    var cB = parseInt(keyframe.Value.b * 255.0);        
+                    var cA = keyframe.Value.a;
+                    
+                    var resultColor = 'rgba(' + cR + ',' + cG + ',' + cB + ',' + cA + ')';
+                    
+                    mLayerValueSelector.attr('disabled', true);
+                    mLayerValueSelector.css("background-color", resultColor);
+                    break;
+                case ATE_PlaybackEngine.DataTypes.Boolean:
+                    mLayerValueSelector.prop("checked", mLayerValue);
+                    break;
+            }
         }
     }
     
@@ -270,6 +300,14 @@ function ATE_Layer(ate) {
     }
     
     this.ShowEditControls = function(editControlState) {
+        var canShowSelectEasing = true;
+        
+        switch (mLayerDataType) {
+            case ATE_PlaybackEngine.DataTypes.Boolean:
+                canShowSelectEasing = false;
+                break;
+        }
+        
         if (!mATE.GetPlaybackController().GetIsPlaying()) {
             var currentTime = mATE.GetPlaybackController().GetCurrentTime();
             var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
@@ -280,8 +318,10 @@ function ATE_Layer(ate) {
                     mLayerValueSelector.removeAttr('disabled');
                     mLayerValueSelector.off().on('change paste', OnValueChange);
                     
-                    mSelectOptionSelector.css("display", "none");
-                    mSelectOptionSelector.off();
+                    if (canShowSelectEasing) {
+                        mSelectOptionSelector.css("display", "none");
+                        mSelectOptionSelector.off();
+                    }
                     
                     mButtonKeyframeAddSelector.css("display", "block");
                     mButtonKeyframeAddSelector.off().on('click', OnRemoveKeyframeButtonClick);
@@ -291,8 +331,10 @@ function ATE_Layer(ate) {
                     mLayerValueSelector.attr('disabled', "true");
                     mLayerValueSelector.off();
                     
-                    mSelectOptionSelector.css("display", "none");
-                    mSelectOptionSelector.off();
+                    if (canShowSelectEasing) {
+                        mSelectOptionSelector.css("display", "none");
+                        mSelectOptionSelector.off();
+                    }
                     
                     mButtonKeyframeAddSelector.css("display", "block");
                     mButtonKeyframeAddSelector.off().on('click', OnAddKeyframeButtonClick);
@@ -302,13 +344,20 @@ function ATE_Layer(ate) {
                     mLayerValueSelector.removeAttr('disabled');
                     mLayerValueSelector.off().on('change paste', OnValueChange);
                     
-                    mSelectOptionSelector.val(keyframe.TweenType);
-                    mSelectOptionSelector.css("display", "block");
-                    mSelectOptionSelector.off().on('change', OnTweenChange);
+                    if (canShowSelectEasing) {
+                        mSelectOptionSelector.val(keyframe.TweenType);
+                        mSelectOptionSelector.css("display", "block");
+                        mSelectOptionSelector.off().on('change', OnTweenChange);
+                    }
                     
                     mButtonKeyframeAddSelector.css("display", "block");
                     mButtonKeyframeAddSelector.off().on('click', OnRemoveKeyframeButtonClick);
                     break;
+            }
+            
+            if (!canShowSelectEasing) {
+                mSelectOptionSelector.css("display", "none");
+                mSelectOptionSelector.off();
             }
         }
     }
@@ -338,14 +387,12 @@ function ATE_Layer(ate) {
             var keyframe = ATE_PlaybackEngine.GetKeyframeByTime(mKeyframes, currentTime);
             
             if (keyframe) {
-                var selectValue = $(this).val();
-                
-                switch (keyframe.DataType) {
+                switch (mLayerDataType) {
                     case ATE_PlaybackEngine.DataTypes.Numeric:
-                        keyframe.Value = parseFloat(selectValue);
+                        keyframe.Value = parseFloat($(this).val());
                         break;
-                    default:
-                        // code
+                    case ATE_PlaybackEngine.DataTypes.Boolean:
+                        keyframe.Value = $(this).is(":checked");
                         break;
                 }
                 
@@ -419,7 +466,7 @@ function ATE_Layer(ate) {
                     mLayerValueSelector.css("background-color", resultColor);
                     break;
                 case ATE_PlaybackEngine.DataTypes.Boolean:
-                    mLayerValueSelector.val(mLayerValue.toString());
+                    mLayerValueSelector.prop("checked", mLayerValue);
                     break;
             }
         }
@@ -539,13 +586,20 @@ ATE_Layer.SetLabelCSS_LayerName = function(selector) {
     selector.css("max-height", "20px");
 } 
 
-ATE_Layer.SetLabelCSS_LayerValue = function(selector) {
+ATE_Layer.SetLabelCSS_LayerValue = function(selector, dataType) {
+    dataType  = (dataType !== undefined) ? dataType : ATE_PlaybackEngine.DataTypes.Numeric;
+    
     selector.css("font-size", "11px");
     selector.css("font-family", "arial");
     selector.css("margin-right", "2px");
-    selector.css("width", "40px");
     selector.css("float", "right");
     selector.attr("disabled", true);
+    
+    switch (dataType) {
+        case ATE_PlaybackEngine.DataTypes.Numeric:
+            selector.css("width", "40px");
+            break;
+    }
 }
 
 ATE_Layer.CreateTweenSelect = function(tweens) {
