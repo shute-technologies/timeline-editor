@@ -367,6 +367,7 @@ function ATE_PlaybackEngine() {
     
     var mFPS;
     var mAnimationSeconds;
+    var mAnimationSecondsToPlay;
     
     var mPlayingSpeed = 0;
     var mCurrentTime = 0;
@@ -407,6 +408,9 @@ function ATE_PlaybackEngine() {
     this.Play = function() {
         if (!mIsPlaying) {
             mIsPlaying = true;
+            
+            var lastKeyframe = ATE_PlaybackEngine.GetLastKeyframeInAnimation(mSelf.Animations);
+            mAnimationSecondsToPlay = lastKeyframe.Time === 0 ? mAnimationSeconds : lastKeyframe.Time;
         }
     }
     
@@ -419,11 +423,11 @@ function ATE_PlaybackEngine() {
     
     this.Update = function(dt) {
         if (mIsPlaying) {
-            if (mCurrentTime >= mAnimationSeconds) { mCurrentTime = 0; }
+            if (mCurrentTime >= mAnimationSecondsToPlay) { mCurrentTime = 0; }
             else {
                 mCurrentTime += mPlayingSpeed * dt;
                 mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
-                mCurrentTime = mCurrentTime > mAnimationSeconds ? mAnimationSeconds : mCurrentTime;
+                mCurrentTime = mCurrentTime > mAnimationSecondsToPlay ? mAnimationSecondsToPlay : mCurrentTime;
             }
             
             for (var i = 0; i < mAnimationData.LayerCount; i++) {
@@ -565,6 +569,29 @@ ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
         result.KFi = keyframesData[0];
         result.NoData = false;
         result.KFi_IsFirst = true;
+    }
+    
+    return result;
+}
+
+ATE_PlaybackEngine.GetLastKeyframeInAnimation = function(animationData) {
+    var result = {
+        Layer: undefined,
+        Keyframe: undefined,
+        Time: 0
+    };
+    
+    for (var i = 0; i < animationData.length; i++) {
+        var layer = animationData[i];
+        var layerKeyframes = layer.GetLayerData();
+        var lastKeyframe = layerKeyframes.length > 0 ? layerKeyframes[layerKeyframes.length - 1] : undefined;
+        
+        if (lastKeyframe && result.Time < lastKeyframe.Time) {
+            result.Layer = layer;
+            result.Keyframe = lastKeyframe;
+            result.Time = lastKeyframe.Time;
+        }
+        
     }
     
     return result;
@@ -1904,6 +1931,7 @@ function ATE_Playback(ate) {
     var mWasStopped = false;
     var mFPS = 0;
     var mCurrentTime = 0;
+    var mAnimationSecondsToPlay = 0;
     var mPlayingSpeed = 1 / ATE_Styles.Playback.DefaultTime;
     var mInputCurrentTimeSelector = mATE.GetInputCurrentTimeSelector();
     
@@ -1973,6 +2001,9 @@ function ATE_Playback(ate) {
         mIsPlaying = !mIsPlaying;
         mWasStopped = false;
         
+        var lastKeyframe = ATE_PlaybackEngine.GetLastKeyframeInAnimation(mATE.GetLayers());
+        mAnimationSecondsToPlay = lastKeyframe.Time === 0 ? mATE.GetAnimationSeconds() : lastKeyframe.Time;
+        
         // Layers: OnPlayOrPause
         var layers = mATE.GetLayers();
         for (var i = 0; i < layers.length; i++) { layers[i].OnPlayOrPause(mIsPlaying); }
@@ -1991,15 +2022,14 @@ function ATE_Playback(ate) {
     }
     
     this.Update = function(dt) {
-        var animationSeconds = mATE.GetAnimationSeconds();
         var changedTime = false;
         
         if (mIsPlaying) {
-            if (mCurrentTime >= animationSeconds) { mCurrentTime = 0; }
+            if (mCurrentTime >= mAnimationSecondsToPlay) { mCurrentTime = 0; }
             else {
                 mCurrentTime += mPlayingSpeed * dt;
                 mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
-                mCurrentTime = mCurrentTime > animationSeconds ? animationSeconds : mCurrentTime;
+                mCurrentTime = mCurrentTime > mAnimationSecondsToPlay ? mAnimationSecondsToPlay : mCurrentTime;
             }
             
             changedTime = true;
@@ -2009,6 +2039,7 @@ function ATE_Playback(ate) {
                 var scrollX = mATE.GetScrollX();
                 var inSegment = ATE_Engine.GetSegment(mATE, mMousePos.x - scrollX, mMousePos.y);
                 var newTime = inSegment / ATE_Styles.Default_SubSegments;
+                var animationSeconds = mATE.GetAnimationSeconds();
                 
                 if (mCurrentTime !== newTime) {
                     mCurrentTime = newTime;

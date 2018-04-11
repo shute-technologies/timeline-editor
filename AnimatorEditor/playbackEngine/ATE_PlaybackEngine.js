@@ -4,6 +4,7 @@ function ATE_PlaybackEngine() {
     
     var mFPS;
     var mAnimationSeconds;
+    var mAnimationSecondsToPlay;
     
     var mPlayingSpeed = 0;
     var mCurrentTime = 0;
@@ -44,6 +45,9 @@ function ATE_PlaybackEngine() {
     this.Play = function() {
         if (!mIsPlaying) {
             mIsPlaying = true;
+            
+            var lastKeyframe = ATE_PlaybackEngine.GetLastKeyframeInAnimation(mSelf.Animations);
+            mAnimationSecondsToPlay = lastKeyframe.Time === 0 ? mAnimationSeconds : lastKeyframe.Time;
         }
     }
     
@@ -56,11 +60,11 @@ function ATE_PlaybackEngine() {
     
     this.Update = function(dt) {
         if (mIsPlaying) {
-            if (mCurrentTime >= mAnimationSeconds) { mCurrentTime = 0; }
+            if (mCurrentTime >= mAnimationSecondsToPlay) { mCurrentTime = 0; }
             else {
                 mCurrentTime += mPlayingSpeed * dt;
                 mCurrentTime = mCurrentTime < 0 ? 0 : mCurrentTime;
-                mCurrentTime = mCurrentTime > mAnimationSeconds ? mAnimationSeconds : mCurrentTime;
+                mCurrentTime = mCurrentTime > mAnimationSecondsToPlay ? mAnimationSecondsToPlay : mCurrentTime;
             }
             
             for (var i = 0; i < mAnimationData.LayerCount; i++) {
@@ -202,6 +206,29 @@ ATE_PlaybackEngine.GetKeyframesBetween = function(keyframesData, time) {
         result.KFi = keyframesData[0];
         result.NoData = false;
         result.KFi_IsFirst = true;
+    }
+    
+    return result;
+}
+
+ATE_PlaybackEngine.GetLastKeyframeInAnimation = function(animationData) {
+    var result = {
+        Layer: undefined,
+        Keyframe: undefined,
+        Time: 0
+    };
+    
+    for (var i = 0; i < animationData.length; i++) {
+        var layer = animationData[i];
+        var layerKeyframes = layer.GetLayerData();
+        var lastKeyframe = layerKeyframes.length > 0 ? layerKeyframes[layerKeyframes.length - 1] : undefined;
+        
+        if (lastKeyframe && result.Time < lastKeyframe.Time) {
+            result.Layer = layer;
+            result.Keyframe = lastKeyframe;
+            result.Time = lastKeyframe.Time;
+        }
+        
     }
     
     return result;
