@@ -510,6 +510,7 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType, isInterpola
             else {
                switch (dataType) {
                     case ATE_PlaybackEngine.DataTypes.Boolean:
+                    case ATE_PlaybackEngine.DataTypes.String:
                         resultValue = Math.floor(actualTime) >= 1 ? kfeValue : kfiValue;
                         break;
                 } 
@@ -1505,6 +1506,9 @@ function ATE_Layer(ate) {
                 case ATE_PlaybackEngine.DataTypes.Boolean:
                     mLayerValueSelector.prop("checked", mLayerValue);
                     break;
+                case ATE_PlaybackEngine.DataTypes.String:
+                    mLayerValueSelector.val(mLayerValue);
+                    break;
             }
         }
     }
@@ -1649,6 +1653,7 @@ function ATE_Layer(ate) {
         
         switch (mLayerDataType) {
             case ATE_PlaybackEngine.DataTypes.Boolean:
+            case ATE_PlaybackEngine.DataTypes.String:
                 canShowSelectEasing = false;
                 break;
         }
@@ -1709,7 +1714,8 @@ function ATE_Layer(ate) {
     
     var OnAddKeyframeButtonClick = function(evt) {
         var currentTime = mATE.GetPlaybackController().GetCurrentTime();
-        var result = mATE.AddLayer(mLayerName, currentTime, 0);
+        var result = mATE.AddLayer(mLayerName, currentTime, 0, mLayerDataType, 
+            ATE_Engine.IgnoreExtraParams, ATE_Engine.IgnoreExtraParams);
         
         // Force set in ATE current Keyframe and Layer
         mSelf.OnMouseClick_Keyframe(result.Keyframe);
@@ -1738,6 +1744,9 @@ function ATE_Layer(ate) {
                         break;
                     case ATE_PlaybackEngine.DataTypes.Boolean:
                         keyframe.Value = $(this).is(":checked");
+                        break;
+                    case ATE_PlaybackEngine.DataTypes.String:
+                        keyframe.Value = $(this).val();
                         break;
                 }
                 
@@ -1812,6 +1821,9 @@ function ATE_Layer(ate) {
                     break;
                 case ATE_PlaybackEngine.DataTypes.Boolean:
                     mLayerValueSelector.prop("checked", mLayerValue);
+                    break;
+                case ATE_PlaybackEngine.DataTypes.String:
+                    mLayerValueSelector.val(mLayerValue);
                     break;
             }
         }
@@ -1943,6 +1955,7 @@ ATE_Layer.SetLabelCSS_LayerValue = function(selector, dataType) {
     switch (dataType) {
         case ATE_PlaybackEngine.DataTypes.Numeric:
         case ATE_PlaybackEngine.DataTypes.Color:
+        case ATE_PlaybackEngine.DataTypes.String:
             selector.css("width", "40px");
             break;
     }

@@ -142,6 +142,7 @@ ATE_PlaybackEngine.ByLayer = function(keyframesData, time, dataType, isInterpola
             else {
                switch (dataType) {
                     case ATE_PlaybackEngine.DataTypes.Boolean:
+                    case ATE_PlaybackEngine.DataTypes.String:
                         resultValue = Math.floor(actualTime) >= 1 ? kfeValue : kfiValue;
                         break;
                 } 
