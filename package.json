@@ -1,0 +1,35 @@
+{
+  "name": "shute-technologies.timeline-editor",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": false,
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "start": "webpack-dev-server --mode development --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrisfs313/timeline-editor"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.1",
+    "ts-loader": "^8.0.4",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "tslint": "^6.1.3",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "keywords": [],
+  "author": "Cristian F. Shute",
+  "description": "Timeline Editor"
+}
