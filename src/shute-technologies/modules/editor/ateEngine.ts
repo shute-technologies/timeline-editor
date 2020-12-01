@@ -2,30 +2,34 @@ import { ATESegment } from './ateSegment';
 import { ATELayer } from './ateLayer';
 import { ATEPlayback } from './atePlayback';
 import { ATEHTMLButton } from '../components/ateHtmlButton';
-import { SimpleCallback, SimpleGCallback } from '../common/ateInterfaces';
+import { SimpleCallback, SimpleGCallback, ATEIAnimationData } from '../common/ateInterfaces';
 import { ATEStyles } from '../config/ateStyles';
+import { ATEEngineHelper } from './helpers/ateEngineHelper';
 
 export class ATEEngine {
+
+  static readonly IgnoreExtraParams = 999999019.091;
+  static readonly RemoveExtraParams = 999999019.092;
 
   private _ctx: CanvasRenderingContext2D;
 
   private _parentSelectorName: string;
-  private _parentSelector;
+  private _parentSelector: JQuery<HTMLElement>;
 
-  private _parentGUISelectorNameParentCanvasSelector;
+  private _parentGUISelectorNameParentCanvasSelector: JQuery<HTMLElement>;
   private _parentCanvasSelectorName: string;
 
-  private _parentGUISelector;
+  private _parentGUISelector: JQuery<HTMLElement>;
   private _parentGUISelectorName: string;
 
   private _inputCurrentTimeSelector;
-  private _inputTimeLimitSelector;
+  private _inputTimeLimitSelector: JQuery<HTMLElement>;
 
   // UI Controls
-  private _controlsUI_Selector;
+  private _controlsUI_Selector: JQuery<HTMLElement>;
 
   // Layer Controls
-  private _layersUI_Selector;
+  private _layersUI_Selector: JQuery<HTMLElement>;
 
   private _width: number;
   private _height: number;
@@ -70,24 +74,24 @@ export class ATEEngine {
   get animationSeconds(): number { return this._animationSeconds; }
   get subSegments(): number { return this._subSegments; }
 
-  get parentSelector() { return this._parentSelector; }
-  get parentGUISelector() { return this._parentGUISelector; }
-  get controlsUI_Selector() { return this._controlsUI_Selector; }
-  get layersUI_Selector() { return this._layersUI_Selector; }
-  get inputCurrentTimeSelector() { return this._inputCurrentTimeSelector; }
+  get parentSelector(): JQuery<HTMLElement> { return this._parentSelector; }
+  get parentGUISelector(): JQuery<HTMLElement> { return this._parentGUISelector; }
+  get controlsUI_Selector(): JQuery<HTMLElement> { return this._controlsUI_Selector; }
+  get layersUI_Selector(): JQuery<HTMLElement> { return this._layersUI_Selector; }
+  get inputCurrentTimeSelector(): JQuery<HTMLElement> { return this._inputCurrentTimeSelector; }
 
   // internal for GUI
-  get width() { return this._width; }
-  get height() { return this._height; }
-  get scrollX() { return this._scrollX; }
-  get scrollY() { return this._scrollY; }
-  get gui_RealSegmentWidth() { return this._GUI_RealSegmentWidth; }
-  get gui_RealSubSegmentWidth() { return this._GUI_RealSubSegmentWidth; }
+  get width(): number { return this._width; }
+  get height(): number { return this._height; }
+  get scrollX(): number { return this._scrollX; }
+  get scrollY(): number { return this._scrollY; }
+  get gui_RealSegmentWidth(): number { return this._GUI_RealSegmentWidth; }
+  get gui_RealSubSegmentWidth(): number { return this._GUI_RealSubSegmentWidth; }
 
-  get layers() { return this._layers; }
-  get segments() { return this._segments; }
-  get playbackController() { return this._playbackController; }
-  get currentFocusSegment () { return this._currentFocusSegment; }
+  get layers(): Array<ATELayer> { return this._layers; }
+  get segments(): Array<ATESegment> { return this._segments; }
+  get playbackController(): ATEPlayback { return this._playbackController; }
+  get currentFocusSegment(): number { return this._currentFocusSegment; }
   get ctx (): CanvasRenderingContext2D { return this._ctx; }
 
   set forceATEHeight(val: number) { this._height = val; }
@@ -95,6 +99,24 @@ export class ATEEngine {
   set onPlayOrPauseCallback(val: SimpleGCallback<boolean>) { this._onPlayOrPauseCallback = val; }
   set onStopCallback(val: SimpleCallback) { this._onStopCallback = val; }
 
+  get animationData(): ATEIAnimationData {
+    const resultData = ATEEngineHelper.defaultAnimationData();
+    resultData.animationSeconds = this._animationSeconds;
+    resultData.fps = this._playbackController.fps;
+    resultData.layerCount = this._layers.length;
+
+    for (const layer of this._layers) {
+      resultData.layers.push({
+        data: layer.layerData,
+        name: layer.layerName,
+        dataType: layer.layerDataType,
+        isInterpolable: layer.layerIsInterpolable,
+        extraParams: layer.extraLayerParams
+      });
+    }
+
+    return resultData;
+  }
 
   constructor() {
     this._width = 0;

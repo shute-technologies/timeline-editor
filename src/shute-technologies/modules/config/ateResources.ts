@@ -1,4 +1,4 @@
-export class ATEResouces {
+export class ATEResources {
 
   private constructor() {}
 
