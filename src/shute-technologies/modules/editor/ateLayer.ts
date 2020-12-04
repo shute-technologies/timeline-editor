@@ -371,7 +371,7 @@ export class ATELayer {
 
   private onAddKeyframeButtonClick(evt): void {
     const currentTime = this._ate.playbackController.currentTime;
-    const result = this._ate.addLayer(this._layerName, currentTime, 0, this._layerDataType,
+    const result = this._ate.addLayer(this._layerName, currentTime, null, this._layerDataType,
       ATEEngine.IgnoreExtraParams, ATEEngine.IgnoreExtraParams);
 
     // Force set in ATE current Keyframe and Layer
