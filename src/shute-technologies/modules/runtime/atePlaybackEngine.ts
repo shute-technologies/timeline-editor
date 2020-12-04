@@ -31,6 +31,7 @@ export class ATEPlaybackEngine {
   private _isPlaying:  boolean;
 
   animations: ATEDictionary<string | number | ATEIColor | boolean>;
+  extraParams;
 
   get isPlaying(): boolean { return this._isPlaying; }
   get currentTime(): number { return this._currentTime; }
@@ -39,6 +40,7 @@ export class ATEPlaybackEngine {
   get fps(): number { return this._fps; }
 
   constructor() {
+    this.extraParams = null;
     this._animationData = null;
     this._animationSeconds = 0;
     this._playingSpeed = 0;
