@@ -19,12 +19,12 @@ export class ATEHTMLButton {
     this._isToggled = false;
   }
 
-  initialize(srcState1: string, srcState2: string): void {
+  initialize(srcState1: string, srcState2?: string): void {
     this._srcState1 = srcState1;
     this._srcState2 = srcState2;
 
     this._button = $(`<img src='${this._srcState1}' width='20' />`);
-    this._button.on('click', this.onClick);
+    this._button.on('click', (evt) => this.onClick(evt));
   }
 
   reset(): void {

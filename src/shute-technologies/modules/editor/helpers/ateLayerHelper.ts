@@ -41,7 +41,9 @@ export class ATELayerHelper {
     let html = `<select style='display:none;margin-right:2px;float:left;width:55px'>`;
 
     for (const name of Object.keys(ATEEnumTweenType)) {
-      html += `   <option value='${ATEEnumTweenType[name]}'>${name}</option>`;
+      if (!(parseInt(name, 10) >= 0)) {
+        html += `   <option value='${ATEEnumTweenType[name]}'>${name}</option>`;
+      }
     }
 
     html += '</select>';
@@ -65,5 +67,21 @@ export class ATELayerHelper {
     hrSelector.css('-webkit-margin-start', '0');
     hrSelector.css('-webkit-margin-end', '0');
     return hrSelector;
+  }
+
+  static getDefaultValueFromDataType(dataType: ATEEnumDataType): void {
+    let result = null;
+
+    switch (dataType) {
+      case ATEEnumDataType.Numeric: result = 0; break;
+      case ATEEnumDataType.Boolean: result = false; break;
+      case ATEEnumDataType.Color: result = { r: 0, g: 0, b: 0, a: 1}; break;
+      case ATEEnumDataType.String: result = ''; break;
+      default:
+        result = {};
+      break;
+    }
+
+    return result;
   }
 }

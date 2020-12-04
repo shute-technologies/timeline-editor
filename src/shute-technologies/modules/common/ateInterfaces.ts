@@ -20,7 +20,7 @@ export interface ATEIColor {
 export interface ATEIKeyframe {
   name: string;
   time: number;
-  value: ATEIColor | number | boolean;
+  value: ATEIColor | number | boolean | string;
   tweenType: ATEEnumTweenType;
   extraParams;
 }
@@ -74,6 +74,16 @@ export interface ATEIKeyframeRenderData {
   y: number;
   width: number;
   height: number;
-  img: HTMLElement;
+  img: HTMLImageElement;
   keyframe: ATEIKeyframe;
+}
+
+export interface ATEIGetLayerResult {
+  exists: boolean;
+  layer: ATELayer;
+}
+
+export interface ATEIAddLayerResult {
+  layer: ATELayer;
+  keyframe;
 }

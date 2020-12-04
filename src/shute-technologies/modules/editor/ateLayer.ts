@@ -11,7 +11,7 @@ import { ATEEnumLayerEditControls } from './ateEnumLayerEditControls';
 
 export class ATELayer {
 
-  private readonly _diamondImage: HTMLElement;
+  private readonly _diamondImage: HTMLImageElement;
   private readonly _diamondSelectedImage: HTMLElement;
 
   private _ctx: CanvasRenderingContext2D;
@@ -59,7 +59,7 @@ export class ATELayer {
 
   constructor (private readonly _ate: ATEEngine) {
     this._ctx = _ate.ctx;
-    this._diamondImage = $(`#${ATEResources.diamond.id}`)[0];
+    this._diamondImage = $(`#${ATEResources.diamond.id}`)[0] as HTMLImageElement;
     this._diamondSelectedImage = $(`#${ATEResources.diamondSelected.id}`)[0];
     this._keyframes = [];
 
@@ -78,9 +78,9 @@ export class ATELayer {
   initialize(name: string, dataType: ATEEnumDataType, isInterpolable?: boolean): void {
     this._layerName = name;
     this.__LayerName = name;
-    this._layerDataType = dataType;
+    this._layerDataType = !!dataType ? dataType : ATEEnumDataType.Numeric;
 
-    if (isInterpolable) {
+    if (!!!isInterpolable) {
       switch (this._layerDataType) {
         case ATEEnumDataType.Numeric:
         case ATEEnumDataType.Color:
@@ -127,8 +127,8 @@ export class ATELayer {
     parentControls.append(this._layerValueSelector);
 
     // set CSS for Labels
-    ATE_Layer.SetLabelCSS_LayerName(this._layerNameSelector);
-    ATE_Layer.SetLabelCSS_LayerValue(this._layerValueSelector, this._layerDataType);
+    ATELayerHelper.setLabelCSS_LayerName(this._layerNameSelector);
+    ATELayerHelper.setLabelCSS_LayerValue(this._layerValueSelector, this._layerDataType);
 
     dataParentSelector.append(this._layerNameSelector);
     dataParentSelector.append(parentControls);
@@ -200,7 +200,7 @@ export class ATELayer {
       resultKeyframe.value = value;
 
       if (extraParams) {
-          if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+          if (extraParams !== ATEEngine.IgnoreExtraParams) {
               resultKeyframe.extraParams = extraParams;
           }
       } else {
@@ -210,7 +210,7 @@ export class ATELayer {
       let extraParamsValue = null;
 
       if (extraParams) {
-        if (extraParams !== ATE_Engine.IgnoreExtraParams) {
+        if (extraParams !== ATEEngine.IgnoreExtraParams) {
           extraParamsValue = extraParams;
         }
       }
@@ -309,8 +309,8 @@ export class ATELayer {
     let canShowSelectEasing = true;
 
     switch (this.layerDataType) {
-      case ATE_PlaybackEngine.DataTypes.Boolean:
-      case ATE_PlaybackEngine.DataTypes.String:
+      case ATEEnumDataType.Boolean:
+      case ATEEnumDataType.String:
         canShowSelectEasing = false;
         break;
     }
@@ -323,7 +323,7 @@ export class ATELayer {
           case ATEEnumLayerEditControls.Value_Editable:
             this._layerValueSelector.css('display', 'block');
             this._layerValueSelector.removeAttr('disabled');
-            this._layerValueSelector.off().on('change paste', this.onValueChange);
+            this._layerValueSelector.off().on('change paste', (evt) => this.onValueChange(evt.originalEvent));
 
             if (canShowSelectEasing) {
               this._selectOptionSelector.css('display', 'none');
@@ -331,7 +331,7 @@ export class ATELayer {
             }
 
             this._buttonKeyframeAddSelector.css('display', 'block');
-            this._buttonKeyframeAddSelector.off().on('click', this.onRemoveKeyframeButtonClick);
+            this._buttonKeyframeAddSelector.off().on('click', (evt) => this.onRemoveKeyframeButtonClick(evt.originalEvent));
             break;
           case ATEEnumLayerEditControls.Keyframe:
             this._layerValueSelector.css('display', 'none');
@@ -344,21 +344,21 @@ export class ATELayer {
             }
 
             this._buttonKeyframeAddSelector.css('display', 'block');
-            this._buttonKeyframeAddSelector.off().on('click', this.onAddKeyframeButtonClick);
+            this._buttonKeyframeAddSelector.off().on('click', (evt) => this.onAddKeyframeButtonClick(evt.originalEvent));
             break;
           case ATEEnumLayerEditControls.Tween:
             this._layerValueSelector.css('display', 'block');
             this._layerValueSelector.removeAttr('disabled');
-            this._layerValueSelector.off().on('change paste', this.onValueChange);
+            this._layerValueSelector.off().on('change paste', (evt) => this.onValueChange(evt.originalEvent));
 
             if (canShowSelectEasing) {
                 this._selectOptionSelector.val(keyframe.tweenType);
                 this._selectOptionSelector.css('display', 'block');
-                this._selectOptionSelector.off().on('change', this.onTweenChange);
+                this._selectOptionSelector.off().on('change', (evt) => this.onTweenChange(evt.originalEvent));
             }
 
             this._buttonKeyframeAddSelector.css('display', 'block');
-            this._buttonKeyframeAddSelector.off().on('click', this.onRemoveKeyframeButtonClick);
+            this._buttonKeyframeAddSelector.off().on('click', (evt) => this.onRemoveKeyframeButtonClick(evt.originalEvent));
             break;
         }
 
@@ -372,10 +372,10 @@ export class ATELayer {
   private onAddKeyframeButtonClick(evt): void {
     const currentTime = this._ate.playbackController.currentTime;
     const result = this._ate.addLayer(this._layerName, currentTime, 0, this._layerDataType,
-      ATE_Engine.IgnoreExtraParams, ATE_Engine.IgnoreExtraParams);
+      ATEEngine.IgnoreExtraParams, ATEEngine.IgnoreExtraParams);
 
     // Force set in ATE current Keyframe and Layer
-    this.onMouseClick_Keyframe(result.Keyframe);
+    this.onMouseClick_Keyframe(result.keyframe);
     // Invalidate GUI
     this.invalidate();
   }
@@ -387,22 +387,21 @@ export class ATELayer {
     this.invalidate();
   }
 
-  private onValueChange(evt): void {
+  private onValueChange(evt: Event): void {
     if (!this._ate.playbackController.isPlaying) {
       const currentTime = this._ate.playbackController.currentTime;
-      const keyframe = ATE_PlaybackEngine.GetKeyframeByTime(this._keyframes, currentTime);
+      const keyframe = ATEPlaybackEngine.getKeyframeByTime(this._keyframes, currentTime);
 
       if (keyframe) {
         switch (this._layerDataType) {
           case ATEEnumDataType.Numeric:
-            debugger;
-            keyframe.Value = parseFloat($(this).val() as any);
+            keyframe.value = parseFloat(evt.currentTarget['value']);
             break;
           case ATEEnumDataType.Boolean:
-            keyframe.Value = $(this).is(':checked');
+            keyframe.value = evt.currentTarget['checked'];
             break;
           case ATEEnumDataType.String:
-            keyframe.Value = $(this).val();
+            keyframe.value = evt.currentTarget['value'] as string;
             break;
         }
 
@@ -412,17 +411,16 @@ export class ATELayer {
     }
   }
 
-  private onTweenChange(evt): void {
-    debugger;
-    const selectValue = parseInt($(this).val() as any);
+  private onTweenChange(evt: Event): void {
+    const selectValue = parseInt(evt.currentTarget['value'], 10);
     const currentTime = this._ate.playbackController.currentTime;
-    const keyframe = ATE_PlaybackEngine.GetKeyframeByTime(this._keyframes, currentTime);
+    const keyframe = ATEPlaybackEngine.getKeyframeByTime(this._keyframes, currentTime);
 
     if (keyframe) {
-      keyframe.TweenType = selectValue;
+      keyframe.tweenType = selectValue;
 
       // change
-      if (this._ate.onChangeCallback { this._ate.onChangeCallback(); }
+      if (this._ate.onChangeCallback) { this._ate.onChangeCallback(); }
     }
   }
 
@@ -442,11 +440,11 @@ export class ATELayer {
           canHaveTween = canHaveTween && !isLastSelected;
 
           this.showEditControls(canHaveTween
-            ? ATE_Layer.EditControls.Tween
-            : ATE_Layer.EditControls.Value_Editable
+            ? ATEEnumLayerEditControls.Tween
+            : ATEEnumLayerEditControls.Value_Editable
           );
         } else {
-          this.showEditControls(ATE_Layer.EditControls.Keyframe);
+          this.showEditControls(ATEEnumLayerEditControls.Keyframe);
         }
 
         // change keyframe image button if has keyframe
@@ -458,16 +456,16 @@ export class ATELayer {
       ////////////////
 
       // Playback Engine
-      this._layerValue = ATE_PlaybackEngine.ByLayer(this._keyframes, time,
+      this._layerValue = ATEPlaybackEngine.byLayer(this._keyframes, time,
           this._layerDataType, this._layerIsInterpolable);
       this.__LayerValue = this._layerValue;
 
       // set value in label
       switch (this._layerDataType) {
-        case ATE_PlaybackEngine.DataTypes.Numeric:
+        case ATEEnumDataType.Numeric:
           this._layerValueSelector.val(this._layerValue.toFixed(3));
           break;
-        case ATE_PlaybackEngine.DataTypes.Color:
+        case ATEEnumDataType.Color:
           const cR = this._layerValue.r * 255.0;
           const cG = this._layerValue.g * 255.0;
           const cB = this._layerValue.b * 255.0;
@@ -478,10 +476,10 @@ export class ATELayer {
           this._layerValueSelector.attr('disabled', 'true');
           this._layerValueSelector.css('background-color', resultColor);
           break;
-        case ATE_PlaybackEngine.DataTypes.Boolean:
+        case ATEEnumDataType.Boolean:
           this._layerValueSelector.prop('checked', this._layerValue);
           break;
-        case ATE_PlaybackEngine.DataTypes.String:
+        case ATEEnumDataType.String:
           this._layerValueSelector.val(this._layerValue);
           break;
       }
@@ -504,89 +502,84 @@ export class ATELayer {
     }
   }
 
-  DrawGUI = function(index, dt) {
-    var ctx = mSelf.ctx;
-    var layerHeight = ATE_Styles.AC_TimelineLayerHeight;
-    
-    var scrollX = mATE.GetScrollX();
-    var scrollY = mATE.GetScrollY();
-    var x = scrollX;
-    var y = scrollY + ((index + 1) * layerHeight) + 
-        ATE_Styles.AC_TimelineHeight + ATE_Styles.Timeline.OffsetY;
-    var toX = (mATE.GetAnimationSeconds() * mATE.GetGUI_RealSegmentWidth() + 
-        ATE_Styles.Timeline.OffsetX);
-    
+  drawGUI(index: number, dt: number): void {
+    const layerHeight = ATEStyles.ac_TimelineLayerHeight;
+
+    const scrollX = this._ate.scrollX;
+    const scrollY = this._ate.scrollY;
+    const x = scrollX;
+    const y = scrollY + ((index + 1) * layerHeight) + ATEStyles.ac_TimelineHeight + ATEStyles.timeline.offsetY;
+    const toX = (this._ate.animationSeconds * this._ate.gui_RealSegmentWidth) + ATEStyles.timeline.offsetX;
+
     // Draw layer line
-    ctx.beginPath()
-    ctx.moveTo(x, y);
-    ctx.lineTo(toX, y);
-    ctx.lineWidth = 1;
-    ctx.lineHeight = 1;
-    ctx.strokeStyle = ATE_Styles.CStroke_Color;
-    ctx.stroke();
-    ctx.closePath()
-}
+    this._ctx.beginPath();
+    this._ctx.moveTo(x, y);
+    this._ctx.lineTo(toX, y);
+    this._ctx.lineWidth = 1;
+    (this._ctx as any).lineHeight = 1;
+    this._ctx.strokeStyle = ATEStyles.cStroke_Color;
+    this._ctx.stroke();
+    this._ctx.closePath();
+  }
 
-this.DrawKeyframe = function(keyframe, nextKeyframe, index, dt) {
-    mCurrentIndex = index;
-    
-    var ctx = mSelf.ctx;
-    var scrollX = mATE.GetScrollX();
-    var scrollY = mATE.GetScrollY();
-    var keyframeRD = mSelf.GetKeyFrameRenderData(keyframe);
-    
+  drawKeyframe(keyframe: ATEIKeyframe, nextKeyframe: ATEIKeyframe, index: number, dt: number): void {
+    this._currentIndex = index;
+
+    const scrollX = this._ate.scrollX;
+    const scrollY = this._ate.scrollY;
+    const keyframeRD = this.getKeyFrameRenderData(keyframe);
+
     if (nextKeyframe) {
-        switch (keyframe.TweenType) {
-            case ATE_PlaybackEngine.TweenType.EaseLinear:
-            case ATE_PlaybackEngine.TweenType.EaseInQuad:
-            case ATE_PlaybackEngine.TweenType.EaseOutQuad:
-            case ATE_PlaybackEngine.TweenType.EaseInOutQuad:
-            case ATE_PlaybackEngine.TweenType.EaseInCubic:
-            case ATE_PlaybackEngine.TweenType.EaseOutCubic:
-            case ATE_PlaybackEngine.TweenType.EaseInOutCubic:
-            case ATE_PlaybackEngine.TweenType.EaseInSine:
-            case ATE_PlaybackEngine.TweenType.EaseOutSine:
-            case ATE_PlaybackEngine.TweenType.EaseInOutSine:
-            case ATE_PlaybackEngine.TweenType.EaseInExpo:
-            case ATE_PlaybackEngine.TweenType.EaseOutExpo:
-            case ATE_PlaybackEngine.TweenType.EaseInOutExpo:
-            case ATE_PlaybackEngine.TweenType.EaseInElastic:
-            case ATE_PlaybackEngine.TweenType.EaseOutElastic:
-            case ATE_PlaybackEngine.TweenType.EaseInOutElastic:
-                var nextKeyframeRD = mSelf.GetKeyFrameRenderData(nextKeyframe);
-                
-                var rectX = keyframeRD.X + (ATE_Resources.Diamond.TimelineWidth * 0.5) + scrollX;
-                var rectY = (keyframeRD.Y - mOffsetY_Img) + scrollY;
-                var rectW = nextKeyframeRD.X - keyframeRD.X;
-                var rectH = ATE_Styles.AC_TimelineLayerHeight;
-                
-                // Draw box
-                ctx.beginPath();
-                ctx.fillStyle = "#0000FF55";
-                ctx.fillRect(rectX, rectY, rectW, rectH);
-                ctx.closePath();
-                break;
-        }
-    }
-    
-    // finally draw keyframe
-    ctx.drawImage(keyframeRD.Img, keyframeRD.X + scrollX, keyframeRD.Y + scrollY, 
-        keyframeRD.Width, keyframeRD.Height);
-}
+      switch (keyframe.tweenType) {
+        case ATEEnumTweenType.EaseLinear:
+        case ATEEnumTweenType.EaseInQuad:
+        case ATEEnumTweenType.EaseOutQuad:
+        case ATEEnumTweenType.EaseInOutQuad:
+        case ATEEnumTweenType.EaseInCubic:
+        case ATEEnumTweenType.EaseOutCubic:
+        case ATEEnumTweenType.EaseInOutCubic:
+        case ATEEnumTweenType.EaseInSine:
+        case ATEEnumTweenType.EaseOutSine:
+        case ATEEnumTweenType.EaseInOutSine:
+        case ATEEnumTweenType.EaseInExpo:
+        case ATEEnumTweenType.EaseOutExpo:
+        case ATEEnumTweenType.EaseInOutExpo:
+        case ATEEnumTweenType.EaseInElastic:
+        case ATEEnumTweenType.EaseOutElastic:
+        case ATEEnumTweenType.EaseInOutElastic:
+          const nextKeyframeRD = this.getKeyFrameRenderData(nextKeyframe);
 
-this.Destroy = function() {
-    mLayerSelector.remove();
-    
-    mKeyframes = undefined;
-    mSelf.ctx = undefined;
-    mATE = undefined;
-    mSelf = undefined;
-    mLayerSelector = undefined;
-    mLayerNameSelector = undefined;
-    mLayerValueSelector = undefined;
-    mSelectOptionSelector = undefined;
-    mButtonKeyframeAddSelector = undefined;
-    mDiamondImg = undefined;
-    mDiamondSelectedImg = undefined;
+          const rectX = keyframeRD.x + (ATEResources.diamond.timelineWidth * 0.5) + scrollX;
+          const rectY = (keyframeRD.y - this._offsetYImg) + scrollY;
+          const rectW = nextKeyframeRD.x - keyframeRD.x;
+          const rectH = ATEStyles.ac_TimelineLayerHeight;
+
+          // Draw box
+          this._ctx.beginPath();
+          this._ctx.fillStyle = '#0000FF55';
+          this._ctx.fillRect(rectX, rectY, rectW, rectH);
+          this._ctx.closePath();
+          break;
+      }
+    }
+
+    // finally draw keyframe
+    this._ctx.drawImage(keyframeRD.img, keyframeRD.x + scrollX, keyframeRD.y + scrollY,
+      keyframeRD.width, keyframeRD.height);
+  }
+
+  destroy(): void {
+    this._layerSelector.remove();
+    this._layerSelector = null;
+
+    this._keyframes = null;
+    this._ctx = null;
+    (this as any)._ate = null;
+    this._layerNameSelector = null;
+    this._layerValueSelector = null;
+    this._selectOptionSelector = null;
+    this._buttonKeyframeAddSelector = null;
+    (this as any)._diamondImage = null;
+    (this as any)._diamondSelectedImage = null;
   }
 }

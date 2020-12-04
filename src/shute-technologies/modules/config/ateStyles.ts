@@ -7,7 +7,7 @@ export class ATEStyles {
 
   static readonly scrollbarHeight = 16;
   static readonly guiHeight = 240;
-  static readonly canvasHeight = ATE_Styles.GUIHeight - ATE_Styles.ScrollbarHeight;
+  static readonly canvasHeight = ATEStyles.guiHeight - ATEStyles.scrollbarHeight;
   static readonly backgroundColor = '#4e4e4e';
 
   // Controls: Styles
@@ -31,7 +31,7 @@ export class ATEStyles {
 
   // Controls: Playback
   static readonly playback = {
-    defaultTime: 60,
+    defaultTime: 1,
     gui_Width: 52,
     gui_Height: 15,
     gui_TextStyle: 'bold 12px Arial',

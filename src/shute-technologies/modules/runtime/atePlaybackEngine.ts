@@ -16,7 +16,7 @@ import { Easing } from '../../../external-libs/easing/Easing';
 export class ATEPlaybackEngine {
 
   // Configurable
-  static DefaultTime = 60;
+  static DefaultTime = 1;
 
   //  Not configurable
   static readonly EPSILON = 0.001;
@@ -30,7 +30,7 @@ export class ATEPlaybackEngine {
   private _currentTime: number;
   private _isPlaying:  boolean;
 
-  animations: ATEDictionary<number | ATEIColor | boolean>;
+  animations: ATEDictionary<string | number | ATEIColor | boolean>;
 
   get isPlaying(): boolean { return this._isPlaying; }
   get currentTime(): number { return this._currentTime; }
@@ -64,7 +64,7 @@ export class ATEPlaybackEngine {
     this._fps = fps;
 
     const deltaTime = 1000.0 / fps;
-    this._playingSpeed = (1 / ATE_PlaybackEngine.DefaultTime) / deltaTime;
+    this._playingSpeed = ATEPlaybackEngine.DefaultTime;
   }
 
   play(): void {
@@ -104,9 +104,9 @@ export class ATEPlaybackEngine {
 
   // tslint:disable-next-line: cyclomatic-complexity
   static byLayer(keyframesData: Array<ATEIKeyframe>, time: number, dataType: ATEEnumDataType,
-    isInterpolable: boolean): number | boolean | ATEIColor {
+    isInterpolable: boolean): string | number | boolean | ATEIColor {
 
-    let resultValue: number | boolean | ATEIColor = null;
+    let resultValue: string | number | boolean | ATEIColor = null;
     const keyframe: ATEIKeyframe = ATEPlaybackEngine.getKeyframeByTime(keyframesData, time);
     const keyframes: ATEIKeyframeNode = ATEPlaybackEngine.getKeyframesBetween(keyframesData, time);
 
@@ -152,7 +152,7 @@ export class ATEPlaybackEngine {
                 break;
               case ATEEnumDataType.Color:
                 const kfiColorValue = kfiValue as ATEIColor;
-                const kfeColorValue = kfiValue as ATEIColor;
+                const kfeColorValue = kfeValue as ATEIColor;
 
                 resultValue = ATEUtils.deepClone(resultValue) as ATEIColor;
                 resultValue.r = easingChoosedFn(actualTime, kfiColorValue.r, kfeColorValue.r - kfiColorValue.r, 1);
