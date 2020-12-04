@@ -21,7 +21,7 @@ export class ATEPlaybackEngine {
   //  Not configurable
   static readonly EPSILON = 0.001;
 
-  private readonly _animationData: ATEIAnimationData;
+  private _animationData: ATEIAnimationData;
   private _fps: number;
   private _animationSeconds: number;
   private _animationSecondsToPlay: number;
@@ -38,14 +38,18 @@ export class ATEPlaybackEngine {
   get animationSecondsToPlay(): number { return this._animationSecondsToPlay; }
   get fps(): number { return this._fps; }
 
-  constructor(animationData: ATEIAnimationData) {
-    this._animationData = animationData;
-    this._animationSeconds = animationData.animationSeconds;
-
+  constructor() {
+    this._animationData = null;
+    this._animationSeconds = 0;
     this._playingSpeed = 0;
     this._currentTime = 0;
     this._isPlaying = false;
     this.animations = {};
+  }
+
+  initialize(animationData: ATEIAnimationData): void {
+    this._animationData = animationData;
+    this._animationSeconds = animationData.animationSeconds;
 
     this.configureFPS(animationData.fps);
 
