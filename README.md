@@ -2,4 +2,4 @@
 
 A Flash type generic animation editor module por easier creations of animations in web canvas.
 
-The runtime implements an interface ('GEEIPlaybackObject') from another library in: https://github.com/shute-technologies/graph-editor, and is for integration purpose for the combination of both functionallity, that implementation can be easily removed and is not tighly coupled with this library.
+The runtime implements an interface ('GEEIPlaybackObject') from another library in: https://github.com/shute-technologies/graph-editor, and is for integration purpose and as a default for an existing IDE that use both libraries to create animation graphs, that implementation can be easily removed and is not tighly coupled with this library.
