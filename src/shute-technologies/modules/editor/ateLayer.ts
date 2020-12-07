@@ -1,6 +1,6 @@
 import { ATEEngine } from './ateEngine';
 import { ATEResources } from '../config/ateResources';
-import { ATEIKeyframe, ATEIColor, ATEIKeyframeRenderData } from '../common/ateInterfaces';
+import { ATEIKeyframe, ATEIColor, ATEIKeyframeRenderData, ATEIPlaybackEngineByLayerResult } from '../common/ateInterfaces';
 import { ATEStyles } from '../config/ateStyles';
 import { ATEEnumDataType } from '../runtime/ateEnumDataType';
 import { ATEEnumTweenType } from '../runtime/ateEnumTweenType';
@@ -16,7 +16,7 @@ export class ATELayer {
 
   private _ctx: CanvasRenderingContext2D;
   private _layerName: string;
-  private _layerValue;
+  private _layerValue: ATEIPlaybackEngineByLayerResult;
   private _layerDataType: ATEEnumDataType;
   private _layerIsInterpolable: boolean;
   private _extraLayerParams;
@@ -187,7 +187,7 @@ export class ATELayer {
           this._layerValueSelector.prop('checked', this._layerValue);
           break;
         case ATEEnumDataType.String:
-          this._layerValueSelector.val(this._layerValue);
+          this._layerValueSelector.val(this._layerValue.value as any);
           break;
       }
     }
@@ -463,13 +463,14 @@ export class ATELayer {
       // set value in label
       switch (this._layerDataType) {
         case ATEEnumDataType.Numeric:
-          this._layerValueSelector.val(this._layerValue.toFixed(3));
+          this._layerValueSelector.val((this._layerValue.value as any).toFixed(3));
           break;
         case ATEEnumDataType.Color:
-          const cR = this._layerValue.r * 255.0;
-          const cG = this._layerValue.g * 255.0;
-          const cB = this._layerValue.b * 255.0;
-          const cA = this._layerValue.a;
+          const colorValue = this._layerValue.value as ATEIColor;
+          const cR = colorValue.r * 255.0;
+          const cG = colorValue.g * 255.0;
+          const cB = colorValue.b * 255.0;
+          const cA = colorValue.a;
 
           const resultColor = `rgba(${cR},${cG },${cB},${cA})`;
 
@@ -480,7 +481,7 @@ export class ATELayer {
           this._layerValueSelector.prop('checked', this._layerValue);
           break;
         case ATEEnumDataType.String:
-          this._layerValueSelector.val(this._layerValue);
+          this._layerValueSelector.val(this._layerValue.value as string);
           break;
       }
     } else {

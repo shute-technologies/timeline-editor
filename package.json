@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "jquery": "^3.5.1",
-    "shute-technologies.graph-editor": "^0.5.10"
+    "shute-technologies.graph-editor": "^0.5.11"
   },
   "repository": {
     "type": "git",
