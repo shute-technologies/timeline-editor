@@ -509,7 +509,7 @@ export class ATELayer {
     const scrollX = this._ate.scrollX;
     const scrollY = this._ate.scrollY;
     const x = scrollX;
-    const y = scrollY + ((index + 1) * layerHeight) + ATEStyles.ac_TimelineHeight + ATEStyles.timeline.offsetY;
+    const y = scrollY + ((index + 1) * layerHeight) + ATEStyles.ac_TimelineHeight + ATEStyles.timeline.offsetY + 2;
     const toX = (this._ate.animationSeconds * this._ate.gui_RealSegmentWidth) + ATEStyles.timeline.offsetX;
 
     // Draw layer line

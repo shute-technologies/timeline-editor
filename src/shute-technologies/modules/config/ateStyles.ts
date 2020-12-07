@@ -26,7 +26,7 @@ export class ATEStyles {
 
   static readonly timeline = {
     offsetX: 22,
-    offsetY: 0
+    offsetY: 1
   };
 
   // Controls: Playback

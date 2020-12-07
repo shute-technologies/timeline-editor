@@ -274,7 +274,6 @@ export class ATEEngine {
 
       this._inputTimeLimitSelector = $(`<input type='text' value='${ATEUtils.getDigitsByValue(ATEStyles.default_Seconds, 2)}.00'/>`);
       this._inputTimeLimitSelector.on('change', (evt) => {
-        debugger;
         let val: any = Math.floor(parseFloat(evt.currentTarget['value']));
         val = ATEUtils.getDigitsByValue(val, 2);
         this._inputTimeLimitSelector.val(`${val}.00`);
@@ -302,7 +301,7 @@ export class ATEEngine {
 
     const createLayersGUINestedFn = () => {
       this._layersUI_Selector = $('<div><div>');
-      this._layersUI_Selector.css('height', `${this._contentHeight - ATEStyles.ac_TimelineHeight - 1}px`);
+      this._layersUI_Selector.css('height', `${this._contentHeight - ATEStyles.ac_TimelineHeight}px`);
       this._layersUI_Selector.css('overflow-y', 'hidden');
 
       this._parentGUISelector.append(this._layersUI_Selector);
