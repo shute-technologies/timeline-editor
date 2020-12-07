@@ -9,11 +9,13 @@ import {
   ATEIColor,
   ATEIKeyframeInAnimationResult,
   ATEIAnimationData,
-  ATEDictionary
+  ATEDictionary,
+  SimpleGCallback
 } from '../common/ateInterfaces';
 import { Easing } from '../../../external-libs/easing/Easing';
+import { GEEIPlaybackObject } from 'shute-technologies.graph-editor';
 
-export class ATEPlaybackEngine {
+export class ATEPlaybackEngine implements GEEIPlaybackObject {
 
   // Configurable
   static DefaultTime = 1;
@@ -32,12 +34,20 @@ export class ATEPlaybackEngine {
 
   animations: ATEDictionary<string | number | ATEIColor | boolean>;
   extraParams;
+  onAnimationEnd: SimpleGCallback<GEEIPlaybackObject>;
+  hasExternalTimeSource: boolean;
 
   get isPlaying(): boolean { return this._isPlaying; }
-  get currentTime(): number { return this._currentTime; }
   get animationSeconds(): number { return this._animationSeconds; }
+  get playingSpeed(): number { return this._playingSpeed; }
   get animationSecondsToPlay(): number { return this._animationSecondsToPlay; }
   get fps(): number { return this._fps; }
+
+  get currentTime(): number { return this._currentTime; }
+  set currentTime(time: number) {
+    this._currentTime = time < 0 ? 0 : this._currentTime;
+    this._currentTime = time > this._animationSecondsToPlay ? this._animationSecondsToPlay : this._currentTime;
+  }
 
   constructor() {
     this.extraParams = null;
@@ -47,6 +57,8 @@ export class ATEPlaybackEngine {
     this._currentTime = 0;
     this._isPlaying = false;
     this.animations = {};
+    this.onAnimationEnd = null;
+    this.hasExternalTimeSource = false;
   }
 
   initialize(animationData: ATEIAnimationData): void {
@@ -68,8 +80,6 @@ export class ATEPlaybackEngine {
 
   configureFPS(fps: number): void {
     this._fps = fps;
-
-    const deltaTime = 1000.0 / fps;
     this._playingSpeed = ATEPlaybackEngine.DefaultTime;
   }
 
@@ -86,17 +96,34 @@ export class ATEPlaybackEngine {
     if (this._isPlaying) {
       this._isPlaying = false;
       this._currentTime = 0;
+      this.invalidateAnimations();
+    }
+  }
+
+  pause(time: number): void {
+    this._isPlaying = false;
+    this.currentTime = time;
+  }
+
+  invalidateAnimations(): void {
+    for (const aniData of this._animationData.layers) {
+      const layerName = aniData.name;
+      const resultValue = ATEPlaybackEngine.byLayer(aniData.data, this._currentTime, aniData.dataType, aniData.isInterpolable);
+      this.animations[layerName] = resultValue;
     }
   }
 
   update(dt: number): void {
     if (this._isPlaying) {
-      if (this._currentTime >= this._animationSecondsToPlay) {
-        this._currentTime = 0;
-      } else {
-        this._currentTime += this._playingSpeed * dt;
-        this._currentTime = this._currentTime < 0 ? 0 : this._currentTime;
-        this._currentTime = this._currentTime > this._animationSecondsToPlay ? this._animationSecondsToPlay : this._currentTime;
+      if (!this.hasExternalTimeSource) {
+        if (this._currentTime >= this._animationSecondsToPlay) {
+          this._currentTime = 0;
+          if (this.onAnimationEnd) { this.onAnimationEnd(this); }
+        } else {
+          this._currentTime += this._playingSpeed * dt;
+          this._currentTime = this._currentTime < 0 ? 0 : this._currentTime;
+          this._currentTime = this._currentTime > this._animationSecondsToPlay ? this._animationSecondsToPlay : this._currentTime;
+        }
       }
 
       for (const aniData of this._animationData.layers) {
