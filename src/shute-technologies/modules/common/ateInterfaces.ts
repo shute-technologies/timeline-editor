@@ -87,3 +87,8 @@ export interface ATEIAddLayerResult {
   layer: ATELayer;
   keyframe;
 }
+
+export interface ATEIPlaybackEngineByLayerResult {
+  value: string | number | boolean | ATEIColor;
+  extraParams;
+}

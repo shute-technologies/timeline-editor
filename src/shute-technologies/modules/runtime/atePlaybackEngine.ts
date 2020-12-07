@@ -10,7 +10,8 @@ import {
   ATEIKeyframeInAnimationResult,
   ATEIAnimationData,
   ATEDictionary,
-  SimpleGCallback
+  SimpleGCallback,
+  ATEIPlaybackEngineByLayerResult
 } from '../common/ateInterfaces';
 import { Easing } from '../../../external-libs/easing/Easing';
 import { GEEIPlaybackObject } from 'shute-technologies.graph-editor';
@@ -32,7 +33,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
   private _currentTime: number;
   private _isPlaying:  boolean;
 
-  animations: ATEDictionary<string | number | ATEIColor | boolean>;
+  animations: ATEDictionary<ATEIPlaybackEngineByLayerResult>;
   extraParams;
   onAnimationEnd: SimpleGCallback<GEEIPlaybackObject>;
   hasExternalTimeSource: boolean;
@@ -137,7 +138,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
 
   // tslint:disable-next-line: cyclomatic-complexity
   static byLayer(keyframesData: Array<ATEIKeyframe>, time: number, dataType: ATEEnumDataType,
-    isInterpolable: boolean, extraParams?): string | number | boolean | ATEIColor {
+    isInterpolable: boolean, extraParams?): ATEIPlaybackEngineByLayerResult {
 
     let resultValue: string | number | boolean | ATEIColor = null;
     const keyframe: ATEIKeyframe = ATEPlaybackEngine.getKeyframeByTime(keyframesData, time);
@@ -209,7 +210,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
     return {
       value: resultValue,
       extraParams
-    };
+    } as ATEIPlaybackEngineByLayerResult;
   }
 
   static getKeyframeByTime(keyframesData: Array<ATEIKeyframe>, time: number): ATEIKeyframe {
