@@ -72,7 +72,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
       const layerObj = this._animationData.layers[i];
 
       const layerName = layerObj.name;
-      const resultValue = ATEPlaybackEngine.byLayer(layerObj.data, this._currentTime, layerObj.dataType, layerObj.isInterpolable);
+      const resultValue = ATEPlaybackEngine.byLayer(layerObj.data, this._currentTime, layerObj.dataType, layerObj.isInterpolable, layerObj.extraParams);
 
       this.animations[layerName] = resultValue;
     }
@@ -108,7 +108,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
   invalidateAnimations(): void {
     for (const aniData of this._animationData.layers) {
       const layerName = aniData.name;
-      const resultValue = ATEPlaybackEngine.byLayer(aniData.data, this._currentTime, aniData.dataType, aniData.isInterpolable);
+      const resultValue = ATEPlaybackEngine.byLayer(aniData.data, this._currentTime, aniData.dataType, aniData.isInterpolable, aniData.extraParams);
       this.animations[layerName] = resultValue;
     }
   }
@@ -128,7 +128,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
 
       for (const aniData of this._animationData.layers) {
         const layerName = aniData.name;
-        const resultValue = ATEPlaybackEngine.byLayer(aniData.data, this._currentTime, aniData.dataType, aniData.isInterpolable);
+        const resultValue = ATEPlaybackEngine.byLayer(aniData.data, this._currentTime, aniData.dataType, aniData.isInterpolable, aniData.extraParams);
 
         this.animations[layerName] = resultValue;
       }
@@ -137,7 +137,7 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
 
   // tslint:disable-next-line: cyclomatic-complexity
   static byLayer(keyframesData: Array<ATEIKeyframe>, time: number, dataType: ATEEnumDataType,
-    isInterpolable: boolean): string | number | boolean | ATEIColor {
+    isInterpolable: boolean, extraParams?): string | number | boolean | ATEIColor {
 
     let resultValue: string | number | boolean | ATEIColor = null;
     const keyframe: ATEIKeyframe = ATEPlaybackEngine.getKeyframeByTime(keyframesData, time);
@@ -206,7 +206,10 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
       }
     }
 
-    return resultValue;
+    return {
+      value: resultValue,
+      extraParams
+    };
   }
 
   static getKeyframeByTime(keyframesData: Array<ATEIKeyframe>, time: number): ATEIKeyframe {
