@@ -136,6 +136,16 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
     }
   }
 
+  destroy(): void {
+    this._animationData = null;
+    this._currentTime = null;
+    this._isPlaying = null;
+    this.animations = null;
+    this.extraParams = null;
+    this.onAnimationEnd = null;
+    this.hasExternalTimeSource = null;
+  }
+
   // tslint:disable-next-line: cyclomatic-complexity
   static byLayer(keyframesData: Array<ATEIKeyframe>, time: number, dataType: ATEEnumDataType,
     isInterpolable: boolean, extraParams?): ATEIPlaybackEngineByLayerResult {
