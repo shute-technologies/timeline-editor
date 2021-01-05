@@ -1,4 +1,4 @@
-![Publish to NPM](https://github.com/shute-technologies/timeline-editor/workflows/Publish%20to%20NPM/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm](https://img.shields.io/npm/v/shute-technologies.timeline-editor)
+![Publish to NPM](https://github.com/shute-technologies/timeline-editor/workflows/Publish%20to%20NPM/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm](https://img.shields.io/npm/v/shute-technologies.timeline-editor) ![GitHub last commit](https://img.shields.io/github/last-commit/shute-technologies/timeline-editor)
 
 A Flash type generic animation editor module por easier creations of animations in web canvas.
 
