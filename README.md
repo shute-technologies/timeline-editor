@@ -1,4 +1,4 @@
-![Publish to NPM](https://github.com/shute-technologies/timeline-editor/workflows/Publish%20to%20NPM/badge.svg)
+![Publish to NPM](https://github.com/shute-technologies/timeline-editor/workflows/Publish%20to%20NPM/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Flash type generic animation editor module por easier creations of animations in web canvas.
 
