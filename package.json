@@ -1,6 +1,6 @@
 {
   "name": "shute-technologies.timeline-editor",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "license": "MIT",
   "private": false,
   "main": "lib/index.js",

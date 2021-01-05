@@ -209,12 +209,12 @@ export class ATEEngine {
 
     // Mouse Click
     this._parentCanvasSelector.on('click', (evt) => {
-      // var mousePos = __getMousePos(this._parentCanvasSelector[0], evt);
+      // const mousePos = __getMousePos(this._parentCanvasSelector[0], evt);
     });
 
     // Move DoubleClick
     this._parentCanvasSelector.on('dblclick', (evt) => {
-      // var mousePos = __getMousePos(this._parentCanvasSelector[0], evt);
+      // const mousePos = __getMousePos(this._parentCanvasSelector[0], evt);
     });
 
     this._parentCanvasSelector.on('mouseout', (evt) => {
