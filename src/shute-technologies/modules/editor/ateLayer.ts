@@ -449,8 +449,8 @@ export class ATELayer {
 
         // change keyframe image button if has keyframe
         this._buttonKeyframeAddSelector.attr('src', keyframe
-          ? ATEResources.diamondSelected.path
-          : ATEResources.diamond.path
+          ? ATEUtils.getComposedPath(ATEResources.diamondSelected.path, this._ate.extraParams)
+          : ATEUtils.getComposedPath(ATEResources.diamond.path, this._ate.extraParams)
         );
       }
       ////////////////
@@ -488,7 +488,7 @@ export class ATELayer {
       this.showEditControls(ATEEnumLayerEditControls.Keyframe);
 
       // change keyframe image button if has keyframe
-      this._buttonKeyframeAddSelector.attr('src', ATEResources.diamond.path);
+      this._buttonKeyframeAddSelector.attr('src', ATEUtils.getComposedPath(ATEResources.diamond.path, this._ate.extraParams));
     }
   }
 

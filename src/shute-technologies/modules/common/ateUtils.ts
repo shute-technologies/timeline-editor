@@ -1,3 +1,4 @@
+import { ATEExtraParams } from './ateInterfaces';
 export class ATEUtils {
 
   private constructor() {}
@@ -58,5 +59,9 @@ export class ATEUtils {
 
   static deepClone<T>(item): T {
     return JSON.parse(JSON.stringify(item));
+  }
+
+  static getComposedPath(path: string, extra?: ATEExtraParams): string {
+    return `${extra ? extra.externalResourcePath : ''}${path}`;
   }
 }

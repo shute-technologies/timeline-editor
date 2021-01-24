@@ -2,7 +2,7 @@ import { ATESegment } from './ateSegment';
 import { ATELayer } from './ateLayer';
 import { ATEPlayback } from './atePlayback';
 import { ATEHTMLButton } from '../components/ateHtmlButton';
-import { SimpleCallback, SimpleGCallback, ATEIAnimationData, ATEAnimationDataLayer, ATEIGetLayerResult, ATEIAddLayerResult } from '../common/ateInterfaces';
+import { SimpleCallback, SimpleGCallback, ATEIAnimationData, ATEAnimationDataLayer, ATEIGetLayerResult, ATEIAddLayerResult, ATEExtraParams } from '../common/ateInterfaces';
 import { ATEStyles } from '../config/ateStyles';
 import { ATEEngineHelper } from './helpers/ateEngineHelper';
 import { ATEResources } from '../config/ateResources';
@@ -21,7 +21,7 @@ export class ATEEngine {
   private _parentSelectorName: string;
   private _parentSelector: JQuery<HTMLElement>;
 
-  private _parentCanvasSelector: JQuery<HTMLElement>;
+  private _parentCanvasSelector: JQuery<HTMLCanvasElement>;
 
   private _parentGUISelectorNameParentCanvasSelector: JQuery<HTMLElement>;
   private _parentCanvasSelectorName: string;
@@ -74,6 +74,8 @@ export class ATEEngine {
   private _onStopCallback: SimpleCallback;
   onChangeCallback: SimpleCallback;
 
+  extraParams?: ATEExtraParams;
+
   get buttonPlayOrPause(): ATEHTMLButton { return this._button_playOrPause; }
   get buttonRecord(): ATEHTMLButton { return this._button_record; }
   get buttonStop(): ATEHTMLButton { return this._button_stop; }
@@ -125,7 +127,7 @@ export class ATEEngine {
     return resultData;
   }
 
-  constructor(selectorName: string) {
+  constructor(selectorName: string, extraParams?: ATEExtraParams) {
     // variable initialize
     this._width = 0;
     this._height = 0;
@@ -136,6 +138,7 @@ export class ATEEngine {
     this._segments = [];
     this._layers = [];
     this._currentFocusSegment = -1;
+    this.extraParams = extraParams;
     this._onRecordCallback = null;
     this._onPlayOrPauseCallback = null;
     this._onStopCallback = null;
@@ -148,10 +151,10 @@ export class ATEEngine {
     this._height = ATEStyles.guiHeight;
     this._contentHeight = this._height - ATEStyles.scrollbarHeight;
 
-    const imgSelector = $(`<img id='${ATEResources.diamond.id}' src='${ATEResources.diamond.path}' />`);
+    const imgSelector = $(`<img id='${ATEResources.diamond.id}' src='${ATEUtils.getComposedPath(ATEResources.diamond.path, this.extraParams)}' />`);
     imgSelector.css('display', 'none');
 
-    const imgSelectorSelected = $(`<img id='${ATEResources.diamondSelected.id}' src='${ATEResources.diamondSelected.path}' />`);
+    const imgSelectorSelected = $(`<img id='${ATEResources.diamondSelected.id}' src='${ATEUtils.getComposedPath(ATEResources.diamondSelected.path, this.extraParams)}' />`);
     imgSelectorSelected.css('display', 'none');
 
     this._parentSelector.append(imgSelector);
@@ -181,7 +184,7 @@ export class ATEEngine {
   }
 
   private createMouseEvents(): void {
-    const getMousePosNestedFn = (canvas, evt) => {
+    const getMousePosNestedFn = (canvas: HTMLCanvasElement, evt) => {
       const rect = canvas.getBoundingClientRect();
       return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
     };
@@ -240,7 +243,10 @@ export class ATEEngine {
 
       // buttons: Record
       this._button_record = new ATEHTMLButton(this);
-      this._button_record.initialize('res/spRecord.png', 'res/spStopRecording.png');
+      this._button_record.initialize(
+        ATEUtils.getComposedPath('res/spRecord.png', this.extraParams),
+        ATEUtils.getComposedPath('res/spStopRecording.png', this.extraParams)
+      );
       this._button_record.callbackClick = () => {
         // on record
         if (this._onRecordCallback) { this._onRecordCallback(); }
@@ -248,7 +254,10 @@ export class ATEEngine {
 
       // buttons: Play/Pause
       this._button_playOrPause = new ATEHTMLButton(this);
-      this._button_playOrPause.initialize('res/spPlay.png', 'res/spPause.png');
+      this._button_playOrPause.initialize(
+        ATEUtils.getComposedPath('res/spPlay.png', this.extraParams),
+        ATEUtils.getComposedPath('res/spPause.png', this.extraParams)
+      );
       this._button_playOrPause.addMargin();
       this._button_playOrPause.callbackClick = () => {
         // play/pause playback
@@ -258,7 +267,7 @@ export class ATEEngine {
 
       // buttons: Stop
       this._button_stop = new ATEHTMLButton(this);
-      this._button_stop.initialize('res/spStop.png');
+      this._button_stop.initialize(ATEUtils.getComposedPath('res/spStop.png', this.extraParams));
       this._button_stop.addMargin();
       this._button_stop.callbackClick = () => {
         // reset button play/pause

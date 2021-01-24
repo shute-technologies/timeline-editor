@@ -92,3 +92,7 @@ export interface ATEIPlaybackEngineByLayerResult {
   value: string | number | boolean | ATEIColor;
   extraParams;
 }
+
+export interface ATEExtraParams {
+  externalResourcePath?: string;
+}

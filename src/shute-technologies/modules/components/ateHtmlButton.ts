@@ -3,8 +3,8 @@ import { SimpleGCallback, FnCallback } from '../common/ateInterfaces';
 
 export class ATEHTMLButton {
 
-  private _srcState1;
-  private _srcState2;
+  private _srcState1: string;
+  private _srcState2: string;
   private _button: JQuery<HTMLElement>;
   private _isToggled: boolean;
   private _callbackClick: SimpleGCallback<JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>>;
