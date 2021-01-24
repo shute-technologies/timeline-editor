@@ -7,12 +7,12 @@ export class ATEHTMLButton {
   private _srcState2;
   private _button: JQuery<HTMLElement>;
   private _isToggled: boolean;
-  private _callbackClick: SimpleGCallback<any>;
+  private _callbackClick: SimpleGCallback<JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>>;
   private _callbackCanClick: FnCallback<boolean>;
 
   get buttonSelector(): JQuery<HTMLElement> { return this._button; }
 
-  set callbackClick(val: SimpleGCallback<any>) { this._callbackClick = val; }
+  set callbackClick(val: SimpleGCallback<JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>>) { this._callbackClick = val; }
   set callbackCanClick(val: FnCallback<boolean>) { this._callbackCanClick = val; }
 
   constructor (private readonly _ate: ATEEngine) {
