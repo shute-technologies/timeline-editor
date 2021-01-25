@@ -599,4 +599,45 @@ export class ATEEngine {
 
     this._playbackController.update(dt);
   }
+
+  destroy(): void {
+    this._parentSelector.empty();
+    this._parentSelector = null;
+    this._ctx = null;
+    this._parentCanvasSelector = null;
+    this._parentGUISelectorNameParentCanvasSelector = null;
+    this._parentCanvasSelectorName = null;
+    this._parentGUISelector = null;
+    this._parentGUISelectorName = null;
+    this._inputCurrentTimeSelector = null;
+    this._inputTimeLimitSelector = null;
+    this._controlsUI_Selector = null;
+    this._layersUI_Selector = null;
+    this._playbackController = null;
+
+    this._button_playOrPause?.destroy();
+    this._button_record?.destroy();
+    this._button_stop?.destroy();
+    this._button_playOrPause = null;
+    this._button_record = null;
+    this._button_stop = null;
+    this._scrollXSelector = null;
+    this._scrollXContentSelector = null;
+    this._scrollYSelector = null;
+    this._scrollYContentSelector = null;
+    this._onRecordCallback = null;
+    this._onPlayOrPauseCallback = null;
+    this._onStopCallback = null;
+    this.onChangeCallback = null;
+    this.extraParams = null;
+
+    this._segments?.forEach(x => x.destroy());
+    this._segments = null;
+
+    this._layers?.forEach(x => x.destroy());
+    this._layers = null;
+
+    this._playbackController?.destroy();
+    this._playbackController = null;
+  }
 }

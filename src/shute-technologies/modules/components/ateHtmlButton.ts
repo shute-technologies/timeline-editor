@@ -55,4 +55,12 @@ export class ATEHTMLButton {
       }
     }
   }
+
+  destroy(): void {
+    this._srcState1 = null;
+    this._srcState2 = null;
+    this._button = null;
+    this._callbackClick = null;
+    this._callbackCanClick = null;
+  }
 }

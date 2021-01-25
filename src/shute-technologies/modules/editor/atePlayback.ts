@@ -189,4 +189,10 @@ export class ATEPlayback {
       this._inputCurrentTimeSelector.val(ATEUtils.formatTimeAsSeconds((this._currentTime + ATEPlaybackEngine.EPSILON) * 1000));
     }
   }
+
+  destroy(): void {
+    this._ctx = null;
+    this._inputCurrentTimeSelector = null;
+    this._mousePos = null;
+  }
 }
