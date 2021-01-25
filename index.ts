@@ -4,3 +4,4 @@ export * from './src/shute-technologies/modules/runtime/atePlaybackEngine';
 export * from './src/shute-technologies/modules/common/ateInterfaces';
 export * from './src/shute-technologies/modules/editor/ateEngine';
 export * from './src/shute-technologies/modules/components/ateHtmlButton';
+export * from './src/shute-technologies/modules/config/ateStyles';
