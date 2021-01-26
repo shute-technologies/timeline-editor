@@ -24,6 +24,7 @@ export class ATEPlayback {
   get wasStopped(): boolean { return this._wasStopped; }
   get currentTime(): number { return this._currentTime; }
   get fps(): number { return this._fps; }
+  get animationSecondsToPlay(): number { return this._animationSecondsToPlay; }
 
   constructor (private readonly _ate: ATEEngine) {
     this._ctx = this._ate.ctx;
