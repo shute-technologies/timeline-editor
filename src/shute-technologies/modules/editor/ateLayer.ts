@@ -36,11 +36,11 @@ export class ATELayer {
 
   // [Only-Internal]
   __LayerName: string;
-  __LayerValue;
-  __ExtraLayerParams;
+  __LayerValue: ATEIPlaybackEngineByLayerResult;
+  __ExtraLayerParams : unknown;
 
   get layerName(): string { return this._layerName; }
-  get layerValue() { return this._layerValue; }
+  get layerValue(): ATEIPlaybackEngineByLayerResult { return this._layerValue; }
   get layerDataType(): ATEEnumDataType { return this._layerDataType; }
   get layerIsInterpolable(): boolean { return this._layerIsInterpolable; }
   get layerData(): Array<ATEIKeyframe> { return this._keyframes; }

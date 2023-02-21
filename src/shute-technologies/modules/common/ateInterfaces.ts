@@ -90,7 +90,7 @@ export interface ATEIAddLayerResult {
 
 export interface ATEIPlaybackEngineByLayerResult {
   value: string | number | boolean | ATEIColor;
-  extraParams;
+  extraParams: unknown;
 }
 
 export interface ATEExtraParams {
