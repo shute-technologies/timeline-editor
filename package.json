@@ -1,6 +1,6 @@
 {
   "name": "shute-technologies.timeline-editor",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "license": "MIT",
   "private": false,
   "main": "lib/index.js",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "jquery": "^3.5.1",
-    "shute-technologies.graph-editor": "^0.5.12"
+    "shute-technologies.graph-editor": "^0.11.1"
   },
   "repository": {
     "type": "git",
