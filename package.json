@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "start": "webpack-dev-server --mode development --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "tsc && node --test test/*.test.js"
   },
   "dependencies": {
     "jquery": "^3.5.1",

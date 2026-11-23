@@ -46,8 +46,11 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
 
   get currentTime(): number { return this._currentTime; }
   set currentTime(time: number) {
-    this._currentTime = time < 0 ? 0 : this._currentTime;
-    this._currentTime = time > this._animationSecondsToPlay ? this._animationSecondsToPlay : this._currentTime;
+    // Clamp the new value into [0, animationSecondsToPlay]. This used to clamp only negative values
+    // and otherwise keep the previous time, so `currentTime = 0` (reset, pause(0)) never rewound.
+    let clampedTime = Number.isFinite(time) && time > 0 ? time : 0;
+    clampedTime = clampedTime > this._animationSecondsToPlay ? this._animationSecondsToPlay : clampedTime;
+    this._currentTime = clampedTime;
   }
 
   constructor() {
