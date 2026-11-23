@@ -1,34 +1,43 @@
 name: "Publish to NPM"
 
+# Every push and pull request installs, builds and tests. A push to master also publishes,
+# when the version in package.json is not on npm yet: bump the version in the commit to release.
 on:
-    push:
-        branches:
-          - master
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  # npm trusted publishing (OIDC). With a trusted publisher configured on npmjs.com no token is
+  # needed; without one, npm falls back to the NPM_AUTH_TOKEN secret.
+  id-token: write
 
 jobs:
-    release:
-        name: Job - Compile unbuilt TS files and publish to NPM
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v2.1.1
-            - name: Install Node
-              uses: actions/setup-node@v1.4.2
-              with:
-                  node-version: 12
-                  registry-url: https://registry.npmjs.org
-              env:
-                ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-            - name: Install NPM Packages
-              run: npm install
-            - name: Building Typescript
-              uses: FuLagann/tsc-build-push@v1
-              with:
-                user-name: "Cristian F. Shute"
-                user-email: "chris_fs313@hotmail.com"
-                message: "Automatically built unbuilt typescript"
-                directories: ./
-            - name: Publish to NPM
-              run: npm publish --access public
-              env:
-                NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+  release:
+    name: Test, build and publish to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          # Node 24 ships npm 11.5+, the first npm that can publish through a trusted publisher.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Install NPM Packages
+        run: npm install
+      - name: Test (builds lib/ first)
+        run: npm test
+      - name: Publish to NPM
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "$NAME@$VERSION is already on npm; nothing to publish."
+          else
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
