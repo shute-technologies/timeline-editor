@@ -71,3 +71,41 @@ test('pause(time) moves the playhead to time', () => {
   assert.equal(engine.isPlaying, false);
   assert.equal(engine.currentTime, 0.5);
 });
+
+test('play() does not throw and plays up to the last keyframe', () => {
+  const engine = makeEngine();
+
+  assert.doesNotThrow(() => engine.play());
+  assert.equal(engine.isPlaying, true);
+  assert.equal(engine.animationSecondsToPlay, 2);
+});
+
+test('play() falls back to animationSeconds when the only keyframe is at 0', () => {
+  const engine = new ATEPlaybackEngine();
+  engine.initialize({
+    animationSeconds: 5, fps: 30, layerCount: 1,
+    layers: [{ name: 'x', dataType: ATEEnumDataType.Numeric, isInterpolable: true, extraParams: null,
+      data: [{ name: 'k0', time: 0, value: 3, tweenType: ATEEnumTweenType.EaseLinear, extraParams: null }] }]
+  });
+
+  engine.play();
+  assert.equal(engine.animationSecondsToPlay, 5);
+});
+
+test('a played clip ends, calls onAnimationEnd once, and reset via currentTime = 0 replays it', () => {
+  const engine = makeEngine();
+  const ends = [];
+  engine.onAnimationEnd = (playbackObject) => ends.push(playbackObject);
+
+  engine.play();
+  engine.update(1);
+  assert.equal(engine.animations.x.value, 5);
+  engine.update(1);
+  assert.equal(engine.currentTime, 2);
+  engine.update(0.1);
+  assert.deepEqual(ends, [engine]);
+
+  engine.currentTime = 0;
+  engine.update(0.5);
+  assert.equal(engine.currentTime, 0.5);
+});

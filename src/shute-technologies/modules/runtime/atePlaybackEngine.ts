@@ -91,8 +91,11 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
     if (!this._isPlaying) {
       this._isPlaying = true;
 
-      const lastKeyframe = ATEPlaybackEngine.getLastKeyframeInAnimation(this.animations as any); // TODO: Revisit this
-      this._animationSecondsToPlay = lastKeyframe.time === 0 ? this._animationSeconds : lastKeyframe.time;
+      // `this.animations` is a dictionary of per-layer results, not the editor's ATELayer[] that
+      // getLastKeyframeInAnimation expects, so passing it threw ("not iterable"). Read the
+      // keyframes of the runtime layers instead.
+      const lastKeyframeTime = ATEPlaybackEngine.getLastKeyframeTime(this._animationData);
+      this._animationSecondsToPlay = lastKeyframeTime === 0 ? this._animationSeconds : lastKeyframeTime;
     }
   }
 
@@ -279,6 +282,24 @@ export class ATEPlaybackEngine implements GEEIPlaybackObject {
     }
 
     return result;
+  }
+
+  /** Time of the last keyframe across the layers of runtime animation data; 0 when there is none. */
+  static getLastKeyframeTime(animationData: ATEIAnimationData): number {
+    let time = 0;
+    const layers = (animationData && animationData.layers) || [];
+
+    for (const layer of layers) {
+      // `data` is the runtime shape; some saved data carries the editor's `layerData` instead.
+      const keyframes: Array<ATEIKeyframe> = layer.data || (layer as any).layerData || [];
+      const lastKeyframe = keyframes.length > 0 ? keyframes[keyframes.length - 1] : null;
+
+      if (lastKeyframe && time < lastKeyframe.time) {
+        time = lastKeyframe.time;
+      }
+    }
+
+    return time;
   }
 
   static getLastKeyframeInAnimation(animationData: Array<ATELayer>): ATEIKeyframeInAnimationResult {
