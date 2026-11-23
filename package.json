@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chrisfs313/timeline-editor"
+    "url": "https://github.com/shute-technologies/timeline-editor"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.1",
