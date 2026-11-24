@@ -8,8 +8,9 @@ export class ATELayerHelper {
   static setLabelCSS_LayerName(selector: JQuery<HTMLElement>): void {
     selector.css('height', ATEStyles.ac_TimelineLayerHeight);
     selector.css('font-size', '11px');
-    selector.css('color', ATEStyles.ac_TimelineSubSegment_Color);
-    selector.css('font-family', 'arial');
+    selector.addClass('ate-layer-name');
+    selector.css('color', 'var(--ate-layer-name)');
+    selector.css('font-family', 'var(--ate-label-font-family, arial)');
     selector.css('margin-left', '4px');
     selector.css('white-space', 'nowrap');
     selector.css('overflow', 'hidden');
@@ -57,8 +58,8 @@ export class ATELayerHelper {
   }
 
   static createHR(): JQuery<HTMLElement> {
-    const hrSelector = $('<hr />');
-    hrSelector.css('border-color', ATEStyles.cStroke_Color);
+    const hrSelector = $(`<hr class='ate-separator' />`);
+    hrSelector.css('border-color', 'var(--ate-border)');
     hrSelector.css('border-width', '0.5px');
     hrSelector.css('margin', '0');
     hrSelector.css('padding', '0');

@@ -62,6 +62,6 @@ export class ATEUtils {
   }
 
   static getComposedPath(path: string, extra?: ATEExtraParams): string {
-    return `${extra ? extra.externalResourcePath : ''}${path}`;
+    return `${extra && extra.externalResourcePath ? extra.externalResourcePath : ''}${path}`;
   }
 }

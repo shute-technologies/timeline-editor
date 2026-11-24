@@ -557,7 +557,7 @@ export class ATELayer {
 
           // Draw box
           this._ctx.beginPath();
-          this._ctx.fillStyle = '#0000FF55';
+          this._ctx.fillStyle = ATEStyles.tweenColor;
           this._ctx.fillRect(rectX, rectY, rectW, rectH);
           this._ctx.closePath();
           break;

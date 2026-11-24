@@ -91,11 +91,11 @@ export class ATEEngineHelper {
     selector.css('border-left-style', 'initial');
     selector.css('border-top-color', 'initial');
     selector.css('border-right-color', 'initial');
-    selector.css('border-bottom-color', 'rgb(184, 184, 184)');
+    selector.css('border-bottom-color', 'var(--ate-input)');
     selector.css('border-left-color', 'initial');
     selector.css('border-image', 'initial');
     selector.css('background', 'none');
-    selector.css('color', 'rgb(184, 184, 184)');
+    selector.css('color', 'var(--ate-input)');
 
     if (!!isDisabled) {
       selector.attr('disabled', isDisabled ? 'true' : 'false');

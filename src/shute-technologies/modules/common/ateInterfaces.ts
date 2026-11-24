@@ -1,6 +1,7 @@
 import { ATEEnumTweenType } from '../runtime/ateEnumTweenType';
 import { ATELayer } from '../editor/ateLayer';
 import { ATEEnumDataType } from '../runtime/ateEnumDataType';
+import { ATEITheme } from '../config/ateTheme';
 
 export type SimpleCallback = () => void;
 export type FnCallback<T> = () => T;
@@ -93,6 +94,34 @@ export interface ATEIPlaybackEngineByLayerResult {
   extraParams: unknown;
 }
 
+/**
+ * What the transport buttons show in each state, in place of the default images. A value starting with
+ * '<' is markup, inserted as HTML (e.g. `<i class='icon icon-play'></i>`); anything else is an image URL,
+ * used as given. A state left out keeps its image.
+ */
+export interface ATEITransportIcons {
+  record?: string;
+  stopRecording?: string;
+  play?: string;
+  pause?: string;
+  stop?: string;
+}
+
+export interface ATEIHTMLButtonOptions {
+  /** Extra classes for the button, besides 'ate-button'. */
+  className?: string;
+  /** The button's aria-label. */
+  label?: string;
+  /** The aria-label while toggled. Defaults to label. */
+  toggledLabel?: string;
+  /** A toggle button: it gets aria-pressed and, while toggled, the 'is-toggled' class. */
+  toggle?: boolean;
+}
+
 export interface ATEExtraParams {
   externalResourcePath?: string;
+  /** Applied with ATEStyles.applyTheme when the engine is built. */
+  theme?: ATEITheme;
+  /** Markup or image URLs for the transport buttons. */
+  icons?: ATEITransportIcons;
 }

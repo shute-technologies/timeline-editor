@@ -1,6 +1,6 @@
 {
   "name": "shute-technologies.timeline-editor",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "license": "MIT",
   "private": false,
   "main": "lib/index.js",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/jquery": "^3.5.1",
+    "jsdom": "^29.1.1",
     "ts-loader": "^8.0.4",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "tslint": "^6.1.3",

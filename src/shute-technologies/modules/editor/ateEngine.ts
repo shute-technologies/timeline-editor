@@ -2,8 +2,10 @@ import { ATESegment } from './ateSegment';
 import { ATELayer } from './ateLayer';
 import { ATEPlayback } from './atePlayback';
 import { ATEHTMLButton } from '../components/ateHtmlButton';
-import { SimpleCallback, SimpleGCallback, ATEIAnimationData, ATEAnimationDataLayer, ATEIGetLayerResult, ATEIAddLayerResult, ATEExtraParams } from '../common/ateInterfaces';
+import { SimpleCallback, SimpleGCallback, ATEIAnimationData, ATEAnimationDataLayer, ATEIGetLayerResult, ATEIAddLayerResult, ATEExtraParams,
+  ATEITransportIcons } from '../common/ateInterfaces';
 import { ATEStyles } from '../config/ateStyles';
+import { ATEITheme } from '../config/ateTheme';
 import { ATEEngineHelper } from './helpers/ateEngineHelper';
 import { ATEResources } from '../config/ateResources';
 import { ATEUtils } from '../common/ateUtils';
@@ -15,6 +17,7 @@ export class ATEEngine {
 
   static readonly IgnoreExtraParams = 999999019.091;
   static readonly RemoveExtraParams = 999999019.092;
+  static readonly RootClassName = 'ate-root';
 
   private _ctx: CanvasRenderingContext2D;
 
@@ -147,6 +150,14 @@ export class ATEEngine {
     this._parentSelectorName = selectorName;
     this._parentSelector = $(selectorName);
     this._parentSelector.css('height', '100%');
+    this._parentSelector.addClass(ATEEngine.RootClassName);
+
+    // theme: the canvas reads ATEStyles, the HTML reads the root's CSS variables
+    if (this.extraParams && this.extraParams.theme) {
+      ATEStyles.applyTheme(this.extraParams.theme);
+    }
+    this.refreshThemeVariables();
+
     this._width = this._parentSelector.width();
     this._height = ATEStyles.guiHeight;
     this._contentHeight = this._height - ATEStyles.scrollbarHeight;
@@ -180,6 +191,34 @@ export class ATEEngine {
   invalidateLayers(): void {
     for (const layer of this._layers) {
       layer.invalidate();
+    }
+  }
+
+  /**
+   * Deep-merges `theme` into ATEStyles (fields it leaves out keep their current value) and rewrites this
+   * engine's CSS variables. The HTML changes at once, the canvas on the next frame. ATEStyles is shared by
+   * every engine on the page: call applyTheme() with no theme on another engine to refresh its HTML too.
+   */
+  applyTheme(theme?: ATEITheme): void {
+    if (theme) {
+      ATEStyles.applyTheme(theme);
+    }
+
+    this.refreshThemeVariables();
+  }
+
+  /** Restores the default theme (ATEStyles.resetTheme) and rewrites this engine's CSS variables. */
+  resetTheme(): void {
+    ATEStyles.resetTheme();
+    this.refreshThemeVariables();
+  }
+
+  private refreshThemeVariables(): void {
+    const variables = ATEStyles.cssVariables();
+
+    for (const name of Object.keys(variables)) {
+      // an empty value removes the property
+      this._parentSelector.css(name, variables[name] || '');
     }
   }
 
@@ -230,7 +269,7 @@ export class ATEEngine {
 
   private createGUI(): void {
     const createControlsGUINestedFn = () => {
-      const hrSelector = $(`<hr style='border-color:${ATEStyles.cStroke_Color};border-width: 0.5px;margin: 0;padding: 0;-webkit-margin-before: 0;-webkit-margin-after: 0;-webkit-margin-start: 0;-webkit-margin-end: 0;transform: translateY(1px);' />`);
+      const hrSelector = $(`<hr class='ate-separator' style='border-color:var(--ate-border);border-width: 0.5px;margin: 0;padding: 0;-webkit-margin-before: 0;-webkit-margin-after: 0;-webkit-margin-start: 0;-webkit-margin-end: 0;transform: translateY(1px);' />`);
 
       this._controlsUI_Selector = $('<div><div>');
       this._controlsUI_Selector.css('height', ATEStyles.ac_TimelineHeight - 1);
@@ -241,11 +280,17 @@ export class ATEEngine {
       buttonsUISelector.css('padding-left', '4px');
       this._controlsUI_Selector.append(buttonsUISelector);
 
+      // buttons: an icon from extraParams.icons, or the default image
+      const icons: ATEITransportIcons = (this.extraParams && this.extraParams.icons) || {};
+      const iconNestedFn = (name: keyof ATEITransportIcons, defaultPath: string) =>
+        icons[name] ? icons[name] : ATEUtils.getComposedPath(defaultPath, this.extraParams);
+
       // buttons: Record
       this._button_record = new ATEHTMLButton(this);
       this._button_record.initialize(
-        ATEUtils.getComposedPath('res/spRecord.png', this.extraParams),
-        ATEUtils.getComposedPath('res/spStopRecording.png', this.extraParams)
+        iconNestedFn('record', 'res/spRecord.png'),
+        iconNestedFn('stopRecording', 'res/spStopRecording.png'),
+        { className: 'ate-button-record', label: 'Record', toggledLabel: 'Stop recording', toggle: true }
       );
       this._button_record.callbackClick = () => {
         // on record
@@ -255,8 +300,9 @@ export class ATEEngine {
       // buttons: Play/Pause
       this._button_playOrPause = new ATEHTMLButton(this);
       this._button_playOrPause.initialize(
-        ATEUtils.getComposedPath('res/spPlay.png', this.extraParams),
-        ATEUtils.getComposedPath('res/spPause.png', this.extraParams)
+        iconNestedFn('play', 'res/spPlay.png'),
+        iconNestedFn('pause', 'res/spPause.png'),
+        { className: 'ate-button-play', label: 'Play', toggledLabel: 'Pause', toggle: true }
       );
       this._button_playOrPause.addMargin();
       this._button_playOrPause.callbackClick = () => {
@@ -267,7 +313,7 @@ export class ATEEngine {
 
       // buttons: Stop
       this._button_stop = new ATEHTMLButton(this);
-      this._button_stop.initialize(ATEUtils.getComposedPath('res/spStop.png', this.extraParams));
+      this._button_stop.initialize(iconNestedFn('stop', 'res/spStop.png'), undefined, { className: 'ate-button-stop', label: 'Stop' });
       this._button_stop.addMargin();
       this._button_stop.callbackClick = () => {
         // reset button play/pause
@@ -278,10 +324,11 @@ export class ATEEngine {
       };
 
       // time limit
-      const inputTimeLimitLabelSelector = $(`<label style='font-size:12px;color:white;margin-left:5px'>Time:<label/>`);
-      this._inputCurrentTimeSelector = $(`<input type='text' value='0.00' />`);
+      const labelStyle = 'font-family:var(--ate-label-font-family);color:var(--ate-label)';
+      const inputTimeLimitLabelSelector = $(`<label class='ate-label' style='font-size:var(--ate-label-font-size, 12px);${labelStyle};margin-left:5px'>Time:</label>`);
+      this._inputCurrentTimeSelector = $(`<input type='text' class='ate-time-input' value='0.00' />`);
 
-      this._inputTimeLimitSelector = $(`<input type='text' value='${ATEUtils.getDigitsByValue(ATEStyles.default_Seconds, 2)}.00'/>`);
+      this._inputTimeLimitSelector = $(`<input type='text' class='ate-time-input' value='${ATEUtils.getDigitsByValue(ATEStyles.default_Seconds, 2)}.00'/>`);
       this._inputTimeLimitSelector.on('change', (evt) => {
         let val: any = Math.floor(parseFloat(evt.currentTarget['value']));
         val = ATEUtils.getDigitsByValue(val, 2);
@@ -301,7 +348,7 @@ export class ATEEngine {
 
       buttonsUISelector.append(inputTimeLimitLabelSelector);
       buttonsUISelector.append(this._inputCurrentTimeSelector);
-      buttonsUISelector.append($(`<label style='color:white'>/<label/>`));
+      buttonsUISelector.append($(`<label class='ate-label' style='font-size:var(--ate-label-font-size);${labelStyle}'>/</label>`));
       buttonsUISelector.append(this._inputTimeLimitSelector);
 
       this._parentGUISelector.append(this._controlsUI_Selector);
@@ -320,11 +367,11 @@ export class ATEEngine {
     };
 
     this._parentGUISelectorName = `gui-${this._parentSelectorName.substring(1)}`;
-    this._parentGUISelector = $(`<div id='${this._parentGUISelectorName}'></div>`);
+    this._parentGUISelector = $(`<div id='${this._parentGUISelectorName}' class='ate-panel'></div>`);
     this._parentGUISelector.css('width', `${ATEStyles.ac_Width}px`);
     this._parentGUISelector.css('height', `${this._height}px`);
     this._parentGUISelector.css('float', 'left');
-    this._parentGUISelector.css('background-color', ATEStyles.backgroundColor);
+    this._parentGUISelector.css('background-color', 'var(--ate-panel-bg)');
 
     // add HTML canvas
     this._parentSelector.append(this._parentGUISelector);
@@ -601,6 +648,8 @@ export class ATEEngine {
   }
 
   destroy(): void {
+    this._parentSelector.removeClass(ATEEngine.RootClassName);
+    for (const name of Object.keys(ATEStyles.cssVariables())) { this._parentSelector.css(name, ''); }
     this._parentSelector.empty();
     this._parentSelector = null;
     this._ctx = null;
